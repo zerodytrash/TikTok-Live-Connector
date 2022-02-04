@@ -1,11 +1,11 @@
 const { EventEmitter } = require('events');
 
-const TikTokHttpClient = require('./components/tiktokHttpClient.js');
-const WebcastWebsocket = require('./components/webcastWebsocket.js');
-const { getRoomIdFromMainPageResponse, validateAndNormalizeUniqueId } = require('./components/tiktokUtils.js');
-const { simplifyObject } = require('./components/webcastDataConverter.js');
+const TikTokHttpClient = require('./lib/tiktokHttpClient.js');
+const WebcastWebsocket = require('./lib/webcastWebsocket.js');
+const { getRoomIdFromMainPageResponse, validateAndNormalizeUniqueId } = require('./lib/tiktokUtils.js');
+const { simplifyObject } = require('./lib/webcastDataConverter.js');
 
-const Config = require('./components/webcastConfig.js');
+const Config = require('./lib/webcastConfig.js');
 
 const events = {
     CONNECTED: 'connected',
