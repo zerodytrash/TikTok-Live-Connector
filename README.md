@@ -95,7 +95,7 @@ tiktokChatConnection.on('connected', state => {
     <tr></tr>
     <tr>
         <td>disconnected</td>
-        <td>Triggered when the connection is disconnected.<pre lang="javascript">
+        <td>Triggered when the connection gets disconnected. In that case you can call connect() again to have a reconnect logic. Note that you should wait a little bit before attempting a reconnect to to avoid being rate-limited.<pre lang="javascript">
 tiktokChatConnection.on('disconnected', () => {
     console.log('Disconnected!');
 })</pre>
