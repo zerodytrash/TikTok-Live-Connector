@@ -29,6 +29,7 @@ tiktokChatConnection.connect().then(state => {
 })
 
 // Define the events that you want to handle
+// In this case we listen to chat messages
 tiktokChatConnection.on('chat', data => {
     console.log(`${data.uniqueId} (userId:${data.userId}) writes: ${data.comment}`);
 })
