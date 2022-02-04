@@ -57,7 +57,7 @@ message WebcastWebsocketMessage {
     bytes binary = 8;
 }
 
-// Websocket keep-alive message sent every second
+// Websocket acknowledgment message
 message WebcastWebsocketAck {
     uint64 id = 2;
     string type = 7;

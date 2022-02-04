@@ -19,6 +19,9 @@ const events = {
     WSCONNECTED: 'websocketConnected'
 }
 
+/**
+ * Wrapper class for TikTok's internal Webcast Push Service
+ */
 class WebcastPushConnection extends EventEmitter {
     #options;
     #uniqueStreamerId;
@@ -73,7 +76,7 @@ class WebcastPushConnection extends EventEmitter {
     }
 
     /**
-     * Connect to the livestream
+     * Connect to the current live stream room
      * @returns {Promise} Promise that will be resolved when the connection is established.
      */
     connect() {
@@ -92,7 +95,7 @@ class WebcastPushConnection extends EventEmitter {
             this.#isConnecting = true;
 
             try {
-                
+
                 await this.#retrieveRoomId();
                 await this.#fetchRoomData(true);
 
@@ -119,7 +122,7 @@ class WebcastPushConnection extends EventEmitter {
     }
 
     /**
-     * Closes the connection to the livestream
+     * Close the connection to the live stream
      */
     disconnect() {
         if (this.#isConnected) {
@@ -136,8 +139,8 @@ class WebcastPushConnection extends EventEmitter {
     }
 
     /**
-     * 
-     * @returns {object} Gets the current connection state
+     * Get the current connection state
+     * @returns {object} current state object
      */
     getState() {
         return {
@@ -155,32 +158,26 @@ class WebcastPushConnection extends EventEmitter {
         this.#clientParams.room_id = roomId;
     }
 
-    #startFetchRoomPolling() {
+    async #startFetchRoomPolling() {
         this.#isPollingEnabled = true;
-        this.#scheduleNextFetchRoomPoll();
-    }
 
-    #scheduleNextFetchRoomPoll() {
-        // Use setTimeout with await instead of setInterval to avoid overlapping requests
-        setTimeout(async () => {
-            if (!this.#isPollingEnabled) {
-                return;
-            }
+        let sleepMs = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+        while(this.#isPollingEnabled) {
             try {
                 await this.#fetchRoomData();
             } catch (err) {
                 this.#handleError(err, 'Error while fetching webcast data via request polling');
             }
 
-            this.#scheduleNextFetchRoomPoll();
-        }, this.#options.requestPollingIntervalMs);
+            await sleepMs(this.#options.requestPollingIntervalMs);
+        }
     }
 
     async #fetchRoomData(isInitial) {
 
         let webcastResponse = await this.#httpClient.getDeserializedObjectFromWebcastApi("im/fetch/", this.#clientParams, "WebcastResponse");
-        let upgradeToWsOffered = webcastResponse.wsUrl && webcastResponse.wsParam;
+        let upgradeToWsOffered = !!webcastResponse.wsUrl && !!webcastResponse.wsParam;
 
         // Set cursor param to continue with the next request
         this.#clientParams.cursor = webcastResponse.cursor;
@@ -210,7 +207,7 @@ class WebcastPushConnection extends EventEmitter {
             this.#isWsUpgradeDone = true;
             this.#isPollingEnabled = false;
 
-            this.emit(events.WSCONNECTED);
+            this.emit(events.WSCONNECTED, this.#websocket);
 
         } catch (err) {
             this.#handleError(err, "Upgrade to websocket failed. Using request polling...");
@@ -223,7 +220,7 @@ class WebcastPushConnection extends EventEmitter {
             this.#websocket = new WebcastWebsocket(wsUrl, this.#httpClient.cookieJar, this.#clientParams, wsParams);
 
             this.#websocket.on('connect', wsConnection => {
- 
+
                 resolve();
 
                 wsConnection.on('error', err => this.#handleError(err, "Websocket Error"));

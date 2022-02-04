@@ -1,8 +1,9 @@
-const Config = require('./webcastConfig.js');
 const axios = require('axios');
 const { wrapper } = require('axios-cookiejar-support');
 const { CookieJar } = require('tough-cookie');
 const { deserializeMessage } = require('./webcastProtobuf.js');
+
+const Config = require('./webcastConfig.js');
 
 class TikTokHttpClient {
     constructor() {
