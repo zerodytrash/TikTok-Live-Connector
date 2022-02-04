@@ -113,8 +113,8 @@ class WebcastPushConnection extends EventEmitter {
                 this.emit(events.CONNECTED, state);
 
             } catch (err) {
-                this.#handleError(err, 'Error while connecting');
                 reject(err);
+                this.#handleError(err, 'Error while connecting');
             }
 
             this.#isConnecting = false;
@@ -265,7 +265,9 @@ class WebcastPushConnection extends EventEmitter {
     }
 
     #handleError(exception, info) {
-        this.emit(events.ERROR, { info, exception });
+        if(this.listenerCount(events.ERROR) > 0) {
+            this.emit(events.ERROR, { info, exception });
+        } 
     }
 }
 
