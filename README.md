@@ -114,7 +114,7 @@ tiktokChatConnection.on('chat', data => {
   userId: '6776663624629974021',
   uniqueId: 'zerodytester',
   nickname: 'Zerody One',
-  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-0068/ff7208e83137fa70d99...'
+  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-...'
 }</pre></td>
     </tr>
     <tr></tr>
@@ -129,7 +129,7 @@ tiktokChatConnection.on('member', data => {
   userId: '6776663624629974021',
   uniqueId: 'zerodytester',
   nickname: 'Zerody One',
-  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-0068/ff7208e83137fa70d99...'
+  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-...'
 }</pre></td>
     </tr>
     <tr></tr>
@@ -143,7 +143,7 @@ tiktokChatConnection.on('gift', data => {
   userId: '6649054330291912709',
   uniqueId: 'puschi._66',
   nickname: 'puschel_chen66',
-  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-0068/247bbfeb3bbb937a....',
+  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-...',
   gift: {
     anchor_id: 6929592145315251000,
     from_idc: 'maliva',
