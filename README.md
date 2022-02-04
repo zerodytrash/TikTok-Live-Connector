@@ -1,5 +1,5 @@
 # TikTok-Livestream-Chat-Connector
-A Node.js module to retrieve and decode livestream chat messages and other events in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The module includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides chat messages, other events such as members joining and gifts can be handled.
+A Node.js module to receive and decode livestream chat messages and other events in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The module includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides chat messages, other events such as members joining and gifts can be handled.
 
 <b>NOTE:</b> This is not an official API. The correctness of the data cannot be guaranteed.
 
@@ -106,7 +106,7 @@ tiktokChatConnection.on('disconnected', () => {
         <td>chat</td>
         <td>Every time a new chat message arrives.<pre lang="javascript">
 tiktokChatConnection.on('chat', data => {
-    console.log(`${data.uniqueId} (userId:${data.userId}) writes: ${data.comment}`);
+    console.log(`${data.uniqueId} writes: ${data.comment}`);
 })</pre>
         Data structure:
 <pre lang="javascript">{
@@ -114,7 +114,7 @@ tiktokChatConnection.on('chat', data => {
   userId: '6776663624629974021',
   uniqueId: 'zerodytester',
   nickname: 'Zerody One',
-  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-...'
+  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...'
 }</pre></td>
     </tr>
     <tr></tr>
@@ -122,14 +122,14 @@ tiktokChatConnection.on('chat', data => {
         <td>member</td>
         <td>Triggered every time a new member joins the live stream.<pre lang="javascript">
 tiktokChatConnection.on('member', data => {
-    console.log(`${data.uniqueId} (userId:${data.userId}) joins the stream!`);
+    console.log(`${data.uniqueId} joins the stream!`);
 })</pre>
       Data structure:
 <pre lang="javascript">{
   userId: '6776663624629974021',
   uniqueId: 'zerodytester',
   nickname: 'Zerody One',
-  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-...'
+  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...'
 }</pre></td>
     </tr>
     <tr></tr>
@@ -137,13 +137,13 @@ tiktokChatConnection.on('member', data => {
         <td>gift</td>
         <td>Triggered every time a gift arrives.<pre lang="javascript">
 tiktokChatConnection.on('gift', data => {
-    console.log(`${data.uniqueId} (userId:${data.userId}) sends gift ${data.giftId}`);
+    console.log(`${data.uniqueId} sends gift ${data.giftId}`);
 })</pre>Data structure:
 <pre lang="javascript">{
   userId: '6649054330291912709',
   uniqueId: 'puschi._66',
   nickname: 'puschel_chen66',
-  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-...',
+  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...',
   gift: {
     anchor_id: 6929592145315251000,
     from_idc: 'maliva',
@@ -187,7 +187,7 @@ tiktokChatConnection.on('rawData', (messageTypeName, binary) => {
         <td>websocketConnected</td>
         <td>Will be triggered as soon as a websocket connection is established. The websocket client object is passed.<pre lang="javascript">
 tiktokChatConnection.on('websocketConnected', websocketClient => {
-    console.log("Websocket Connected:", websocketClient.connection.connected); // true
+    console.log("Websocket:", websocketClient.connection);
 })</pre></td></td>
     </tr>
 </table>
