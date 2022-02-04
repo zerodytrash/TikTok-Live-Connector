@@ -1,0 +1,64 @@
+package TikTok;
+syntax = "proto3";
+
+// Data structure from im/fetch/ response
+message WebcastResponse {
+    repeated Message messages = 1;
+    string cursor = 2;
+    string ackIds = 5;
+    WebsocketParam wsParam = 7;
+    string wsUrl = 10;
+}
+
+message Message {
+    string type = 1;
+    bytes binary = 2;
+}
+
+message WebsocketParam {
+    string name = 1;
+    string value = 2;
+}
+
+// Message types depending on Message.tyoe
+message WebcastControlMessage {
+    int32 action = 2;
+}
+
+message WebcastChatMessage {
+    User user = 2;
+    string comment = 3;
+}
+
+message WebcastMemberMessage {
+    User user = 2;
+}
+
+message WebcastGiftMessage {
+    User user = 7;
+    string giftJson = 22;
+}
+
+message User {
+    uint64 userId = 1;
+    string nickname = 3;
+    ProfilePicture profilePicture = 9;
+    string uniqueId = 38;
+}
+
+message ProfilePicture {
+    repeated string urls = 1;
+}
+
+// Websocket incoming message structure
+message WebcastWebsocketMessage {
+    uint64 id = 2;
+    string type = 7;
+    bytes binary = 8;
+}
+
+// Websocket keep-alive message sent every second
+message WebcastWebsocketAck {
+    uint64 id = 2;
+    string type = 7;
+}

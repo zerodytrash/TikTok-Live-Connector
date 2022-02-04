@@ -1,0 +1,33 @@
+{
+  "name": "tiktok-livestream-chat-connector",
+  "version": "0.9.1",
+  "description": "NodeJS module to retrieve and decode livestream chat data on TikTok by connecting to TikToks internal WebCast push service.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector.git"
+  },
+  "keywords": [
+    "tiktok",
+    "tiktok.com",
+    "live",
+    "livestream",
+    "chat",
+    "connector"
+  ],
+  "author": "zerodytrash",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector/issues"
+  },
+  "homepage": "https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector#readme",
+  "dependencies": {
+    "axios": "^0.25.0",
+    "axios-cookiejar-support": "^2.0.3",
+    "protobufjs": "^6.11.2",
+    "websocket": "^1.0.34"
+  }
+}
