@@ -201,7 +201,7 @@ class WebcastPushConnection extends EventEmitter {
                 imprp: webcastResponse.wsParam.value
             }
 
-            // Wait until ws connected, then clear polling interval
+            // Wait until ws connected, then stop request polling
             await this.#setupWebsocket(webcastResponse.wsUrl, wsParams);
 
             this.#isWsUpgradeDone = true;
@@ -237,10 +237,12 @@ class WebcastPushConnection extends EventEmitter {
 
     #processWebcastResponse(webcastResponse) {
 
+        // Emit raw (protobuf encoded) data for a use case specific processing
         webcastResponse.messages.forEach(message => {
             this.emit(events.RAWDATA, message.type, message.binary);
         });
 
+        // Process and emit decoded data depending on the the message type
         webcastResponse.messages.filter(x => x.decodedData).forEach(message => {
             switch (message.type) {
                 case 'WebcastControlMessage':
