@@ -45,17 +45,19 @@ class WebcastPushConnection extends EventEmitter {
      * @param {boolean} [options[].processInitialData=true] Process the initital data which includes messages of the last minutes.
      * @param {boolean} [options[].enableWebsocketUpgrade=true] Use WebSocket instead of request polling if TikTok offers it.
      * @param {number} [options[].requestPollingIntervalMs=1000] Request polling interval if WebSocket is not used.
+     * @param {object} [options[].requestHeaders={}] Custom request headers for axios
+     * @param {object} [options[].websocketHeaders={}] Custom request headers for websocket.client
      */
     constructor(uniqueId, options) {
         super();
 
         this.#uniqueStreamerId = validateAndNormalizeUniqueId(uniqueId);
-
         this.#clientParams = Object.assign({}, Config.DEFAULT_CLIENT_PARAMS);
-        this.#httpClient = new TikTokHttpClient();
 
-        this.#setUnconnected();
         this.#setOptions(options || {});
+        this.#setUnconnected();
+
+        this.#httpClient = new TikTokHttpClient(this.#options.requestHeaders);
     }
 
     #setUnconnected() {
@@ -71,7 +73,9 @@ class WebcastPushConnection extends EventEmitter {
             // Default
             processInitialData: true,
             enableWebsocketUpgrade: true,
-            requestPollingIntervalMs: 1000
+            requestPollingIntervalMs: 1000,
+            requestHeaders: {},
+            websocketHeaders: {}
         }, options);
     }
 
@@ -217,7 +221,7 @@ class WebcastPushConnection extends EventEmitter {
     async #setupWebsocket(wsUrl, wsParams) {
         return new Promise((resolve, reject) => {
 
-            this.#websocket = new WebcastWebsocket(wsUrl, this.#httpClient.cookieJar, this.#clientParams, wsParams);
+            this.#websocket = new WebcastWebsocket(wsUrl, this.#httpClient.cookieJar, this.#clientParams, wsParams, this.#options.websocketHeaders);
 
             this.#websocket.on('connect', wsConnection => {
 
