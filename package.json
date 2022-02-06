@@ -1,6 +1,6 @@
 {
   "name": "tiktok-livestream-chat-connector",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "Node.js module to receive live stream chat events from TikTok by connecting to TikToks internal WebCast push service.",
   "main": "index.js",
   "scripts": {
