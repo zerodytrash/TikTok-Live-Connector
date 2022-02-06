@@ -45,14 +45,20 @@ To create a new `WebcastPushConnection` object the following parameters are requ
 | Param Name | Required | Description |
 | ---------- | -------- | ----------- |
 | uniqueId   | Yes | The unique username of the broadcaster. You can find this name in the URL.<br>Example: `https://www.tiktok.com/@officialgeilegisela/live` => `officialgeilegisela` |
-| options  | No | Here you can set the following connection properties:<br><br>`processInitialData` (default: `true`) <br> Define if you want to process the initital data which includes messages of the last minutes.<br><br>`enableWebsocketUpgrade` (default: `true`) <br> Define if you want to use a WebSocket connection instead of request polling if TikTok offers it. <br><br>`requestPollingIntervalMs` (default: `1000`) <br> Request polling interval if WebSocket is not used.  |
+| options  | No | Here you can set the following connection properties:<br><br>`processInitialData` (default: `true`) <br> Define if you want to process the initital data which includes messages of the last minutes.<br><br>`enableWebsocketUpgrade` (default: `true`) <br> Define if you want to use a WebSocket connection instead of request polling if TikTok offers it. <br><br>`requestPollingIntervalMs` (default: `1000`) <br> Request polling interval if WebSocket is not used.<br><br>`requestHeaders` (default: `{}`) <br> Custom request headers passed to axios.<br><br>`websocketHeaders` (default: `{}`) <br> Custom websocket headers passed to websocket.client. |
 
 Example:
 ```javascript
 let tiktokChatConnection = new WebcastPushConnection(tiktokUsername, {
     processInitialData: false,
     enableWebsocketUpgrade: true,
-    requestPollingIntervalMs: 5000
+    requestPollingIntervalMs: 5000,
+    requestHeaders: {
+        "headerName": "headerValue"
+    },
+    websocketHeaders: {
+        "headerName": "headerValue"
+    }
 });
 ```
 
