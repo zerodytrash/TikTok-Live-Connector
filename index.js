@@ -14,6 +14,7 @@ const events = {
     CHAT: 'chat',
     MEMBER: 'member',
     GIFT: 'gift',
+    ROOMUSER: 'roomUser',
     RAWDATA: 'rawData',
     STREAMEND: 'streamEnd',
     WSCONNECTED: 'websocketConnected'
@@ -255,6 +256,9 @@ class WebcastPushConnection extends EventEmitter {
                         this.disconnect();
                     }
                     break;
+                case 'WebcastRoomUserSeqMessage':
+                    this.emit(events.ROOMUSER, simplifyObject(message.decodedData));
+                    break;    
                 case 'WebcastChatMessage':
                     this.emit(events.CHAT, simplifyObject(message.decodedData));
                     break;

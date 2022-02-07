@@ -25,6 +25,10 @@ message WebcastControlMessage {
     int32 action = 2;
 }
 
+message WebcastRoomUserSeqMessage {
+    int32 viewerCount = 3;
+}
+
 message WebcastChatMessage {
     User user = 2;
     string comment = 3;
