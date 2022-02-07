@@ -1,7 +1,9 @@
 # TikTok-Livestream-Chat-Connector
-A Node.js module to receive and decode livestream chat messages and other events in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The module includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides chat messages, other events such as members joining and gifts can be handled.
+A Node.js module to receive and decode livestream chat messages and other events in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides chat messages, other events such as members joining and gifts can be tracked.
 
 <b>NOTE:</b> This is not an official API. The correctness of the data cannot be guaranteed.
+
+#### Demo: [https://tiktok-chat.herokuapp.com/](https://tiktok-chat.herokuapp.com/)
 
 ## Getting started
 
@@ -175,6 +177,14 @@ tiktokChatConnection.on('gift', data => {
     </tr>
     <tr></tr>
     <tr>
+        <td>roomUser</td>
+        <td>Triggered every time a statistic message arrives. This message currently contains only the viewer count.<pre lang="javascript">
+tiktokChatConnection.on('roomUser', data => {
+    console.log(`Viewer Count: ${data.viewerCount}`);
+})</pre></td>
+    </tr>
+    <tr></tr>
+    <tr>
         <td>streamEnd</td>
         <td>Triggered when the live stream is terminated by the host. Will also trigger the <b>disconnect</b> event.<pre lang="javascript">
 tiktokChatConnection.on('streamEnd', () => {
@@ -200,6 +210,6 @@ tiktokChatConnection.on('websocketConnected', websocketClient => {
 </table>
 
 ## Contributing
-Pull requests are welcome.
+Your improvements are welcome! Feel free to open an <a href="https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector/issues">issue</a> or <a href="https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector/pulls">pull request</a>.
 
 
