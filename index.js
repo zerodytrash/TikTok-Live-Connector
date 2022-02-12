@@ -2,7 +2,7 @@ const { EventEmitter } = require('events');
 
 const TikTokHttpClient = require('./lib/tiktokHttpClient.js');
 const WebcastWebsocket = require('./lib/webcastWebsocket.js');
-const { getRoomIdFromMainPageResponse, validateAndNormalizeUniqueId } = require('./lib/tiktokUtils.js');
+const { getRoomIdFromMainPageHtml, validateAndNormalizeUniqueId } = require('./lib/tiktokUtils.js');
 const { simplifyObject } = require('./lib/webcastDataConverter.js');
 
 const Config = require('./lib/webcastConfig.js');
@@ -157,7 +157,7 @@ class WebcastPushConnection extends EventEmitter {
 
     async #retrieveRoomId() {
         let mainPageHtml = await this.#httpClient.getMainPage(`@${this.#uniqueStreamerId}/live`);
-        let roomId = getRoomIdFromMainPageResponse(mainPageHtml);
+        let roomId = getRoomIdFromMainPageHtml(mainPageHtml);
 
         this.#roomId = roomId;
         this.#clientParams.room_id = roomId;
