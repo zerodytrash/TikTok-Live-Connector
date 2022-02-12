@@ -1,7 +1,7 @@
 # TikTok-Livestream-Chat-Connector
-A Node.js module to receive and decode livestream chat messages and other events in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides chat messages, other events such as members joining and gifts can be tracked.
+A Node.js module to receive and decode livestream chat events like comments in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides chat comments, other events such as members joining, gifts, viewers, followers and likes can be tracked.
 
-<b>NOTE:</b> This is not an official API. The correctness of the data cannot be guaranteed.
+<b>NOTE:</b> This is not an official API. It's a reverse engineering project. The correctness of the data cannot be guaranteed.
 
 #### Demo: [https://tiktok-chat.herokuapp.com/](https://tiktok-chat.herokuapp.com/)
 
@@ -47,14 +47,19 @@ To create a new `WebcastPushConnection` object the following parameters are requ
 | Param Name | Required | Description |
 | ---------- | -------- | ----------- |
 | uniqueId   | Yes | The unique username of the broadcaster. You can find this name in the URL.<br>Example: `https://www.tiktok.com/@officialgeilegisela/live` => `officialgeilegisela` |
-| options  | No | Here you can set the following connection properties:<br><br>`processInitialData` (default: `true`) <br> Define if you want to process the initital data which includes messages of the last minutes.<br><br>`enableWebsocketUpgrade` (default: `true`) <br> Define if you want to use a WebSocket connection instead of request polling if TikTok offers it. <br><br>`requestPollingIntervalMs` (default: `1000`) <br> Request polling interval if WebSocket is not used.<br><br>`requestHeaders` (default: `{}`) <br> Custom request headers passed to axios.<br><br>`websocketHeaders` (default: `{}`) <br> Custom websocket headers passed to websocket.client. |
+| options  | No | Here you can set the following connection properties:<br><br>`processInitialData` (default: `true`) <br> Define if you want to process the initital data which includes old messages of the last seconds.<br><br>`enableExtendedGiftInfo` (default: `false`) <br> Define if you want to receive extended information about gifts like gift name, cost and images. This information will be provided at the gift event. <br><br>`enableWebsocketUpgrade` (default: `true`) <br> Define if you want to use a WebSocket connection instead of request polling if TikTok offers it. <br><br>`requestPollingIntervalMs` (default: `1000`) <br> Request polling interval if WebSocket is not used.<br><br>`clientParams` (default: `{}`) <br> Custom client params for Webcast API.<br><br>`requestHeaders` (default: `{}`) <br> Custom request headers passed to axios.<br><br>`websocketHeaders` (default: `{}`) <br> Custom websocket headers passed to websocket.client. |
 
-Example:
+Example Options:
 ```javascript
 let tiktokChatConnection = new WebcastPushConnection(tiktokUsername, {
     processInitialData: false,
+    enableExtendedGiftInfo: true,
     enableWebsocketUpgrade: true,
-    requestPollingIntervalMs: 5000,
+    requestPollingIntervalMs: 2000,
+    clientParams: {
+        "app_language": "en-US",
+        "device_platform": "web"
+    },
     requestHeaders: {
         "headerName": "headerValue"
     },
