@@ -81,138 +81,138 @@ A `WebcastPushConnection` object contains the following methods.
 ## Events
 
 A `WebcastPushConnection` object has the following events which can be handled via `.on(eventName, eventHandler)`
-<table>
-    <tr>
-        <th>Event Name</th>
-        <th>Description</th>
-    </tr>
-    <tr></tr>
-    <tr>
-        <td>error</td>
-        <td>General error event. You should handle this.
-        <pre lang="javascript">
+### `error`
+General error event. You should handle this.
+
+```javascript
 tiktokChatConnection.on('error', err => {
     console.error('Error!', err);
-})</pre></td>
-    </tr>
-    <tr></tr>
-    <tr>
-        <td>connected</td>
-        <td>
-            Triggered when the connection gets successfully established.
-            <pre lang="javascript">
+})
+```
+
+
+### `connected`
+Triggered when the connection gets successfully established.
+
+```javascript
 tiktokChatConnection.on('connected', state => {
-    console.log('Connected!', state);
-})</pre>
-        </td>
-    </tr>
-    <tr></tr>
-    <tr>
-        <td>disconnected</td>
-        <td>Triggered when the connection gets disconnected. In that case you can call connect() again to have a reconnect logic. Note that you should wait a little bit before attempting a reconnect to to avoid being rate-limited.<pre lang="javascript">
+    console.log('Hurray! Connected!', state);
+})
+```
+
+### `disconnected`
+Triggered when the connection gets disconnected. In that case you can call `connect()` again to have a reconnect logic. Note that you should wait a little bit before attempting a reconnect to to avoid being rate-limited.
+
+```javascript
 tiktokChatConnection.on('disconnected', () => {
-    console.log('Disconnected!');
-})</pre>
-        </td>
-    </tr>
-    <tr></tr>
-    <tr>
-        <td>chat</td>
-        <td>Every time a new chat message arrives.<pre lang="javascript">
+    console.log('Disconnected :(');
+})
+```
+
+### `chat`
+Triggered every time a new chat comment arrives.
+
+```javascript
 tiktokChatConnection.on('chat', data => {
     console.log(`${data.uniqueId} writes: ${data.comment}`);
-})</pre>
-        Data structure:
-<pre lang="javascript">{
+})
+```
+
+Data structure:
+```javascript
+{
   comment: 'how are you?',
   userId: '6776663624629974021',
   uniqueId: 'zerodytester',
   nickname: 'Zerody One',
   profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...'
-}</pre></td>
-    </tr>
-    <tr></tr>
-    <tr>
-        <td>member</td>
-        <td>Triggered every time a new member joins the live stream.<pre lang="javascript">
+}
+```
+
+### `member`
+Triggered every time a new viewer joins the live stream.
+
+```javascript
 tiktokChatConnection.on('member', data => {
     console.log(`${data.uniqueId} joins the stream!`);
-})</pre>
-      Data structure:
-<pre lang="javascript">{
+})
+```
+
+
+Data structure:
+```javascript
+{
   userId: '6776663624629974021',
   uniqueId: 'zerodytester',
   nickname: 'Zerody One',
   profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...'
-}</pre></td>
-    </tr>
-    <tr></tr>
-    <tr>
-        <td>gift</td>
-        <td>Triggered every time a gift arrives.<pre lang="javascript">
+}
+```
+
+### `gift`
+Triggered every time a gift arrives.
+
+```javascript
 tiktokChatConnection.on('gift', data => {
     console.log(`${data.uniqueId} sends gift ${data.giftId}`);
-})</pre>Data structure:
-<pre lang="javascript">{
+})
+```
+
+
+Data structure:
+```javascript
+{
   userId: '6649054330291912709',
   uniqueId: 'puschi._66',
   nickname: 'puschel_chen66',
   profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...',
   gift: {
-    anchor_id: 6929592145315251000,
-    from_idc: 'maliva',
-    from_user_id: 6649054330291913000,
     gift_id: 5729,
     gift_type: 2,
-    log_id: '202202042120040101901851301FF58BE2',
-    msg_id: 7060967233190710000,
-    profitapi_message_dur: 1007,
     repeat_count: 1,
     repeat_end: 0,
-    room_id: 7060948785266019000,
-    send_gift_profit_api_start_ms: 1644009604617,
-    send_gift_profit_core_start_ms: 1644009604749,
-    send_gift_req_start_ms: 1644009604530,
-    send_gift_send_message_success_ms: 1644009605624,
-    send_profitapi_dur: 87,
-    to_user_id: 6929592145315251000
+    to_user_id: 6929592145315251000,
+    // ...
   },
   giftId: 5729
-}</pre></td>
-    </tr>
-    <tr></tr>
-    <tr>
-        <td>roomUser</td>
-        <td>Triggered every time a statistic message arrives. This message currently contains only the viewer count.<pre lang="javascript">
+}
+```
+
+### `roomUser`
+Triggered every time a statistic message arrives. This message currently contains only the viewer count.
+
+```javascript
 tiktokChatConnection.on('roomUser', data => {
     console.log(`Viewer Count: ${data.viewerCount}`);
-})</pre></td>
-    </tr>
-    <tr></tr>
-    <tr>
-        <td>streamEnd</td>
-        <td>Triggered when the live stream is terminated by the host. Will also trigger the <b>disconnect</b> event.<pre lang="javascript">
+})
+```
+
+### `streamEnd`
+Triggered when the live stream gets terminated by the host. Will also trigger the `disconnect` event.
+
+```javascript
 tiktokChatConnection.on('streamEnd', () => {
     console.log('Stream ended');
-})</pre></td>
-    </tr>
-    <tr></tr>
-    <tr>
-        <td>rawData</td>
-        <td>Triggered every time a protobuf encoded webcast message arrives. You can deserialize the binary object depending on the use case with <a href="https://www.npmjs.com/package/protobufjs">protobufjs</a>. <pre lang="javascript">
+})
+```
+
+### `rawData`
+Triggered every time a protobuf encoded webcast message arrives. You can deserialize the binary object depending on the use case with <a href="https://www.npmjs.com/package/protobufjs">protobufjs</a>.
+
+```javascript
 tiktokChatConnection.on('rawData', (messageTypeName, binary) => {
     console.log(messageTypeName, binary);
-})</pre></td>
-    </tr>
-    <tr></tr>
-    <tr>
-        <td>websocketConnected</td>
-        <td>Will be triggered as soon as a websocket connection is established. The websocket client object is passed.<pre lang="javascript">
+})
+```
+
+### `websocketConnected`
+Will be triggered as soon as a websocket connection is established. The websocket client object is passed.
+
+```javascript
 tiktokChatConnection.on('websocketConnected', websocketClient => {
     console.log("Websocket:", websocketClient.connection);
-})</pre></td></td>
-    </tr>
-</table>
+})
+```
 
 ## Contributing
 Your improvements are welcome! Feel free to open an <a href="https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector/issues">issue</a> or <a href="https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector/pulls">pull request</a>.
