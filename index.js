@@ -43,30 +43,27 @@ class WebcastPushConnection extends EventEmitter {
      * Create a new instance
      * @param {string} uniqueId TikTok username (from URL)
      * @param {object} [options] Connection options
-     * @param {boolean} [options[].processInitialData=true] Process the initital data which includes messages of the last minutes.
-     * @param {boolean} [options[].enableWebsocketUpgrade=true] Use WebSocket instead of request polling if TikTok offers it.
-     * @param {number} [options[].requestPollingIntervalMs=1000] Request polling interval if WebSocket is not used.
+     * @param {boolean} [options[].processInitialData=true] Process the initital data which includes messages of the last minutes
+     * @param {boolean} [options[].enableWebsocketUpgrade=true] Use WebSocket instead of request polling if TikTok offers it
+     * @param {number} [options[].requestPollingIntervalMs=1000] Request polling interval if WebSocket is not used
+     * @param {object} [options[].clientParams={}] Custom client params for Webcast API
      * @param {object} [options[].requestHeaders={}] Custom request headers for axios
      * @param {object} [options[].websocketHeaders={}] Custom request headers for websocket.client
      */
     constructor(uniqueId, options) {
         super();
 
-        this.#uniqueStreamerId = validateAndNormalizeUniqueId(uniqueId);
-        this.#clientParams = Object.assign({}, Config.DEFAULT_CLIENT_PARAMS);
-
         this.#setOptions(options || {});
-        this.#setUnconnected();
 
+        this.#uniqueStreamerId = validateAndNormalizeUniqueId(uniqueId);
         this.#httpClient = new TikTokHttpClient(this.#options.requestHeaders);
-    }
 
-    #setUnconnected() {
-        this.#isConnecting = false;
-        this.#isConnected = false;
-        this.#isPollingEnabled = false;
-        this.#isWsUpgradeDone = false;
-        this.#clientParams.cursor = "";
+        this.#clientParams = {
+            ...Config.DEFAULT_CLIENT_PARAMS,
+            ...this.#options.clientParams
+        };
+
+        this.#setUnconnected();
     }
 
     #setOptions(options) {
@@ -75,9 +72,18 @@ class WebcastPushConnection extends EventEmitter {
             processInitialData: true,
             enableWebsocketUpgrade: true,
             requestPollingIntervalMs: 1000,
+            clientParams: {},
             requestHeaders: {},
             websocketHeaders: {}
         }, options);
+    }
+
+    #setUnconnected() {
+        this.#isConnecting = false;
+        this.#isConnected = false;
+        this.#isPollingEnabled = false;
+        this.#isWsUpgradeDone = false;
+        this.#clientParams.cursor = '';
     }
 
     /**
@@ -88,12 +94,12 @@ class WebcastPushConnection extends EventEmitter {
         return new Promise(async (resolve, reject) => {
 
             if (this.#isConnecting) {
-                reject("Already connecting!");
+                reject(new Error('Already connecting!'));
                 return;
             }
 
             if (this.#isConnected) {
-                reject("Already connected!");
+                reject(new Error('Already connected!'));
                 return;
             }
 
@@ -168,7 +174,7 @@ class WebcastPushConnection extends EventEmitter {
 
         let sleepMs = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-        while(this.#isPollingEnabled) {
+        while (this.#isPollingEnabled) {
             try {
                 await this.#fetchRoomData();
             } catch (err) {
@@ -181,7 +187,7 @@ class WebcastPushConnection extends EventEmitter {
 
     async #fetchRoomData(isInitial) {
 
-        let webcastResponse = await this.#httpClient.getDeserializedObjectFromWebcastApi("im/fetch/", this.#clientParams, "WebcastResponse");
+        let webcastResponse = await this.#httpClient.getDeserializedObjectFromWebcastApi('im/fetch/', this.#clientParams, 'WebcastResponse');
         let upgradeToWsOffered = !!webcastResponse.wsUrl && !!webcastResponse.wsParam;
 
         // Set cursor param to continue with the next request
@@ -215,7 +221,7 @@ class WebcastPushConnection extends EventEmitter {
             this.emit(events.WSCONNECTED, this.#websocket);
 
         } catch (err) {
-            this.#handleError(err, "Upgrade to websocket failed. Using request polling...");
+            this.#handleError(err, 'Upgrade to websocket failed. Using request polling...');
         }
     }
 
@@ -228,7 +234,7 @@ class WebcastPushConnection extends EventEmitter {
 
                 resolve();
 
-                wsConnection.on('error', err => this.#handleError(err, "Websocket Error"));
+                wsConnection.on('error', err => this.#handleError(err, 'Websocket Error'));
                 wsConnection.on('close', () => {
                     this.disconnect();
                 });
@@ -258,7 +264,7 @@ class WebcastPushConnection extends EventEmitter {
                     break;
                 case 'WebcastRoomUserSeqMessage':
                     this.emit(events.ROOMUSER, simplifyObject(message.decodedData));
-                    break;    
+                    break;
                 case 'WebcastChatMessage':
                     this.emit(events.CHAT, simplifyObject(message.decodedData));
                     break;
@@ -273,9 +279,9 @@ class WebcastPushConnection extends EventEmitter {
     }
 
     #handleError(exception, info) {
-        if(this.listenerCount(events.ERROR) > 0) {
+        if (this.listenerCount(events.ERROR) > 0) {
             this.emit(events.ERROR, { info, exception });
-        } 
+        }
     }
 }
 
