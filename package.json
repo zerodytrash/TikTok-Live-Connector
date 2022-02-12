@@ -1,10 +1,14 @@
 {
   "name": "tiktok-livestream-chat-connector",
-  "version": "0.9.6",
-  "description": "Node.js module to receive live stream chat events from TikTok by connecting to TikToks internal WebCast push service.",
+  "version": "0.9.7",
+  "description": "Node.js module to receive live stream chat events like comments and gifts from TikTok LIVE.",
   "main": "index.js",
+  "engines": {
+    "node": ">=10.0.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel src -d dist --copy-files"
   },
   "repository": {
     "type": "git",
@@ -12,6 +16,7 @@
   },
   "keywords": [
     "tiktok",
+    "tiktok live",
     "tiktok.com",
     "live",
     "livestream",
@@ -29,5 +34,10 @@
     "axios-cookiejar-support": "^2.0.3",
     "protobufjs": "^6.11.2",
     "websocket": "^1.0.34"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.17.0",
+    "@babel/core": "^7.17.2",
+    "@babel/preset-env": "^7.16.11"
   }
 }
