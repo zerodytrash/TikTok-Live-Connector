@@ -15,6 +15,9 @@ const events = {
     MEMBER: 'member',
     GIFT: 'gift',
     ROOMUSER: 'roomUser',
+    SOCIAL: 'social',
+    LIKE: 'like',
+    QUESTIONNEW: 'questionNew',
     RAWDATA: 'rawData',
     STREAMEND: 'streamEnd',
     WSCONNECTED: 'websocketConnected'
@@ -273,6 +276,15 @@ class WebcastPushConnection extends EventEmitter {
                     break;
                 case 'WebcastGiftMessage':
                     this.emit(events.GIFT, simplifyObject(message.decodedData));
+                    break;
+                case 'WebcastSocialMessage':
+                    this.emit(events.SOCIAL, simplifyObject(message.decodedData));
+                    break;
+                case 'WebcastLikeMessage':
+                    this.emit(events.LIKE, simplifyObject(message.decodedData));
+                    break;
+                case 'WebcastQuestionNewMessage':
+                    this.emit(events.QUESTIONNEW, simplifyObject(message.decodedData));
                     break;
             }
         });

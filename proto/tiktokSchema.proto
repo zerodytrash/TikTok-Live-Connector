@@ -25,6 +25,7 @@ message WebcastControlMessage {
     int32 action = 2;
 }
 
+// Statistics like viewer count
 message WebcastRoomUserSeqMessage {
     int32 viewerCount = 3;
 }
@@ -36,11 +37,44 @@ message WebcastChatMessage {
 
 message WebcastMemberMessage {
     User user = 2;
+    WebcastMessageEvent event = 1;
 }
 
 message WebcastGiftMessage {
     User user = 7;
     string giftJson = 22;
+}
+
+// follow & share event
+message WebcastSocialMessage {
+    User user = 2;
+    WebcastMessageEvent event = 1;
+}
+
+// like event
+message WebcastLikeMessage {
+    User user = 5;
+    WebcastMessageEvent event = 1;
+    int32 totalLikeCount = 3;
+}
+
+// new question event
+message WebcastQuestionNewMessage {
+    QuestionDetails questionDetails = 2;
+}
+
+message QuestionDetails {
+    string questionText = 2;
+    User user = 5;
+}
+
+message WebcastMessageEvent {
+    WebcastMessageEventDetails eventDetails = 8;
+}
+
+message WebcastMessageEventDetails {
+    string displayType = 1;
+    string label = 2;
 }
 
 message User {
