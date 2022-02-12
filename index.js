@@ -32,6 +32,7 @@ class WebcastPushConnection extends EventEmitter {
     #roomId;
     #clientParams;
     #httpClient;
+    #availableGifts;
 
     // Websocket
     #websocket;
@@ -47,6 +48,7 @@ class WebcastPushConnection extends EventEmitter {
      * @param {string} uniqueId TikTok username (from URL)
      * @param {object} [options] Connection options
      * @param {boolean} [options[].processInitialData=true] Process the initital data which includes messages of the last minutes
+     * @param {boolean} [options[].enableExtendedGiftInfo=false] Enable this option to get extended information on 'gift' events like gift name and cost
      * @param {boolean} [options[].enableWebsocketUpgrade=true] Use WebSocket instead of request polling if TikTok offers it
      * @param {number} [options[].requestPollingIntervalMs=1000] Request polling interval if WebSocket is not used
      * @param {object} [options[].clientParams={}] Custom client params for Webcast API
@@ -73,6 +75,7 @@ class WebcastPushConnection extends EventEmitter {
         this.#options = Object.assign({
             // Default
             processInitialData: true,
+            enableExtendedGiftInfo: false,
             enableWebsocketUpgrade: true,
             requestPollingIntervalMs: 1000,
             clientParams: {},
@@ -111,6 +114,11 @@ class WebcastPushConnection extends EventEmitter {
             try {
 
                 await this.#retrieveRoomId();
+
+                if (this.#options.enableExtendedGiftInfo) {
+                    await this.#fetchAvailableGifts();
+                }
+
                 await this.#fetchRoomData(true);
 
                 this.#isConnected = true;
@@ -170,6 +178,15 @@ class WebcastPushConnection extends EventEmitter {
 
         this.#roomId = roomId;
         this.#clientParams.room_id = roomId;
+    }
+
+    async #fetchAvailableGifts() {
+        try {
+            let response = await this.#httpClient.getJsonObjectFromWebcastApi('gift/list/', this.#clientParams);
+            this.#availableGifts = response.data.gifts;
+        } catch (err) {
+            throw new Error(`Failed to fetch available gifts. ${err}`);
+        }
     }
 
     async #startFetchRoomPolling() {
@@ -258,6 +275,9 @@ class WebcastPushConnection extends EventEmitter {
 
         // Process and emit decoded data depending on the the message type
         webcastResponse.messages.filter(x => x.decodedData).forEach(message => {
+
+            let simplifiedObj = simplifyObject(message.decodedData);
+
             switch (message.type) {
                 case 'WebcastControlMessage':
                     if (message.decodedData.action === 3) {
@@ -266,25 +286,29 @@ class WebcastPushConnection extends EventEmitter {
                     }
                     break;
                 case 'WebcastRoomUserSeqMessage':
-                    this.emit(events.ROOMUSER, simplifyObject(message.decodedData));
+                    this.emit(events.ROOMUSER, simplifiedObj);
                     break;
                 case 'WebcastChatMessage':
-                    this.emit(events.CHAT, simplifyObject(message.decodedData));
+                    this.emit(events.CHAT, simplifiedObj);
                     break;
                 case 'WebcastMemberMessage':
-                    this.emit(events.MEMBER, simplifyObject(message.decodedData));
+                    this.emit(events.MEMBER, simplifiedObj);
                     break;
                 case 'WebcastGiftMessage':
-                    this.emit(events.GIFT, simplifyObject(message.decodedData));
+                    if (Array.isArray(this.#availableGifts) && simplifiedObj.giftId) {
+                        // Add extended gift info if option enabled
+                        simplifiedObj.extendedGiftInfo = this.#availableGifts.find(x => x.id === simplifiedObj.giftId);
+                    }
+                    this.emit(events.GIFT, simplifiedObj);
                     break;
                 case 'WebcastSocialMessage':
-                    this.emit(events.SOCIAL, simplifyObject(message.decodedData));
+                    this.emit(events.SOCIAL, simplifiedObj);
                     break;
                 case 'WebcastLikeMessage':
-                    this.emit(events.LIKE, simplifyObject(message.decodedData));
+                    this.emit(events.LIKE, simplifiedObj);
                     break;
                 case 'WebcastQuestionNewMessage':
-                    this.emit(events.QUESTIONNEW, simplifyObject(message.decodedData));
+                    this.emit(events.QUESTIONNEW, simplifiedObj);
                     break;
             }
         });
