@@ -1,9 +1,16 @@
 # TikTok-Livestream-Chat-Connector
-A Node.js module to receive and decode livestream chat events like comments in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides chat comments, other events such as members joining, gifts, viewers, followers and likes can be tracked.
+A Node.js module to receive and decode livestream chat events like comments in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides [chat comments](#chat), other events such as [members joining](#member), [gifts](#gift), [viewers](#roomuser), [follows](#social), [shares](#social), [questions](#questionnew) and [likes](#like) can be tracked.
 
 <b>NOTE:</b> This is not an official API. It's a reverse engineering project. The correctness of the data cannot be guaranteed.
 
 #### Demo: [https://tiktok-chat.herokuapp.com/](https://tiktok-chat.herokuapp.com/)
+
+#### Overview
+- [Getting started](#getting-started)
+- [Params and options](#params-and-options)
+- [Methods](#methods)
+- [Events](#events)
+- [Contributing](#contributing)
 
 ## Getting started
 
@@ -47,7 +54,7 @@ To create a new `WebcastPushConnection` object the following parameters are requ
 | Param Name | Required | Description |
 | ---------- | -------- | ----------- |
 | uniqueId   | Yes | The unique username of the broadcaster. You can find this name in the URL.<br>Example: `https://www.tiktok.com/@officialgeilegisela/live` => `officialgeilegisela` |
-| options  | No | Here you can set the following connection properties:<br><br>`processInitialData` (default: `true`) <br> Define if you want to process the initital data which includes old messages of the last seconds.<br><br>`enableExtendedGiftInfo` (default: `false`) <br> Define if you want to receive extended information about gifts like gift name, cost and images. This information will be provided at the gift event. <br><br>`enableWebsocketUpgrade` (default: `true`) <br> Define if you want to use a WebSocket connection instead of request polling if TikTok offers it. <br><br>`requestPollingIntervalMs` (default: `1000`) <br> Request polling interval if WebSocket is not used.<br><br>`clientParams` (default: `{}`) <br> Custom client params for Webcast API.<br><br>`requestHeaders` (default: `{}`) <br> Custom request headers passed to axios.<br><br>`websocketHeaders` (default: `{}`) <br> Custom websocket headers passed to websocket.client. |
+| options  | No | Here you can set the following connection properties:<br><br>`processInitialData` (default: `true`) <br> Define if you want to process the initital data which includes old messages of the last seconds.<br><br>`enableExtendedGiftInfo` (default: `false`) <br> Define if you want to receive extended information about gifts like gift name, cost and images. This information will be provided at the [gift event](#gift). <br><br>`enableWebsocketUpgrade` (default: `true`) <br> Define if you want to use a WebSocket connection instead of request polling if TikTok offers it. <br><br>`requestPollingIntervalMs` (default: `1000`) <br> Request polling interval if WebSocket is not used.<br><br>`clientParams` (default: `{}`) <br> Custom client params for Webcast API.<br><br>`requestHeaders` (default: `{}`) <br> Custom request headers passed to axios.<br><br>`websocketHeaders` (default: `{}`) <br> Custom websocket headers passed to websocket.client. |
 
 Example Options:
 ```javascript
@@ -81,15 +88,6 @@ A `WebcastPushConnection` object contains the following methods.
 ## Events
 
 A `WebcastPushConnection` object has the following events which can be handled via `.on(eventName, eventHandler)`
-### `error`
-General error event. You should handle this.
-
-```javascript
-tiktokChatConnection.on('error', err => {
-    console.error('Error!', err);
-})
-```
-
 
 ### `connected`
 Triggered when the connection gets successfully established.
@@ -107,26 +105,6 @@ Triggered when the connection gets disconnected. In that case you can call `conn
 tiktokChatConnection.on('disconnected', () => {
     console.log('Disconnected :(');
 })
-```
-
-### `chat`
-Triggered every time a new chat comment arrives.
-
-```javascript
-tiktokChatConnection.on('chat', data => {
-    console.log(`${data.uniqueId} writes: ${data.comment}`);
-})
-```
-
-Data structure:
-```javascript
-{
-  comment: 'how are you?',
-  userId: '6776663624629974021',
-  uniqueId: 'zerodytester',
-  nickname: 'Zerody One',
-  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...'
-}
 ```
 
 ### `member`
@@ -149,8 +127,28 @@ Data structure:
 }
 ```
 
+### `chat`
+Triggered every time a new chat comment arrives.
+
+```javascript
+tiktokChatConnection.on('chat', data => {
+    console.log(`${data.uniqueId} writes: ${data.comment}`);
+})
+```
+
+Data structure:
+```javascript
+{
+  comment: 'how are you?',
+  userId: '6776663624629974121',
+  uniqueId: 'zerodytester',
+  nickname: 'Zerody One',
+  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...'
+}
+```
+
 ### `gift`
-Triggered every time a gift arrives.
+Triggered every time a gift arrives. You will receive additional information via the `extendedGiftInfo` attribute when you enable the [`enableExtendedGiftInfo`](#params-and-options) option
 
 ```javascript
 tiktokChatConnection.on('gift', data => {
@@ -162,19 +160,49 @@ tiktokChatConnection.on('gift', data => {
 Data structure:
 ```javascript
 {
-  userId: '6649054330291912709',
-  uniqueId: 'puschi._66',
-  nickname: 'puschel_chen66',
+  userId: '6776663624629974121',
+  uniqueId: 'zerodytester',
+  nickname: 'Zerody One',
   profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...',
   gift: {
     gift_id: 5729,
     gift_type: 2,
     repeat_count: 1,
     repeat_end: 0,
-    to_user_id: 6929592145315251000,
-    // ...
+    to_user_id: 6929592145315251000
   },
-  giftId: 5729
+  giftId: 5729,
+  // Extended info is present if you have enabled the 'enableExtendedGiftInfo' option
+  extendedGiftInfo: {
+    describe: 'sent Rose',
+    diamond_count: 1,
+    duration: 1000,
+    icon: {
+      avg_color: '#A3897C',
+      is_animated: false,
+      uri: 'webcast-va/eba3a9bb85c33e017f3648eaf88d7189',
+      url_list: []
+    },
+    id: 5655,
+    image: {
+      avg_color: '#FFEBEB',
+      height: 0,
+      is_animated: false,
+      open_web_url: '',
+      open_web_url: '',
+      uri: 'webcast-va/eba3a9bb85c33e017f3648eaf88d7189',
+      url_list: [
+        // icons...
+      ],
+      width: 0
+    },
+    is_broadcast_gift: false,
+    is_displayed_on_panel: true,
+    is_effect_befview: false,
+    item_type: 1,
+    name: 'Rose',
+    type: 1
+  }
 }
 ```
 
@@ -187,8 +215,71 @@ tiktokChatConnection.on('roomUser', data => {
 })
 ```
 
+### `like`
+Triggered every time a viewer sends likes to the streamer.
+
+```javascript
+tiktokChatConnection.on('like', data => {
+    console.log(`${data.uniqueId} send likes, total likes: ${data.totalLikeCount}`);
+})
+```
+
+Data structure:
+```javascript
+{
+  totalLikeCount: 83033,
+  userId: '6776663624629974121',
+  uniqueId: 'zerodytester',
+  nickname: 'Zerody One',
+  profilePictureUrl: 'https://p16-sign-sg.tiktokcdn.com/...',
+  displayType: 'pm_mt_msg_viewer',
+  label: '{0:user} sent likes to the host'
+}
+```
+
+### `social`
+Triggered every time someone shares the stream or follows the host.
+
+```javascript
+tiktokChatConnection.on('social', data => {
+    console.log('social event data:', data);
+})
+```
+
+Data structure:
+```javascript
+{
+  userId: '6776663624629974121',
+  uniqueId: 'zerodytester',
+  nickname: 'Zerody One',
+  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...',
+  displayType: 'pm_main_follow_message_viewer_2', // or 'pm_mt_guidance_share' for sharing
+  label: '{0:user} followed the host'
+}
+```
+
+### `questionNew`
+Triggered every time someone asks a new question via the question feature.
+
+```javascript
+tiktokChatConnection.on('questionNew', data => {
+    console.log(`${data.uniqueId} asks ${data.questionText}`);
+})
+```
+
+Data structure:
+```javascript
+{
+  questionText: 'Do you know why TikTok has such a complicated API?',
+  userId: '6776663624629974121',
+  uniqueId: 'zerodytester',
+  nickname: 'Zerody One',
+  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...'
+}
+```
+
 ### `streamEnd`
-Triggered when the live stream gets terminated by the host. Will also trigger the `disconnect` event.
+Triggered when the live stream gets terminated by the host. Will also trigger the [`disconnected`](#disconnected) event.
 
 ```javascript
 tiktokChatConnection.on('streamEnd', () => {
@@ -211,6 +302,15 @@ Will be triggered as soon as a websocket connection is established. The websocke
 ```javascript
 tiktokChatConnection.on('websocketConnected', websocketClient => {
     console.log("Websocket:", websocketClient.connection);
+})
+```
+
+### `error`
+General error event. You should handle this.
+
+```javascript
+tiktokChatConnection.on('error', err => {
+    console.error('Error!', err);
 })
 ```
 
