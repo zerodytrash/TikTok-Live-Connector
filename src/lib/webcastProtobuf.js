@@ -3,7 +3,7 @@ const protobufjs = require('protobufjs');
 let tiktokSchemaPath = require.resolve('../proto/tiktokSchema.proto');
 let tiktokSchema = null;
 
-// load & cache schema
+// Load & cache schema
 function loadTikTokSchema() {
     if (!tiktokSchema) {
         tiktokSchema = protobufjs.loadSync(tiktokSchemaPath);
@@ -21,7 +21,7 @@ function deserializeMessage(protoName, binaryMessage) {
     var webcastData = tiktokSchema.lookupType(`TikTok.${protoName}`).decode(binaryMessage);
 
     if (protoName === 'WebcastResponse' && Array.isArray(webcastData.messages)) {
-        // contains different object structures depending on the type field
+        // Contains different object structures depending on the type field
         webcastData.messages.forEach((message) => {
             switch (message.type) {
                 case 'WebcastControlMessage':
@@ -42,8 +42,8 @@ function deserializeMessage(protoName, binaryMessage) {
 }
 
 function deserializeWebsocketMessage(binaryMessage) {
-    // websocket messages are in an container which contains additional data
-    // message type 'msg' represents a normal WebcastResponse
+    // Websocket messages are in an container which contains additional data
+    // Message type 'msg' represents a normal WebcastResponse
     let decodedWebsocketMessage = deserializeMessage('WebcastWebsocketMessage', binaryMessage);
     if (decodedWebsocketMessage.type === 'msg') {
         decodedWebsocketMessage.webcastResponse = deserializeMessage('WebcastResponse', decodedWebsocketMessage.binary);

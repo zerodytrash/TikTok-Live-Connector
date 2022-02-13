@@ -7,7 +7,7 @@ function getRoomIdFromMainPageHtml(mainPageHtml) {
 
     let validResponse = mainPageHtml.includes('"og:url"');
 
-    throw new Error(`Failed to extract room_id from page source. ${validResponse ? 'User might be offline.' : 'Your IP or country might be blocked by TikTok'}.`);
+    throw new Error(`Failed to extract room_id from page source. ${validResponse ? 'User might be offline' : 'Your IP or country might be blocked by TikTok'}.`);
 }
 
 function validateAndNormalizeUniqueId(uniqueId) {

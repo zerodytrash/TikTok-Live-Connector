@@ -45,20 +45,20 @@ message WebcastGiftMessage {
     string giftJson = 22;
 }
 
-// follow & share event
+// Follow & share event
 message WebcastSocialMessage {
     User user = 2;
     WebcastMessageEvent event = 1;
 }
 
-// like event
+// Like event (is only sent from time to time, not with every like)
 message WebcastLikeMessage {
     User user = 5;
     WebcastMessageEvent event = 1;
     int32 totalLikeCount = 3;
 }
 
-// new question event
+// New question event
 message WebcastQuestionNewMessage {
     QuestionDetails questionDetails = 2;
 }
@@ -72,6 +72,7 @@ message WebcastMessageEvent {
     WebcastMessageEventDetails eventDetails = 8;
 }
 
+// Contains UI information
 message WebcastMessageEventDetails {
     string displayType = 1;
     string label = 2;
