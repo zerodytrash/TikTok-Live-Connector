@@ -8,14 +8,16 @@ const Config = require('./webcastConfig.js');
 class TikTokHttpClient {
     constructor(customHeaders) {
         this.cookieJar = new CookieJar();
-        this.axiosInstance = wrapper(axios.create({
-            timeout: 10000,
-            headers: {
-                ...Config.DEFAULT_REQUEST_HEADERS,
-                ...customHeaders
-            },
-            jar: this.cookieJar
-        }));
+        this.axiosInstance = wrapper(
+            axios.create({
+                timeout: 10000,
+                headers: {
+                    ...Config.DEFAULT_REQUEST_HEADERS,
+                    ...customHeaders,
+                },
+                jar: this.cookieJar,
+            })
+        );
     }
 
     #get(url, params, responseType) {

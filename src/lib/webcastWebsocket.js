@@ -10,9 +10,9 @@ class WebcastWebsocket extends websocket.client {
         this.wsParams = { ...clientParams, ...wsParams };
         this.wsUrlWithParams = `${wsUrl}?${new URLSearchParams(this.wsParams)}`;
         this.wsHeaders = {
-            'Cookie': cookieJar.getCookieStringSync(Config.TIKTOK_URL_WEB),
-            ...(customHeaders || {})
-        }
+            Cookie: cookieJar.getCookieStringSync(Config.TIKTOK_URL_WEB),
+            ...(customHeaders || {}),
+        };
 
         this.#handleEvents();
         this.connect(this.wsUrlWithParams, 'echo-protocol', Config.TIKTOK_URL_WEBCAST, this.wsHeaders);
@@ -27,17 +27,16 @@ class WebcastWebsocket extends websocket.client {
                 if (message.type === 'binary') {
                     this.#handleMessage(message);
                 }
-            })
+            });
 
             wsConnection.on('close', () => {
                 clearInterval(this.pingInterval);
-            })
-        })
+            });
+        });
     }
 
     #handleMessage(message) {
         try {
-
             let decodedContainer = deserializeWebsocketMessage(message.binaryData);
 
             if (decodedContainer.id > 0) {
@@ -48,7 +47,6 @@ class WebcastWebsocket extends websocket.client {
             if (typeof decodedContainer.webcastResponse === 'object') {
                 this.emit('webcastResponse', decodedContainer.webcastResponse);
             }
-
         } catch (err) {
             this.emit('messageDecodingFailed', err);
         }
@@ -56,11 +54,11 @@ class WebcastWebsocket extends websocket.client {
 
     #sendPing() {
         // Send static connection alive ping
-        this.connection.sendBytes(Buffer.from('3A026862', 'hex'))
+        this.connection.sendBytes(Buffer.from('3A026862', 'hex'));
     }
 
     #sendAck(id) {
-        let ackMsg = serializeMessage("WebcastWebsocketAck", { type: "ack", id });
+        let ackMsg = serializeMessage('WebcastWebsocketAck', { type: 'ack', id });
         this.connection.sendBytes(ackMsg);
     }
 }

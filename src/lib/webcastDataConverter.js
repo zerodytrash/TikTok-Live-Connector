@@ -1,5 +1,4 @@
 function simplifyObject(webcastObject) {
-
     if (webcastObject.questionDetails) {
         Object.assign(webcastObject, webcastObject.questionDetails);
         delete webcastObject.questionDetails;
@@ -34,10 +33,10 @@ function getUserAttributes(webcastUser) {
         userId: webcastUser.userId.toString(),
         uniqueId: webcastUser.uniqueId,
         nickname: webcastUser.nickname,
-        profilePictureUrl: webcastUser.profilePicture.urls[2]
-    }
+        profilePictureUrl: webcastUser.profilePicture.urls[2],
+    };
 }
 
 module.exports = {
-    simplifyObject
-}
+    simplifyObject,
+};

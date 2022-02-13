@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write src/**/*.js",
     "build": "babel src -d dist --copy-files"
   },
   "repository": {
@@ -38,6 +39,7 @@
   "devDependencies": {
     "@babel/cli": "^7.17.0",
     "@babel/core": "^7.17.2",
-    "@babel/preset-env": "^7.16.11"
+    "@babel/preset-env": "^7.16.11",
+    "prettier": "2.5.1"
   }
 }

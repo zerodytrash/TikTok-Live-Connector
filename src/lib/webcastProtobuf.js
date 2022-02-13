@@ -22,7 +22,7 @@ function deserializeMessage(protoName, binaryMessage) {
 
     if (protoName === 'WebcastResponse' && Array.isArray(webcastData.messages)) {
         // contains different object structures depending on the type field
-        webcastData.messages.forEach(message => {
+        webcastData.messages.forEach((message) => {
             switch (message.type) {
                 case 'WebcastControlMessage':
                 case 'WebcastRoomUserSeqMessage':
@@ -33,7 +33,7 @@ function deserializeMessage(protoName, binaryMessage) {
                 case 'WebcastLikeMessage':
                 case 'WebcastQuestionNewMessage':
                     message.decodedData = tiktokSchema.lookupType(`TikTok.${message.type}`).decode(message.binary);
-                    break
+                    break;
             }
         });
     }
@@ -44,9 +44,9 @@ function deserializeMessage(protoName, binaryMessage) {
 function deserializeWebsocketMessage(binaryMessage) {
     // websocket messages are in an container which contains additional data
     // message type 'msg' represents a normal WebcastResponse
-    let decodedWebsocketMessage = deserializeMessage("WebcastWebsocketMessage", binaryMessage);
+    let decodedWebsocketMessage = deserializeMessage('WebcastWebsocketMessage', binaryMessage);
     if (decodedWebsocketMessage.type === 'msg') {
-        decodedWebsocketMessage.webcastResponse = deserializeMessage("WebcastResponse", decodedWebsocketMessage.binary);
+        decodedWebsocketMessage.webcastResponse = deserializeMessage('WebcastResponse', decodedWebsocketMessage.binary);
     }
 
     return decodedWebsocketMessage;
@@ -55,5 +55,5 @@ function deserializeWebsocketMessage(binaryMessage) {
 module.exports = {
     serializeMessage,
     deserializeMessage,
-    deserializeWebsocketMessage
-}
+    deserializeWebsocketMessage,
+};

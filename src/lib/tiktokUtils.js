@@ -26,5 +26,5 @@ function validateAndNormalizeUniqueId(uniqueId) {
 
 module.exports = {
     getRoomIdFromMainPageHtml,
-    validateAndNormalizeUniqueId
-}
+    validateAndNormalizeUniqueId,
+};

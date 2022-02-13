@@ -24,16 +24,16 @@ module.exports = {
         screen_height: 1152,
         screen_width: 2048,
         tz_name: 'Europe/Berlin',
-        version_code: 180800
+        version_code: 180800,
     },
     DEFAULT_REQUEST_HEADERS: {
-        'Connection': 'keep-alive',
+        Connection: 'keep-alive',
         'Cache-Control': 'max-age=0',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36',
-        'Accept': 'text/html,application/json,application/protobuf',
-        'Referer': 'https://www.tiktok.com/',
-        'Origin': 'https://www.tiktok.com',
+        Accept: 'text/html,application/json,application/protobuf',
+        Referer: 'https://www.tiktok.com/',
+        Origin: 'https://www.tiktok.com',
         'Accept-Language': 'en-US,en;q=0.9',
         'Accept-Encoding': 'gzip, deflate',
-    }
-}
+    },
+};

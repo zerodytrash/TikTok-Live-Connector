@@ -7,7 +7,7 @@ const { simplifyObject } = require('./lib/webcastDataConverter.js');
 
 const Config = require('./lib/webcastConfig.js');
 
-const events = {
+const Events = {
     CONNECTED: 'connected',
     DISCONNECTED: 'disconnected',
     ERROR: 'error',
@@ -20,8 +20,8 @@ const events = {
     QUESTIONNEW: 'questionNew',
     RAWDATA: 'rawData',
     STREAMEND: 'streamEnd',
-    WSCONNECTED: 'websocketConnected'
-}
+    WSCONNECTED: 'websocketConnected',
+};
 
 /**
  * Wrapper class for TikTok's internal Webcast Push Service
@@ -65,23 +65,26 @@ class WebcastPushConnection extends EventEmitter {
 
         this.#clientParams = {
             ...Config.DEFAULT_CLIENT_PARAMS,
-            ...this.#options.clientParams
+            ...this.#options.clientParams,
         };
 
         this.#setUnconnected();
     }
 
     #setOptions(options) {
-        this.#options = Object.assign({
-            // Default
-            processInitialData: true,
-            enableExtendedGiftInfo: false,
-            enableWebsocketUpgrade: true,
-            requestPollingIntervalMs: 1000,
-            clientParams: {},
-            requestHeaders: {},
-            websocketHeaders: {}
-        }, options);
+        this.#options = Object.assign(
+            {
+                // Default
+                processInitialData: true,
+                enableExtendedGiftInfo: false,
+                enableWebsocketUpgrade: true,
+                requestPollingIntervalMs: 1000,
+                clientParams: {},
+                requestHeaders: {},
+                websocketHeaders: {},
+            },
+            options
+        );
     }
 
     #setUnconnected() {
@@ -98,7 +101,6 @@ class WebcastPushConnection extends EventEmitter {
      */
     connect() {
         return new Promise(async (resolve, reject) => {
-
             if (this.#isConnecting) {
                 reject(new Error('Already connecting!'));
                 return;
@@ -112,7 +114,6 @@ class WebcastPushConnection extends EventEmitter {
             this.#isConnecting = true;
 
             try {
-
                 await this.#retrieveRoomId();
 
                 if (this.#options.enableExtendedGiftInfo) {
@@ -132,15 +133,14 @@ class WebcastPushConnection extends EventEmitter {
                 let state = this.getState();
 
                 resolve(state);
-                this.emit(events.CONNECTED, state);
-
+                this.emit(Events.CONNECTED, state);
             } catch (err) {
                 reject(err);
                 this.#handleError(err, 'Error while connecting');
             }
 
             this.#isConnecting = false;
-        })
+        });
     }
 
     /**
@@ -148,7 +148,6 @@ class WebcastPushConnection extends EventEmitter {
      */
     disconnect() {
         if (this.#isConnected) {
-
             if (this.#isWsUpgradeDone && this.#websocket.connection.connected) {
                 this.#websocket.connection.close();
             }
@@ -156,7 +155,7 @@ class WebcastPushConnection extends EventEmitter {
             // Reset state
             this.#setUnconnected();
 
-            this.emit(events.DISCONNECTED);
+            this.emit(Events.DISCONNECTED);
         }
     }
 
@@ -168,7 +167,7 @@ class WebcastPushConnection extends EventEmitter {
         return {
             isConnected: this.#isConnected,
             roomId: this.#roomId,
-            upgradedToWebsocket: this.#isWsUpgradeDone
+            upgradedToWebsocket: this.#isWsUpgradeDone,
         };
     }
 
@@ -192,7 +191,7 @@ class WebcastPushConnection extends EventEmitter {
     async #startFetchRoomPolling() {
         this.#isPollingEnabled = true;
 
-        let sleepMs = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        let sleepMs = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
         while (this.#isPollingEnabled) {
             try {
@@ -206,7 +205,6 @@ class WebcastPushConnection extends EventEmitter {
     }
 
     async #fetchRoomData(isInitial) {
-
         let webcastResponse = await this.#httpClient.getDeserializedObjectFromWebcastApi('im/fetch/', this.#clientParams, 'WebcastResponse');
         let upgradeToWsOffered = !!webcastResponse.wsUrl && !!webcastResponse.wsParam;
 
@@ -229,8 +227,8 @@ class WebcastPushConnection extends EventEmitter {
         try {
             // Websocket specific params
             let wsParams = {
-                imprp: webcastResponse.wsParam.value
-            }
+                imprp: webcastResponse.wsParam.value,
+            };
 
             // Wait until ws connected, then stop request polling
             await this.#setupWebsocket(webcastResponse.wsUrl, wsParams);
@@ -238,8 +236,7 @@ class WebcastPushConnection extends EventEmitter {
             this.#isWsUpgradeDone = true;
             this.#isPollingEnabled = false;
 
-            this.emit(events.WSCONNECTED, this.#websocket);
-
+            this.emit(Events.WSCONNECTED, this.#websocket);
         } catch (err) {
             this.#handleError(err, 'Upgrade to websocket failed. Using request polling...');
         }
@@ -247,80 +244,78 @@ class WebcastPushConnection extends EventEmitter {
 
     async #setupWebsocket(wsUrl, wsParams) {
         return new Promise((resolve, reject) => {
-
             this.#websocket = new WebcastWebsocket(wsUrl, this.#httpClient.cookieJar, this.#clientParams, wsParams, this.#options.websocketHeaders);
 
-            this.#websocket.on('connect', wsConnection => {
-
+            this.#websocket.on('connect', (wsConnection) => {
                 resolve();
 
-                wsConnection.on('error', err => this.#handleError(err, 'Websocket Error'));
+                wsConnection.on('error', (err) => this.#handleError(err, 'Websocket Error'));
                 wsConnection.on('close', () => {
                     this.disconnect();
                 });
-            })
+            });
 
-            this.#websocket.on('connectFailed', err => reject(`Websocket connection failed, ${err}`));
-            this.#websocket.on('webcastResponse', msg => this.#processWebcastResponse(msg));
-            this.#websocket.on('messageDecodingFailed', err => this.#handleError(err, 'Websocket message decoding failed'));
-        })
+            this.#websocket.on('connectFailed', (err) => reject(`Websocket connection failed, ${err}`));
+            this.#websocket.on('webcastResponse', (msg) => this.#processWebcastResponse(msg));
+            this.#websocket.on('messageDecodingFailed', (err) => this.#handleError(err, 'Websocket message decoding failed'));
+        });
     }
 
     #processWebcastResponse(webcastResponse) {
-
         // Emit raw (protobuf encoded) data for a use case specific processing
-        webcastResponse.messages.forEach(message => {
-            this.emit(events.RAWDATA, message.type, message.binary);
+        webcastResponse.messages.forEach((message) => {
+            this.emit(Events.RAWDATA, message.type, message.binary);
         });
 
         // Process and emit decoded data depending on the the message type
-        webcastResponse.messages.filter(x => x.decodedData).forEach(message => {
+        webcastResponse.messages
+            .filter((x) => x.decodedData)
+            .forEach((message) => {
+                let simplifiedObj = simplifyObject(message.decodedData);
 
-            let simplifiedObj = simplifyObject(message.decodedData);
-
-            switch (message.type) {
-                case 'WebcastControlMessage':
-                    if (message.decodedData.action === 3) {
-                        this.emit(events.STREAMEND);
-                        this.disconnect();
-                    }
-                    break;
-                case 'WebcastRoomUserSeqMessage':
-                    this.emit(events.ROOMUSER, simplifiedObj);
-                    break;
-                case 'WebcastChatMessage':
-                    this.emit(events.CHAT, simplifiedObj);
-                    break;
-                case 'WebcastMemberMessage':
-                    this.emit(events.MEMBER, simplifiedObj);
-                    break;
-                case 'WebcastGiftMessage':
-                    if (Array.isArray(this.#availableGifts) && simplifiedObj.giftId) {
-                        // Add extended gift info if option enabled
-                        simplifiedObj.extendedGiftInfo = this.#availableGifts.find(x => x.id === simplifiedObj.giftId);
-                    }
-                    this.emit(events.GIFT, simplifiedObj);
-                    break;
-                case 'WebcastSocialMessage':
-                    this.emit(events.SOCIAL, simplifiedObj);
-                    break;
-                case 'WebcastLikeMessage':
-                    this.emit(events.LIKE, simplifiedObj);
-                    break;
-                case 'WebcastQuestionNewMessage':
-                    this.emit(events.QUESTIONNEW, simplifiedObj);
-                    break;
-            }
-        });
+                switch (message.type) {
+                    case 'WebcastControlMessage':
+                        if (message.decodedData.action === 3) {
+                            this.emit(Events.STREAMEND);
+                            this.disconnect();
+                        }
+                        break;
+                    case 'WebcastRoomUserSeqMessage':
+                        this.emit(Events.ROOMUSER, simplifiedObj);
+                        break;
+                    case 'WebcastChatMessage':
+                        this.emit(Events.CHAT, simplifiedObj);
+                        break;
+                    case 'WebcastMemberMessage':
+                        this.emit(Events.MEMBER, simplifiedObj);
+                        break;
+                    case 'WebcastGiftMessage':
+                        if (Array.isArray(this.#availableGifts) && simplifiedObj.giftId) {
+                            // Add extended gift info if option enabled
+                            simplifiedObj.extendedGiftInfo = this.#availableGifts.find((x) => x.id === simplifiedObj.giftId);
+                        }
+                        this.emit(Events.GIFT, simplifiedObj);
+                        break;
+                    case 'WebcastSocialMessage':
+                        this.emit(Events.SOCIAL, simplifiedObj);
+                        break;
+                    case 'WebcastLikeMessage':
+                        this.emit(Events.LIKE, simplifiedObj);
+                        break;
+                    case 'WebcastQuestionNewMessage':
+                        this.emit(Events.QUESTIONNEW, simplifiedObj);
+                        break;
+                }
+            });
     }
 
     #handleError(exception, info) {
-        if (this.listenerCount(events.ERROR) > 0) {
-            this.emit(events.ERROR, { info, exception });
+        if (this.listenerCount(Events.ERROR) > 0) {
+            this.emit(Events.ERROR, { info, exception });
         }
     }
 }
 
 module.exports = {
-    WebcastPushConnection
-}
+    WebcastPushConnection,
+};
