@@ -30,6 +30,7 @@ class WebcastPushConnection extends EventEmitter {
     #options;
     #uniqueStreamerId;
     #roomId;
+    #roomInfo;
     #clientParams;
     #httpClient;
     #availableGifts;
@@ -48,6 +49,7 @@ class WebcastPushConnection extends EventEmitter {
      * @param {string} uniqueId TikTok username (from URL)
      * @param {object} [options] Connection options
      * @param {boolean} [options[].processInitialData=true] Process the initital data which includes messages of the last minutes
+     * @param {boolean} [options[].fetchRoomInfoOnConnect=true] Fetch the room info (room state, streamer info, etc.) on connect (will be returned when calling connect())
      * @param {boolean} [options[].enableExtendedGiftInfo=false] Enable this option to get extended information on 'gift' events like gift name and cost
      * @param {boolean} [options[].enableWebsocketUpgrade=true] Use WebSocket instead of request polling if TikTok offers it
      * @param {number} [options[].requestPollingIntervalMs=1000] Request polling interval if WebSocket is not used
@@ -71,11 +73,12 @@ class WebcastPushConnection extends EventEmitter {
         this.#setUnconnected();
     }
 
-    #setOptions(options) {
+    #setOptions(providedOptions) {
         this.#options = Object.assign(
             {
                 // Default
                 processInitialData: true,
+                fetchRoomInfoOnConnect: true,
                 enableExtendedGiftInfo: false,
                 enableWebsocketUpgrade: true,
                 requestPollingIntervalMs: 1000,
@@ -83,11 +86,12 @@ class WebcastPushConnection extends EventEmitter {
                 requestHeaders: {},
                 websocketHeaders: {},
             },
-            options
+            providedOptions
         );
     }
 
     #setUnconnected() {
+        this.#roomInfo = null;
         this.#isConnecting = false;
         this.#isConnected = false;
         this.#isPollingEnabled = false;
@@ -116,6 +120,17 @@ class WebcastPushConnection extends EventEmitter {
             try {
                 await this.#retrieveRoomId();
 
+                // Fetch room info if option enabled
+                if (this.#options.fetchRoomInfoOnConnect) {
+                    await this.#fetchRoomInfo();
+
+                    // Prevent connections to finished rooms
+                    if (this.#roomInfo.status === 4) {
+                        throw new Error('LIVE has ended');
+                    }
+                }
+
+                // Fetch all available gift info if option enabled
                 if (this.#options.enableExtendedGiftInfo) {
                     await this.#fetchAvailableGifts();
                 }
@@ -166,17 +181,52 @@ class WebcastPushConnection extends EventEmitter {
     getState() {
         return {
             isConnected: this.#isConnected,
-            roomId: this.#roomId,
             upgradedToWebsocket: this.#isWsUpgradeDone,
+            roomId: this.#roomId,
+            roomInfo: this.#roomInfo,
         };
     }
 
-    async #retrieveRoomId() {
-        let mainPageHtml = await this.#httpClient.getMainPage(`@${this.#uniqueStreamerId}/live`);
-        let roomId = getRoomIdFromMainPageHtml(mainPageHtml);
+    /**
+     * Get the current room info (including streamer info, room status and statistics)
+     * @returns {Promise} Promise that will be resolved when the room info has been retrieved from the API
+     */
+    getRoomInfo() {
+        return new Promise(async (resolve, reject) => {
+            try {
+                // Retrieve current room_id if not connected
+                if (!this.#isConnected) {
+                    await this.#retrieveRoomId();
+                }
 
-        this.#roomId = roomId;
-        this.#clientParams.room_id = roomId;
+                await this.#fetchRoomInfo();
+
+                resolve(this.#roomInfo);
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
+
+    async #retrieveRoomId() {
+        try {
+            let mainPageHtml = await this.#httpClient.getMainPage(`@${this.#uniqueStreamerId}/live`);
+            let roomId = getRoomIdFromMainPageHtml(mainPageHtml);
+
+            this.#roomId = roomId;
+            this.#clientParams.room_id = roomId;
+        } catch (err) {
+            throw new Error(`Failed to retrieve room_id from page source. ${err.message}`);
+        }
+    }
+
+    async #fetchRoomInfo() {
+        try {
+            let response = await this.#httpClient.getJsonObjectFromWebcastApi('room/info/', this.#clientParams);
+            this.#roomInfo = response.data;
+        } catch (err) {
+            throw new Error(`Failed to fetch room info. ${err.message}`);
+        }
     }
 
     async #fetchAvailableGifts() {
@@ -184,7 +234,7 @@ class WebcastPushConnection extends EventEmitter {
             let response = await this.#httpClient.getJsonObjectFromWebcastApi('gift/list/', this.#clientParams);
             this.#availableGifts = response.data.gifts;
         } catch (err) {
-            throw new Error(`Failed to fetch available gifts. ${err}`);
+            throw new Error(`Failed to fetch available gifts. ${err.message}`);
         }
     }
 
