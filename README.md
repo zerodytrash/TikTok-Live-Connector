@@ -1,5 +1,5 @@
 # TikTok-Livestream-Chat-Connector
-A Node.js module to receive and decode livestream chat events like comments in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides [chat comments](#chat), other events such as [members joining](#member), [gifts](#gift), [viewers](#roomuser), [follows](#social), [shares](#social), [questions](#questionnew) and [likes](#like) can be tracked.
+A Node.js module to receive and decode livestream chat events like comments and gifts in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides [chat comments](#chat), other events such as [members joining](#member), [gifts](#gift), [viewers](#roomuser), [follows](#social), [shares](#social), [questions](#questionnew) and [likes](#like) can be tracked.
 
 <b>NOTE:</b> This is not an official API. It's a reverse engineering project. The correctness of the data cannot be guaranteed.
 
@@ -32,17 +32,23 @@ let tiktokChatConnection = new WebcastPushConnection(tiktokUsername);
 
 // Connect to the chat (await can be used as well)
 tiktokChatConnection.connect().then(state => {
-    console.info('Connected!', state);
+    console.info(`Connected to roomId ${state.roomId}`);
 }).catch(err => {
     console.error('Failed to connect', err);
 })
 
 // Define the events that you want to handle
-// In this case we listen to chat messages
+// In this case we listen to chat messages (comments)
 tiktokChatConnection.on('chat', data => {
     console.log(`${data.uniqueId} (userId:${data.userId}) writes: ${data.comment}`);
 })
 
+// And here we receive gifts sent to the streamer
+tiktokChatConnection.on('gift', data => {
+    console.log(`${data.uniqueId} (userId:${data.userId}) sends ${data.giftId}`);
+})
+
+// ...and more events described in the documentation below
 ```
 
 ## Params and options
@@ -54,7 +60,7 @@ To create a new `WebcastPushConnection` object the following parameters are requ
 | Param Name | Required | Description |
 | ---------- | -------- | ----------- |
 | uniqueId   | Yes | The unique username of the broadcaster. You can find this name in the URL.<br>Example: `https://www.tiktok.com/@officialgeilegisela/live` => `officialgeilegisela` |
-| options  | No | Here you can set the following connection properties:<br><br>`processInitialData` (default: `true`) <br> Define if you want to process the initital data which includes old messages of the last seconds.<br><br>`enableExtendedGiftInfo` (default: `false`) <br> Define if you want to receive extended information about gifts like gift name, cost and images. This information will be provided at the [gift event](#gift). <br><br>`enableWebsocketUpgrade` (default: `true`) <br> Define if you want to use a WebSocket connection instead of request polling if TikTok offers it. <br><br>`requestPollingIntervalMs` (default: `1000`) <br> Request polling interval if WebSocket is not used.<br><br>`clientParams` (default: `{}`) <br> Custom client params for Webcast API.<br><br>`requestHeaders` (default: `{}`) <br> Custom request headers passed to axios.<br><br>`websocketHeaders` (default: `{}`) <br> Custom websocket headers passed to websocket.client. |
+| options  | No | Here you can set the following optional connection properties. If you do not specify a value, the default value will be used.<br><br>`processInitialData` (default: `true`) <br> Define if you want to process the initital data which includes old messages of the last seconds.<br><br>`fetchRoomInfoOnConnect` (default: `true`) <br> Define if you want to fetch all room information on [`connect()`](#methods). If this option is enabled, the connection to offline rooms will be prevented. If enabled, the connect result contains the room info via the `roomInfo` attribute. You can also manually retrieve the room info (even in an unconnected state) using the [`getRoomInfo()`](#methods) function.<br><br>`enableExtendedGiftInfo` (default: `false`) <br> Define if you want to receive extended information about gifts like gift name, cost and images. This information will be provided at the [gift event](#gift). <br><br>`enableWebsocketUpgrade` (default: `true`) <br> Define if you want to use a WebSocket connection instead of request polling if TikTok offers it. <br><br>`requestPollingIntervalMs` (default: `1000`) <br> Request polling interval if WebSocket is not used.<br><br>`clientParams` (default: `{}`) <br> Custom client params for Webcast API.<br><br>`requestHeaders` (default: `{}`) <br> Custom request headers passed to axios.<br><br>`websocketHeaders` (default: `{}`) <br> Custom websocket headers passed to websocket.client. |
 
 Example Options:
 ```javascript
@@ -83,11 +89,27 @@ A `WebcastPushConnection` object contains the following methods.
 | ----------- | ----------- |
 | connect     | Connects to the live stream chat.<br>Returns a `Promise` which will be resolved when the connection is successfully established. |
 | disconnect  | Disconnects the connection. |
-| getState    | Gets the current connection state. |
+| getState    | Gets the current connection state including the cached room info (see below). |
+| getRoomInfo | Gets the current room info from TikTok API including streamer info, room status and statistics.<br>Returns a `Promise` which will be resolved when the API request is done.<br>*<b>Note: </b>You can call this function even if you're not connected.* |
 
 ## Events
 
 A `WebcastPushConnection` object has the following events which can be handled via `.on(eventName, eventHandler)`
+
+#### Overview
+- [`connected`](#connected)
+- [`disconnected`](#disconnected)
+- [`member`](#member)
+- [`chat`](#chat)
+- [`gift`](#gift)
+- [`roomUser`](#roomuser)
+- [`like`](#like)
+- [`social`](#social)
+- [`questionNew`](#questionnew)
+- [`streamEnd`](#streamend)
+- [`rawData`](#rawdata)
+- [`websocketConnected`](#websocketconnected)
+- [`error`](#error)
 
 ### `connected`
 Triggered when the connection gets successfully established.
@@ -316,5 +338,3 @@ tiktokChatConnection.on('error', err => {
 
 ## Contributing
 Your improvements are welcome! Feel free to open an <a href="https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector/issues">issue</a> or <a href="https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector/pulls">pull request</a>.
-
-
