@@ -49,7 +49,7 @@ class WebcastPushConnection extends EventEmitter {
      * @param {string} uniqueId TikTok username (from URL)
      * @param {object} [options] Connection options
      * @param {boolean} [options[].processInitialData=true] Process the initital data which includes messages of the last minutes
-     * @param {boolean} [options[].fetchRoomInfoOnConnect=true] Fetch the room info (room state, streamer info, etc.) on connect (will be returned when calling connect())
+     * @param {boolean} [options[].fetchRoomInfoOnConnect=true] Fetch the room info (room status, streamer info, etc.) on connect (will be returned when calling connect())
      * @param {boolean} [options[].enableExtendedGiftInfo=false] Enable this option to get extended information on 'gift' events like gift name and cost
      * @param {boolean} [options[].enableWebsocketUpgrade=true] Use WebSocket instead of request polling if TikTok offers it
      * @param {number} [options[].requestPollingIntervalMs=1000] Request polling interval if WebSocket is not used
@@ -340,8 +340,8 @@ class WebcastPushConnection extends EventEmitter {
                         this.emit(Events.MEMBER, simplifiedObj);
                         break;
                     case 'WebcastGiftMessage':
+                        // Add extended gift info if option enabled
                         if (Array.isArray(this.#availableGifts) && simplifiedObj.giftId) {
-                            // Add extended gift info if option enabled
                             simplifiedObj.extendedGiftInfo = this.#availableGifts.find((x) => x.id === simplifiedObj.giftId);
                         }
                         this.emit(Events.GIFT, simplifiedObj);

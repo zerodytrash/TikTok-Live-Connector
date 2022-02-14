@@ -22,7 +22,10 @@
     "live",
     "livestream",
     "chat",
-    "connector"
+    "connector",
+    "api",
+    "webcast",
+    "tracker"
   ],
   "author": "zerodytrash",
   "license": "MIT",
