@@ -45,7 +45,7 @@ class WebcastPushConnection extends EventEmitter {
     #isWsUpgradeDone;
 
     /**
-     * Create a new instance
+     * Create a new WebcastPushConnection instance
      * @param {string} uniqueId TikTok username (from URL)
      * @param {object} [options] Connection options
      * @param {boolean} [options[].processInitialData=true] Process the initital data which includes messages of the last minutes
@@ -103,59 +103,55 @@ class WebcastPushConnection extends EventEmitter {
      * Connect to the current live stream room
      * @returns {Promise} Promise that will be resolved when the connection is established.
      */
-    connect() {
-        return new Promise(async (resolve, reject) => {
-            if (this.#isConnecting) {
-                reject(new Error('Already connecting!'));
-                return;
+    async connect() {
+        if (this.#isConnecting) {
+            throw new Error('Already connecting!');
+        }
+
+        if (this.#isConnected) {
+            throw new Error('Already connected!');
+        }
+
+        this.#isConnecting = true;
+
+        try {
+            await this.#retrieveRoomId();
+
+            // Fetch room info if option enabled
+            if (this.#options.fetchRoomInfoOnConnect) {
+                await this.#fetchRoomInfo();
+
+                // Prevent connections to finished rooms
+                if (this.#roomInfo.status === 4) {
+                    throw new Error('LIVE has ended');
+                }
             }
 
-            if (this.#isConnected) {
-                reject(new Error('Already connected!'));
-                return;
+            // Fetch all available gift info if option enabled
+            if (this.#options.enableExtendedGiftInfo) {
+                await this.#fetchAvailableGifts();
             }
 
-            this.#isConnecting = true;
+            await this.#fetchRoomData(true);
 
-            try {
-                await this.#retrieveRoomId();
+            this.#isConnected = true;
 
-                // Fetch room info if option enabled
-                if (this.#options.fetchRoomInfoOnConnect) {
-                    await this.#fetchRoomInfo();
-
-                    // Prevent connections to finished rooms
-                    if (this.#roomInfo.status === 4) {
-                        throw new Error('LIVE has ended');
-                    }
-                }
-
-                // Fetch all available gift info if option enabled
-                if (this.#options.enableExtendedGiftInfo) {
-                    await this.#fetchAvailableGifts();
-                }
-
-                await this.#fetchRoomData(true);
-
-                this.#isConnected = true;
-
-                // Sometimes no upgrade to websocket is offered by TikTok
-                // In that case we use request polling
-                if (!this.#isWsUpgradeDone) {
-                    this.#startFetchRoomPolling();
-                }
-
-                let state = this.getState();
-
-                resolve(state);
-                this.emit(Events.CONNECTED, state);
-            } catch (err) {
-                reject(err);
-                this.#handleError(err, 'Error while connecting');
+            // Sometimes no upgrade to websocket is offered by TikTok
+            // In that case we use request polling
+            if (!this.#isWsUpgradeDone) {
+                this.#startFetchRoomPolling();
             }
 
+            let state = this.getState();
+
+            this.emit(Events.CONNECTED, state);
+            return state;
+        } catch (err) {
+            this.#handleError(err, 'Error while connecting');
+            throw err;
+        } finally {
             this.#isConnecting = false;
-        });
+        }
     }
 
     /**
@@ -191,21 +187,15 @@ class WebcastPushConnection extends EventEmitter {
      * Get the current room info (including streamer info, room status and statistics)
      * @returns {Promise} Promise that will be resolved when the room info has been retrieved from the API
      */
-    getRoomInfo() {
-        return new Promise(async (resolve, reject) => {
-            try {
-                // Retrieve current room_id if not connected
-                if (!this.#isConnected) {
-                    await this.#retrieveRoomId();
-                }
+    async getRoomInfo() {
+        // Retrieve current room_id if not connected
+        if (!this.#isConnected) {
+            await this.#retrieveRoomId();
+        }
 
-                await this.#fetchRoomInfo();
+        await this.#fetchRoomInfo();
 
-                resolve(this.#roomInfo);
-            } catch (err) {
-                reject(err);
-            }
-        });
+        return this.#roomInfo;
     }
 
     async #retrieveRoomId() {
@@ -266,6 +256,7 @@ class WebcastPushConnection extends EventEmitter {
             await this.#tryUpgradeToWebsocket(webcastResponse);
         }
 
+        // Skip processing initial data if option disabled
         if (isInitial && !this.#options.processInitialData) {
             return;
         }
