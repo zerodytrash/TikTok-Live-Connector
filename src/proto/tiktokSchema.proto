@@ -55,6 +55,7 @@ message WebcastSocialMessage {
 message WebcastLikeMessage {
     User user = 5;
     WebcastMessageEvent event = 1;
+    int32 likeCount = 2;
     int32 totalLikeCount = 3;
 }
 
