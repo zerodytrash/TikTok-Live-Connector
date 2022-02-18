@@ -1,9 +1,9 @@
 # TikTok-Livestream-Chat-Connector
-A Node.js module to receive and decode livestream chat events like comments and gifts in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides [chat comments](#chat), other events such as [members joining](#member), [gifts](#gift), [viewers](#roomuser), [follows](#social), [shares](#social), [questions](#questionnew) and [likes](#like) can be tracked.
+A Node.js module to receive and decode livestream events like comments and gifts in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides [chat comments](#chat), other events such as [members joining](#member), [gifts](#gift), [viewers](#roomuser), [follows](#social), [shares](#social), [questions](#questionnew) and [likes](#like) can be tracked.
 
-<b>NOTE:</b> This is not an official API. It's a reverse engineering project. The correctness of the data cannot be guaranteed.
+**NOTE:** This is not an official API. It's a reverse engineering project.
 
-#### Demo: [https://tiktok-chat.herokuapp.com/](https://tiktok-chat.herokuapp.com/)
+### Demo: [https://tiktok-chat.herokuapp.com/](https://tiktok-chat.herokuapp.com/)
 
 #### Overview
 - [Getting started](#getting-started)
@@ -170,11 +170,20 @@ Data structure:
 ```
 
 ### `gift`
-Triggered every time a gift arrives. You will receive additional information via the `extendedGiftInfo` attribute when you enable the [`enableExtendedGiftInfo`](#params-and-options) option
+Triggered every time a gift arrives. You will receive additional information via the `extendedGiftInfo` attribute when you enable the [`enableExtendedGiftInfo`](#params-and-options) option. 
+
+> **NOTE:** Users have the capability to send gifts in a streak. This increases the `data.gift.repeat_count` value until the user terminates the streak. During this time new gift events are triggered again and again with an increased `data.gift.repeat_count` value. It should be noted that after the end of the streak, another gift event is triggered, which signals the end of the streak via `data.gift.repeat_end`:`1`. This applies only to gifts with `data.gift.gift_type`:`1`. This means that even if the user sends a `gift_type`:`1` gift only once, you will receive the event twice. Once with `repeat_end`:`0` and once with `repeat_end`:`1`. Therefore, the event should be handled as follows:
+
 
 ```javascript
 tiktokChatConnection.on('gift', data => {
-    console.log(`${data.uniqueId} sends gift ${data.giftId}`);
+    if (data.gift.gift_type === 1 && data.gift.repeat_end === 0) {
+        // Streak in progress => show only temporary
+        console.log(`${data.uniqueId} is sending gift ${data.giftId} x${data.gift.repeat_count}`);
+    } else {
+        // Streak ended or non-streakable gift => process the gift with final repeat_count
+        console.log(`${data.uniqueId} has sent gift ${data.giftId} x${data.gift.repeat_count}`);
+    }
 })
 ```
 
@@ -202,21 +211,17 @@ Data structure:
     icon: {
       avg_color: '#A3897C',
       is_animated: false,
-      uri: 'webcast-va/eba3a9bb85c33e017f3648eaf88d7189',
-      url_list: []
+      url_list: [
+        // Icon URLs...
+      ]
     },
     id: 5655,
     image: {
       avg_color: '#FFEBEB',
-      height: 0,
       is_animated: false,
-      open_web_url: '',
-      open_web_url: '',
-      uri: 'webcast-va/eba3a9bb85c33e017f3648eaf88d7189',
       url_list: [
-        // icons...
-      ],
-      width: 0
+        // Image URLs...
+      ]
     },
     is_broadcast_gift: false,
     is_displayed_on_panel: true,
@@ -238,18 +243,19 @@ tiktokChatConnection.on('roomUser', data => {
 ```
 
 ### `like`
-Triggered every time a viewer sends likes to the streamer.
+Triggered when a viewer sends likes to the streamer. For streams with many viewers, this event is not always triggered by TikTok.
 
 ```javascript
 tiktokChatConnection.on('like', data => {
-    console.log(`${data.uniqueId} send likes, total likes: ${data.totalLikeCount}`);
+    console.log(`${data.uniqueId} sent ${data.likeCount} likes, total likes: ${data.totalLikeCount}`);
 })
 ```
 
 Data structure:
 ```javascript
 {
-  totalLikeCount: 83033,
+  likeCount: 5, // likes given by the user (taps on screen)
+  totalLikeCount: 83033, // likes that this stream has received in total
   userId: '6776663624629974121',
   uniqueId: 'zerodytester',
   nickname: 'Zerody One',
