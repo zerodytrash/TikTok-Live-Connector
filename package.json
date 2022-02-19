@@ -1,6 +1,6 @@
 {
   "name": "tiktok-livestream-chat-connector",
-  "version": "0.9.9",
+  "version": "0.9.11",
   "description": "Node.js module to receive live stream events like comments and gifts from TikTok LIVE",
   "main": "index.js",
   "engines": {
@@ -28,7 +28,10 @@
     "webcast",
     "tracker",
     "scraper",
-    "websocket"
+    "websocket",
+    "bot",
+    "broadcast",
+    "reader"
   ],
   "author": "zerodytrash",
   "license": "MIT",
