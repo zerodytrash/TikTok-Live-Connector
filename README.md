@@ -1,5 +1,5 @@
 # TikTok-Livestream-Chat-Connector
-A Node.js module to receive and decode livestream events like comments and gifts in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides [chat comments](#chat), other events such as [members joining](#member), [gifts](#gift), [viewers](#roomuser), [follows](#social), [shares](#social), [questions](#questionnew) and [likes](#like) can be tracked.
+A Node.js module to receive and decode livestream events like comments and gifts in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides [Chat Comments](#chat), other events such as [Members Joining](#member), [Gifts](#gift), [Viewers](#roomuser), [Follows](#social), [Shares](#social), [Questions](#questionnew), [Likes](#like) and [Battles](#linkmicbattle) can be tracked.
 
 **NOTE:** This is not an official API. It's a reverse engineering project.
 
@@ -106,6 +106,8 @@ A `WebcastPushConnection` object has the following events which can be handled v
 - [`like`](#like)
 - [`social`](#social)
 - [`questionNew`](#questionnew)
+- [`linkMicBattle`](#linkmicbattle)
+- [`linkMicArmies`](#linkmicarmies)
 - [`streamEnd`](#streamend)
 - [`rawData`](#rawdata)
 - [`websocketConnected`](#websocketconnected)
@@ -145,7 +147,9 @@ Data structure:
   userId: '6776663624629974021',
   uniqueId: 'zerodytester',
   nickname: 'Zerody One',
-  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...'
+  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...',
+  followRole: 1, // 0 = none; 1 = follower; 2 = friends
+  userBadges: [] // e.g. Moderator badge
 }
 ```
 
@@ -161,11 +165,18 @@ tiktokChatConnection.on('chat', data => {
 Data structure:
 ```javascript
 {
-  comment: 'how are you?',
-  userId: '6776663624629974121',
-  uniqueId: 'zerodytester',
-  nickname: 'Zerody One',
-  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...'
+    comment: 'how are you?',
+    userId: '6776663624629974121',
+    uniqueId: 'zerodytester',
+    nickname: 'Zerody One',
+    profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...',
+    followRole: 2, // 0 = none; 1 = follower; 2 = friends
+    userBadges: [
+        {
+            type: 'pm_mt_moderator_im', 
+            name: 'Moderator'
+        }
+    ]
 }
 ```
 
@@ -303,6 +314,89 @@ Data structure:
   uniqueId: 'zerodytester',
   nickname: 'Zerody One',
   profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...'
+}
+```
+
+### `linkMicBattle`
+Triggered every time a battle starts.
+
+```javascript
+tiktokChatConnection.on('linkMicBattle', (data) => {
+    console.log(`New Battle: ${data.battleUsers[0].uniqueId} VS ${data.battleUsers[1].uniqueId}`);
+})
+```
+
+Data structure:
+```javascript
+{
+    battleUsers: [
+        {
+            userId: '6761609734837650437', // Host
+            uniqueId: 'haje_bahjat',
+            nickname: '𝙃𝙖𝙟𝙚_𝙗𝙖𝙝𝙟𝙖𝙩',
+            profilePictureUrl: 'https://p77-sign-sg.tiktokcdn.com/...'
+        },
+        {
+            userId: '6994367558246597637', // Guest
+            uniqueId: 'aborayanelzidicomedy',
+            nickname: 'ابو ريان الايزيدي الكوميدي',
+            profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/....'
+        }
+    ]
+}
+```
+
+### `linkMicArmies`
+Triggered every time a battle participant receives points. Contains the current status of the battle and the army that suported the group.
+
+```javascript
+tiktokChatConnection.on('linkMicArmies', (data) => {
+    console.log('linkMicArmies', data);
+})
+```
+
+Data structure:
+```javascript
+{
+    "battleStatus": 1, // 1 = running; 2 = final state
+    "battleArmies": [
+        {
+            "hostUserId": "6761609734837650437", // Streamer Host ID
+            "points": 17058,
+            "participants": [ // Top 3 supporters
+                {
+                    "userId": "6809941952760742917",
+                    "nickname": "Abdulaziz Slivaney"
+                },
+                {
+                    "userId": "7062835930043139078",
+                    "nickname": "Dilschad Amedi"
+                },
+                {
+                    "userId": "6773657511493977093",
+                    "nickname": "Kahin Guli"
+                }
+            ]
+        },
+        {
+            "hostUserId": "6994367558246597637", // Streamer Guest ID
+            "points": 6585,
+            "participants": [
+                {
+                    "userId": "7060878425477792773",
+                    "nickname": "ADAM"
+                },
+                {
+                    "userId": "7048005772659328006",
+                    "nickname": "كلو"
+                },
+                {
+                    "userId": "6818014975869699078",
+                    "nickname": "Karwan###"
+                }
+            ]
+        }
+    ]
 }
 ```
 
