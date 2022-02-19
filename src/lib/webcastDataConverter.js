@@ -25,15 +25,36 @@ function simplifyObject(webcastObject) {
         delete webcastObject.eventDetails;
     }
 
+    if (webcastObject.battleItems) {
+        webcastObject.battleArmies = [];
+        webcastObject.battleItems.forEach(battleItem => {
+            battleItem.battleGroups.forEach(battleGroup => {
+                let group = {
+                    hostUserId: battleItem.hostUserId.toString(),
+                    points: parseInt(battleGroup.points),
+                    participants: [],
+                }
+
+                battleGroup.users.forEach(user => {
+                    group.participants.push(getUserAttributes(user))
+                })
+
+                webcastObject.battleArmies.push(group);
+            })
+        });
+
+        delete webcastObject.battleItems;
+    }
+
     return Object.assign({}, webcastObject);
 }
 
 function getUserAttributes(webcastUser) {
     return {
         userId: webcastUser.userId.toString(),
-        uniqueId: webcastUser.uniqueId,
-        nickname: webcastUser.nickname,
-        profilePictureUrl: webcastUser.profilePicture.urls[2],
+        uniqueId: webcastUser.uniqueId !== '' ? webcastUser.uniqueId : undefined,
+        nickname: webcastUser.nickname !== '' ? webcastUser.nickname : undefined,
+        profilePictureUrl: webcastUser.profilePicture?.urls[2],
     };
 }
 

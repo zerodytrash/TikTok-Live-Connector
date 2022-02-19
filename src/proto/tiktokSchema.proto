@@ -45,6 +45,24 @@ message WebcastGiftMessage {
     string giftJson = 22;
 }
 
+// Battle status
+message WebcastLinkMicArmies {
+    repeated WebcastLinkMicArmiesItems battleItems = 3;
+    int32 battleStatus = 7;
+}
+
+message WebcastLinkMicArmiesItems {
+    uint64 hostUserId = 1;
+    repeated WebcastLinkMicArmiesGroup battleGroups = 2;
+} 
+
+message WebcastLinkMicArmiesGroup {
+    repeated User users = 1;
+    int32 points = 2;
+} 
+
+
+
 // Follow & share event
 message WebcastSocialMessage {
     User user = 2;

@@ -18,6 +18,7 @@ const Events = {
     SOCIAL: 'social',
     LIKE: 'like',
     QUESTIONNEW: 'questionNew',
+    LINKMICARMIES: 'linkMicArmies',
     RAWDATA: 'rawData',
     STREAMEND: 'streamEnd',
     WSCONNECTED: 'websocketConnected',
@@ -346,6 +347,9 @@ class WebcastPushConnection extends EventEmitter {
                     case 'WebcastQuestionNewMessage':
                         this.emit(Events.QUESTIONNEW, simplifiedObj);
                         break;
+                    case 'WebcastLinkMicArmies':
+                        this.emit(Events.LINKMICARMIES, simplifiedObj);
+                        break;    
                 }
             });
     }
