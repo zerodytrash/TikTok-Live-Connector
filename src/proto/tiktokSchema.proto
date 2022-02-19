@@ -45,6 +45,21 @@ message WebcastGiftMessage {
     string giftJson = 22;
 }
 
+
+// Battle start
+message WebcastLinkMicBattle {
+    repeated WebcastLinkMicBattleItems battleUsers = 10;
+}
+
+message WebcastLinkMicBattleItems {
+    WebcastLinkMicBattleGroup battleGroup = 2;
+} 
+
+message WebcastLinkMicBattleGroup {
+    LinkUser user = 1;
+} 
+
+
 // Battle status
 message WebcastLinkMicArmies {
     repeated WebcastLinkMicArmiesItems battleItems = 3;
@@ -102,6 +117,13 @@ message User {
     string nickname = 3;
     ProfilePicture profilePicture = 9;
     string uniqueId = 38;
+}
+
+message LinkUser {
+    uint64 userId = 1;
+    string nickname = 2;
+    ProfilePicture profilePicture = 3;
+    string uniqueId = 4;
 }
 
 message ProfilePicture {

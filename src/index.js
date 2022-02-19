@@ -4,6 +4,7 @@ const TikTokHttpClient = require('./lib/tiktokHttpClient.js');
 const WebcastWebsocket = require('./lib/webcastWebsocket.js');
 const { getRoomIdFromMainPageHtml, validateAndNormalizeUniqueId } = require('./lib/tiktokUtils.js');
 const { simplifyObject } = require('./lib/webcastDataConverter.js');
+const { deserializeMessage } = require('./lib/webcastProtobuf.js');
 
 const Config = require('./lib/webcastConfig.js');
 
@@ -18,6 +19,7 @@ const Events = {
     SOCIAL: 'social',
     LIKE: 'like',
     QUESTIONNEW: 'questionNew',
+    LINKMICBATTLE: 'linkMicBattle',
     LINKMICARMIES: 'linkMicArmies',
     RAWDATA: 'rawData',
     STREAMEND: 'streamEnd',
@@ -199,6 +201,23 @@ class WebcastPushConnection extends EventEmitter {
         return this.#roomInfo;
     }
 
+    /**
+     * Decoded a binary webcast data package that you have received via the 'rawData' event (for debugging purposes only)
+     * @param {string} messageType
+     * @param {Buffer} messageBuffer
+     */
+    decodeProtobufMessage(messageType, messageBuffer) {
+        let webcastMessage = deserializeMessage(messageType, messageBuffer);
+        this.#processWebcastResponse({
+            messages: [
+                {
+                    decodedData: webcastMessage,
+                    type: messageType,
+                },
+            ],
+        });
+    }
+
     async #retrieveRoomId() {
         try {
             let mainPageHtml = await this.#httpClient.getMainPage(`@${this.#uniqueStreamerId}/live`);
@@ -347,9 +366,12 @@ class WebcastPushConnection extends EventEmitter {
                     case 'WebcastQuestionNewMessage':
                         this.emit(Events.QUESTIONNEW, simplifiedObj);
                         break;
+                    case 'WebcastLinkMicBattle':
+                        this.emit(Events.LINKMICBATTLE, simplifiedObj);
+                        break;
                     case 'WebcastLinkMicArmies':
                         this.emit(Events.LINKMICARMIES, simplifiedObj);
-                        break;    
+                        break;
                 }
             });
     }

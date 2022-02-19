@@ -25,22 +25,33 @@ function simplifyObject(webcastObject) {
         delete webcastObject.eventDetails;
     }
 
+    if (webcastObject.battleUsers) {
+        let battleUsers = [];
+        webcastObject.battleUsers.forEach((user) => {
+            if (user?.battleGroup?.user) {
+                battleUsers.push(getUserAttributes(user.battleGroup.user));
+            }
+        });
+
+        webcastObject.battleUsers = battleUsers;
+    }
+
     if (webcastObject.battleItems) {
         webcastObject.battleArmies = [];
-        webcastObject.battleItems.forEach(battleItem => {
-            battleItem.battleGroups.forEach(battleGroup => {
+        webcastObject.battleItems.forEach((battleItem) => {
+            battleItem.battleGroups.forEach((battleGroup) => {
                 let group = {
                     hostUserId: battleItem.hostUserId.toString(),
                     points: parseInt(battleGroup.points),
                     participants: [],
-                }
+                };
 
-                battleGroup.users.forEach(user => {
-                    group.participants.push(getUserAttributes(user))
-                })
+                battleGroup.users.forEach((user) => {
+                    group.participants.push(getUserAttributes(user));
+                });
 
                 webcastObject.battleArmies.push(group);
-            })
+            });
         });
 
         delete webcastObject.battleItems;
