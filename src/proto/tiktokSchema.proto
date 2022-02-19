@@ -116,6 +116,8 @@ message User {
     uint64 userId = 1;
     string nickname = 3;
     ProfilePicture profilePicture = 9;
+    UserExtraAttributes extraAttributes = 22;
+    UserBadgesAttributes badge = 64;
     string uniqueId = 38;
 }
 
@@ -129,6 +131,20 @@ message LinkUser {
 message ProfilePicture {
     repeated string urls = 1;
 }
+
+message UserExtraAttributes {
+    int32 followRole = 3;
+}
+
+message UserBadgesAttributes {
+    repeated UserBadge badges = 21;
+}
+
+message UserBadge {
+    string type = 2;
+    string name = 3;
+}
+
 
 // Websocket incoming message structure
 message WebcastWebsocketMessage {

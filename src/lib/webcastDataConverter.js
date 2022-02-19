@@ -66,7 +66,20 @@ function getUserAttributes(webcastUser) {
         uniqueId: webcastUser.uniqueId !== '' ? webcastUser.uniqueId : undefined,
         nickname: webcastUser.nickname !== '' ? webcastUser.nickname : undefined,
         profilePictureUrl: webcastUser.profilePicture?.urls[2],
+        followRole: webcastUser.extraAttributes?.followRole,
+        userBadges: mapBadges(webcastUser.badge),
     };
+}
+
+function mapBadges(badge) {
+    if (!badge || !Array.isArray(badge.badges)) return [];
+
+    let badges = [];
+    badge.badges.forEach((badge) => {
+        badges.push(Object.assign({}, badge));
+    });
+
+    return badges;
 }
 
 module.exports = {
