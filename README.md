@@ -90,7 +90,8 @@ A `WebcastPushConnection` object contains the following methods.
 | connect     | Connects to the live stream chat.<br>Returns a `Promise` which will be resolved when the connection is successfully established. |
 | disconnect  | Disconnects the connection. |
 | getState    | Gets the current connection state including the cached room info (see below). |
-| getRoomInfo | Gets the current room info from TikTok API including streamer info, room status and statistics.<br>Returns a `Promise` which will be resolved when the API request is done.<br>*<b>Note: </b>You can call this function even if you're not connected.* |
+| getRoomInfo | Gets the current room info from TikTok API including streamer info, room status and statistics.<br>Returns a `Promise` which will be resolved when the API request is done.<br>*<b>Note: </b>You can call this function even if you're not connected.*<br>[Example](#retrieve-room-info) |
+| getAvailableGifts | Gets a list of all available gifts including gift name, image url, diamont cost and a lot of other information.<br>Returns a `Promise` that will be resolved when all available gifts has been retrieved from the API.<br>*<b>Note: </b>You can call this function even if you're not connected.*<br>[Example](#retrieve-available-gifts) |
 
 ## Events
 
@@ -435,6 +436,36 @@ tiktokChatConnection.on('error', err => {
     console.error('Error!', err);
 })
 ```
+
+## Examples
+### Retrieve Room Info
+````javascript
+let tiktokChatConnection = new WebcastPushConnection('@username');
+
+tiktokChatConnection.getRoomInfo().then(roomInfo => {
+    console.log(roomInfo);
+    console.log(`Stream started timestamp: ${roomInfo.create_time}, Streamer bio: ${roomInfo.owner.bio_description}`);
+    console.log(`HLS URL: ${roomInfo.stream_url.hls_pull_url}`); // Can be played or recorded with e.g. VLC
+}).catch(err => {
+    console.error(err);
+})
+````
+
+### Retrieve Available Gifts
+````javascript
+let tiktokChatConnection = new WebcastPushConnection('@username');
+
+tiktokChatConnection.getAvailableGifts().then(giftList => {
+    console.log(giftList);
+    giftList.forEach(gift => {
+        console.log(`id: ${gift.id}, name: ${gift.name}, cost: ${gift.diamond_count}`)
+    });
+}).catch(err => {
+    console.error(err);
+})
+````
+
+
 
 ## Contributing
 Your improvements are welcome! Feel free to open an <a href="https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector/issues">issue</a> or <a href="https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector/pulls">pull request</a>.
