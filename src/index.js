@@ -103,7 +103,7 @@ class WebcastPushConnection extends EventEmitter {
     }
 
     /**
-     * Connect to the current live stream room
+     * Connects to the current live stream room
      * @returns {Promise} Promise that will be resolved when the connection is established.
      */
     async connect() {
@@ -158,7 +158,7 @@ class WebcastPushConnection extends EventEmitter {
     }
 
     /**
-     * Close the connection to the live stream
+     * Disconnects the connection to the live stream
      */
     disconnect() {
         if (this.#isConnected) {
@@ -174,7 +174,7 @@ class WebcastPushConnection extends EventEmitter {
     }
 
     /**
-     * Get the current connection state
+     * Get the current connection state including the cached room info and all available gifts (if `enableExtendedGiftInfo` option enabled)
      * @returns {object} current state object
      */
     getState() {
@@ -183,6 +183,7 @@ class WebcastPushConnection extends EventEmitter {
             upgradedToWebsocket: this.#isWsUpgradeDone,
             roomId: this.#roomId,
             roomInfo: this.#roomInfo,
+            availableGifts: this.#availableGifts,
         };
     }
 
@@ -202,7 +203,17 @@ class WebcastPushConnection extends EventEmitter {
     }
 
     /**
-     * Decoded a binary webcast data package that you have received via the 'rawData' event (for debugging purposes only)
+     * Get a list of all available gifts including gift name, image url, diamont cost and a lot of other information
+     * @returns {Promise} Promise that will be resolved when all available gifts has been retrieved from the API
+     */
+    async getAvailableGifts() {
+        await this.#fetchAvailableGifts();
+
+        return this.#availableGifts;
+    }
+
+    /**
+     * Decodes and processes a binary webcast data package that you have received via the `rawData` event (for debugging purposes only)
      * @param {string} messageType
      * @param {Buffer} messageBuffer
      */
