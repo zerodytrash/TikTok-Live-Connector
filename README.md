@@ -10,6 +10,7 @@ A Node.js module to receive and decode livestream events like comments and gifts
 - [Params and options](#params-and-options)
 - [Methods](#methods)
 - [Events](#events)
+- [Examples](#examples)
 - [Contributing](#contributing)
 
 ## Getting started
