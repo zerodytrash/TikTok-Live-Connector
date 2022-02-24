@@ -1,7 +1,7 @@
 # TikTok-Livestream-Chat-Connector
 A Node.js module to receive and decode livestream events like comments and gifts in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides [Chat Comments](#chat), other events such as [Members Joining](#member), [Gifts](#gift), [Viewers](#roomuser), [Follows](#social), [Shares](#social), [Questions](#questionnew), [Likes](#like) and [Battles](#linkmicbattle) can be tracked.
 
-Looking for a Python implementation of this library? Check out https://github.com/isaackogan/TikTok-Live-Connector
+Looking for a Python implementation of this library? Check out [TikTok-Live-Connector](https://github.com/isaackogan/TikTok-Live-Connector) by [**@isaackogan**](https://github.com/isaackogan)
 
 **NOTE:** This is not an official API. It's a reverse engineering project.
 
