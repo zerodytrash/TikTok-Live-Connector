@@ -280,7 +280,9 @@ class WebcastPushConnection extends EventEmitter {
         let upgradeToWsOffered = !!webcastResponse.wsUrl && !!webcastResponse.wsParam;
 
         // Set cursor param to continue with the next request
-        this.#clientParams.cursor = webcastResponse.cursor;
+        if (webcastResponse.cursor) {
+            this.#clientParams.cursor = webcastResponse.cursor;
+        }
 
         // Upgrade to Websocket offered? => Try upgrade
         if (!this.#isWsUpgradeDone && this.#options.enableWebsocketUpgrade && upgradeToWsOffered) {
