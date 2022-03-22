@@ -34,6 +34,7 @@ function deserializeMessage(protoName, binaryMessage) {
                 case 'WebcastQuestionNewMessage':
                 case 'WebcastLinkMicBattle':
                 case 'WebcastLinkMicArmies':
+                case 'WebcastLiveIntroMessage':
                     message.decodedData = tiktokSchema.lookupType(`TikTok.${message.type}`).decode(message.binary);
                     break;
             }

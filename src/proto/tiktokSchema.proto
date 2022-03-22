@@ -158,3 +158,10 @@ message WebcastWebsocketAck {
     uint64 id = 2;
     string type = 7;
 }
+
+// Source: https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector/issues/19#issuecomment-1074150342
+message WebcastLiveIntroMessage {
+    uint64 id = 2;
+    string description = 4;
+    User user = 5;
+}

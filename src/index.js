@@ -21,6 +21,7 @@ const Events = {
     QUESTIONNEW: 'questionNew',
     LINKMICBATTLE: 'linkMicBattle',
     LINKMICARMIES: 'linkMicArmies',
+    LIVEINTRO: 'liveIntro',
     RAWDATA: 'rawData',
     STREAMEND: 'streamEnd',
     WSCONNECTED: 'websocketConnected',
@@ -384,6 +385,9 @@ class WebcastPushConnection extends EventEmitter {
                         break;
                     case 'WebcastLinkMicArmies':
                         this.emit(Events.LINKMICARMIES, simplifiedObj);
+                        break;
+                    case 'WebcastLiveIntroMessage':
+                        this.emit(Events.LIVEINTRO, simplifiedObj);
                         break;
                 }
             });
