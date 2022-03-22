@@ -112,6 +112,7 @@ A `WebcastPushConnection` object has the following events which can be handled v
 - [`questionNew`](#questionnew)
 - [`linkMicBattle`](#linkmicbattle)
 - [`linkMicArmies`](#linkmicarmies)
+- [`liveIntro`](#liveintro)
 - [`streamEnd`](#streamend)
 - [`rawData`](#rawdata)
 - [`websocketConnected`](#websocketconnected)
@@ -402,6 +403,15 @@ Data structure:
         }
     ]
 }
+```
+
+### `liveIntro`
+Triggered when a live intro message appears.
+
+```javascript
+tiktokChatConnection.on('liveIntro', (msg) => {
+    console.log(msg);
+})
 ```
 
 ### `streamEnd`
