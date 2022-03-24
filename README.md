@@ -1,7 +1,7 @@
 # TikTok-Livestream-Chat-Connector
 A Node.js module to receive and decode livestream events such as comments and gifts in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides [Chat Comments](#chat), other events such as [Members Joining](#member), [Gifts](#gift), [Viewers](#roomuser), [Follows](#social), [Shares](#social), [Questions](#questionnew), [Likes](#like) and [Battles](#linkmicbattle) can be tracked.
 
-Looking for a Python implementation of this library? Check out [TikTok-Live-Connector](https://github.com/isaackogan/TikTok-Live-Connector) by [**@isaackogan**](https://github.com/isaackogan)
+Looking for a Python implementation of this library? Check out [TikTokLive](https://github.com/isaackogan/TikTokLive) by [@isaackogan](https://github.com/isaackogan)
 
 **NOTE:** This is not an official API. It's a reverse engineering project.
 
@@ -63,7 +63,7 @@ To create a new `WebcastPushConnection` object the following parameters are requ
 | Param Name | Required | Description |
 | ---------- | -------- | ----------- |
 | uniqueId   | Yes | The unique username of the broadcaster. You can find this name in the URL.<br>Example: `https://www.tiktok.com/@officialgeilegisela/live` => `officialgeilegisela` |
-| options  | No | Here you can set the following optional connection properties. If you do not specify a value, the default value will be used.<br><br>`processInitialData` (default: `true`) <br> Define if you want to process the initital data which includes old messages of the last seconds.<br><br>`fetchRoomInfoOnConnect` (default: `true`) <br> Define if you want to fetch all room information on [`connect()`](#methods). If this option is enabled, the connection to offline rooms will be prevented. If enabled, the connect result contains the room info via the `roomInfo` attribute. You can also manually retrieve the room info (even in an unconnected state) using the [`getRoomInfo()`](#methods) function.<br><br>`enableExtendedGiftInfo` (default: `false`) <br> Define if you want to receive extended information about gifts like gift name, cost and images. This information will be provided at the [gift event](#gift). <br><br>`enableWebsocketUpgrade` (default: `true`) <br> Define if you want to use a WebSocket connection instead of request polling if TikTok offers it. <br><br>`requestPollingIntervalMs` (default: `1000`) <br> Request polling interval if WebSocket is not used.<br><br>`clientParams` (default: `{}`) <br> Custom client params for Webcast API.<br><br>`requestHeaders` (default: `{}`) <br> Custom request headers passed to axios.<br><br>`websocketHeaders` (default: `{}`) <br> Custom websocket headers passed to websocket.client. |
+| options  | No | Here you can set the following optional connection properties. If you do not specify a value, the default value will be used.<br><br>`processInitialData` (default: `true`) <br> Define if you want to process the initital data which includes old messages of the last seconds.<br><br>`fetchRoomInfoOnConnect` (default: `true`) <br> Define if you want to fetch all room information on [`connect()`](#methods). If this option is enabled, the connection to offline rooms will be prevented. If enabled, the connect result contains the room info via the `roomInfo` attribute. You can also manually retrieve the room info (even in an unconnected state) using the [`getRoomInfo()`](#methods) function.<br><br>`enableExtendedGiftInfo` (default: `false`) <br> Define if you want to receive extended information about gifts like gift name, cost and images. This information will be provided at the [gift event](#gift). <br><br>`enableWebsocketUpgrade` (default: `true`) <br> Define if you want to use a WebSocket connection instead of request polling if TikTok offers it. <br><br>`requestPollingIntervalMs` (default: `1000`) <br> Request polling interval if WebSocket is not used.<br><br>`clientParams` (default: `{}`) <br> Custom client params for Webcast API.<br><br>`requestHeaders` (default: `{}`) <br> Custom request headers passed to [axios](https://github.com/axios/axios).<br><br>`websocketHeaders` (default: `{}`) <br> Custom websocket headers passed to [websocket.client](https://github.com/theturtle32/WebSocket-Node). <br><br>`requestOptions` (default: `{}`) <br> Custom request options passed to [axios](https://github.com/axios/axios). Here you can specify an `httpsAgent` to use a proxy and a `timeout` value. See [Example](#connect-via-proxy). <br><br>`websocketOptions` (default: `{}`) <br> Custom websocket options passed to [websocket.client](https://github.com/theturtle32/WebSocket-Node). Here you can specify an `agent` to use a proxy and a `timeout` value. See [Example](#connect-via-proxy). |
 
 Example Options:
 ```javascript
@@ -81,6 +81,12 @@ let tiktokChatConnection = new WebcastPushConnection(tiktokUsername, {
     },
     websocketHeaders: {
         "headerName": "headerValue"
+    },
+    requestOptions: {
+        timeout: 10000
+    },
+    websocketOptions: {
+        timeout: 10000
     }
 });
 ```
@@ -100,9 +106,15 @@ A `WebcastPushConnection` object contains the following methods.
 
 A `WebcastPushConnection` object has the following events which can be handled via `.on(eventName, eventHandler)`
 
-#### Overview
+Control Events:
 - [`connected`](#connected)
 - [`disconnected`](#disconnected)
+- [`streamEnd`](#streamend)
+- [`rawData`](#rawdata)
+- [`websocketConnected`](#websocketconnected)
+- [`error`](#error)
+
+Message Events:
 - [`member`](#member)
 - [`chat`](#chat)
 - [`gift`](#gift)
@@ -113,12 +125,10 @@ A `WebcastPushConnection` object has the following events which can be handled v
 - [`linkMicBattle`](#linkmicbattle)
 - [`linkMicArmies`](#linkmicarmies)
 - [`liveIntro`](#liveintro)
-- [`streamEnd`](#streamend)
-- [`rawData`](#rawdata)
-- [`websocketConnected`](#websocketconnected)
-- [`error`](#error)
 
-### `connected`
+### Control Events
+
+#### `connected`
 Triggered when the connection gets successfully established.
 
 ```javascript
@@ -127,7 +137,7 @@ tiktokChatConnection.on('connected', state => {
 })
 ```
 
-### `disconnected`
+#### `disconnected`
 Triggered when the connection gets disconnected. In that case you can call `connect()` again to have a reconnect logic. Note that you should wait a little bit before attempting a reconnect to to avoid being rate-limited.
 
 ```javascript
@@ -136,7 +146,47 @@ tiktokChatConnection.on('disconnected', () => {
 })
 ```
 
-### `member`
+
+#### `streamEnd`
+Triggered when the live stream gets terminated by the host. Will also trigger the [`disconnected`](#disconnected) event.
+
+```javascript
+tiktokChatConnection.on('streamEnd', () => {
+    console.log('Stream ended');
+})
+```
+
+#### `rawData`
+Triggered every time a protobuf encoded webcast message arrives. You can deserialize the binary object depending on the use case with <a href="https://www.npmjs.com/package/protobufjs">protobufjs</a>.
+
+```javascript
+tiktokChatConnection.on('rawData', (messageTypeName, binary) => {
+    console.log(messageTypeName, binary);
+})
+```
+
+#### `websocketConnected`
+Will be triggered as soon as a websocket connection is established. The websocket client object is passed.
+
+```javascript
+tiktokChatConnection.on('websocketConnected', websocketClient => {
+    console.log("Websocket:", websocketClient.connection);
+})
+```
+
+#### `error`
+General error event. You should handle this.
+
+```javascript
+tiktokChatConnection.on('error', err => {
+    console.error('Error!', err);
+})
+```
+
+
+### Message Events
+
+#### `member`
 Triggered every time a new viewer joins the live stream.
 
 ```javascript
@@ -158,7 +208,7 @@ Data structure:
 }
 ```
 
-### `chat`
+#### `chat`
 Triggered every time a new chat comment arrives.
 
 ```javascript
@@ -185,7 +235,7 @@ Data structure:
 }
 ```
 
-### `gift`
+#### `gift`
 Triggered every time a gift arrives. You will receive additional information via the `extendedGiftInfo` attribute when you enable the [`enableExtendedGiftInfo`](#params-and-options) option. 
 
 > **NOTE:** Users have the capability to send gifts in a streak. This increases the `data.gift.repeat_count` value until the user terminates the streak. During this time new gift events are triggered again and again with an increased `data.gift.repeat_count` value. It should be noted that after the end of the streak, another gift event is triggered, which signals the end of the streak via `data.gift.repeat_end`:`1`. This applies only to gifts with `data.gift.gift_type`:`1`. This means that even if the user sends a `gift_type`:`1` gift only once, you will receive the event twice. Once with `repeat_end`:`0` and once with `repeat_end`:`1`. Therefore, the event should be handled as follows:
@@ -249,7 +299,7 @@ Data structure:
 }
 ```
 
-### `roomUser`
+#### `roomUser`
 Triggered every time a statistic message arrives. This message currently contains only the viewer count.
 
 ```javascript
@@ -258,7 +308,7 @@ tiktokChatConnection.on('roomUser', data => {
 })
 ```
 
-### `like`
+#### `like`
 Triggered when a viewer sends likes to the streamer. For streams with many viewers, this event is not always triggered by TikTok.
 
 ```javascript
@@ -281,7 +331,7 @@ Data structure:
 }
 ```
 
-### `social`
+#### `social`
 Triggered every time someone shares the stream or follows the host.
 
 ```javascript
@@ -302,7 +352,7 @@ Data structure:
 }
 ```
 
-### `questionNew`
+#### `questionNew`
 Triggered every time someone asks a new question via the question feature.
 
 ```javascript
@@ -322,7 +372,7 @@ Data structure:
 }
 ```
 
-### `linkMicBattle`
+#### `linkMicBattle`
 Triggered every time a battle starts.
 
 ```javascript
@@ -351,7 +401,7 @@ Data structure:
 }
 ```
 
-### `linkMicArmies`
+#### `linkMicArmies`
 Triggered every time a battle participant receives points. Contains the current status of the battle and the army that suported the group.
 
 ```javascript
@@ -405,48 +455,12 @@ Data structure:
 }
 ```
 
-### `liveIntro`
+#### `liveIntro`
 Triggered when a live intro message appears.
 
 ```javascript
 tiktokChatConnection.on('liveIntro', (msg) => {
     console.log(msg);
-})
-```
-
-### `streamEnd`
-Triggered when the live stream gets terminated by the host. Will also trigger the [`disconnected`](#disconnected) event.
-
-```javascript
-tiktokChatConnection.on('streamEnd', () => {
-    console.log('Stream ended');
-})
-```
-
-### `rawData`
-Triggered every time a protobuf encoded webcast message arrives. You can deserialize the binary object depending on the use case with <a href="https://www.npmjs.com/package/protobufjs">protobufjs</a>.
-
-```javascript
-tiktokChatConnection.on('rawData', (messageTypeName, binary) => {
-    console.log(messageTypeName, binary);
-})
-```
-
-### `websocketConnected`
-Will be triggered as soon as a websocket connection is established. The websocket client object is passed.
-
-```javascript
-tiktokChatConnection.on('websocketConnected', websocketClient => {
-    console.log("Websocket:", websocketClient.connection);
-})
-```
-
-### `error`
-General error event. You should handle this.
-
-```javascript
-tiktokChatConnection.on('error', err => {
-    console.error('Error!', err);
 })
 ```
 
@@ -478,6 +492,29 @@ tiktokChatConnection.getAvailableGifts().then(giftList => {
 })
 ````
 
+### Connect via Proxy
+[proxy-agent](https://www.npmjs.com/package/proxy-agent) supports `http`, `https`, `socks4` and `socks5` proxies:
+````
+npm i proxy-agent
+````
+You can specify if you want to use a proxy for https requests, websockets or both:
+````javascript
+const { WebcastPushConnection } = require('tiktok-livestream-chat-connector');
+const ProxyAgent = require('proxy-agent');
+
+let tiktokChatConnection = new WebcastPushConnection('@username', {
+    requestOptions: {
+        httpsAgent: new ProxyAgent('https://username:password@host:port'),
+        timeout: 10000 // 10 seconds
+    },
+    websocketOptions: {
+        agent: new ProxyAgent('https://username:password@host:port'),
+        timeout: 10000 // 10 seconds
+    }
+});
+
+// Connect as usual
+````
 
 
 ## Contributing
