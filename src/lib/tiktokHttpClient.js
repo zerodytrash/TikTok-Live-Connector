@@ -1,23 +1,21 @@
 const axios = require('axios');
-const { wrapper } = require('axios-cookiejar-support');
-const { CookieJar } = require('tough-cookie');
+const TikTokCookieJar = require('./tiktokCookieJar');
 const { deserializeMessage } = require('./webcastProtobuf.js');
 
 const Config = require('./webcastConfig.js');
 
 class TikTokHttpClient {
-    constructor(customHeaders) {
-        this.cookieJar = new CookieJar();
-        this.axiosInstance = wrapper(
-            axios.create({
-                timeout: 10000,
-                headers: {
-                    ...Config.DEFAULT_REQUEST_HEADERS,
-                    ...customHeaders,
-                },
-                jar: this.cookieJar,
-            })
-        );
+    constructor(customHeaders, axiosOptions) {
+        this.axiosInstance = axios.create({
+            timeout: 10000,
+            headers: {
+                ...Config.DEFAULT_REQUEST_HEADERS,
+                ...customHeaders,
+            },
+            ...(axiosOptions || {}),
+        });
+
+        this.cookieJar = new TikTokCookieJar(this.axiosInstance);
     }
 
     #get(url, params, responseType) {

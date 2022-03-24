@@ -8,10 +8,16 @@ const { deserializeMessage } = require('./lib/webcastProtobuf.js');
 
 const Config = require('./lib/webcastConfig.js');
 
-const Events = {
+const ControlEvents = {
     CONNECTED: 'connected',
     DISCONNECTED: 'disconnected',
     ERROR: 'error',
+    RAWDATA: 'rawData',
+    STREAMEND: 'streamEnd',
+    WSCONNECTED: 'websocketConnected',
+};
+
+const MessageEvents = {
     CHAT: 'chat',
     MEMBER: 'member',
     GIFT: 'gift',
@@ -22,9 +28,6 @@ const Events = {
     LINKMICBATTLE: 'linkMicBattle',
     LINKMICARMIES: 'linkMicArmies',
     LIVEINTRO: 'liveIntro',
-    RAWDATA: 'rawData',
-    STREAMEND: 'streamEnd',
-    WSCONNECTED: 'websocketConnected',
 };
 
 /**
@@ -60,6 +63,8 @@ class WebcastPushConnection extends EventEmitter {
      * @param {object} [options[].clientParams={}] Custom client params for Webcast API
      * @param {object} [options[].requestHeaders={}] Custom request headers for axios
      * @param {object} [options[].websocketHeaders={}] Custom request headers for websocket.client
+     * @param {object} [options[].requestOptions={}] Custom request options for axios. Here you can specify a httpsAgent to use a proxy for example.
+     * @param {object} [options[].websocketOptions={}] Custom request options for websocket.client. Here you can specify a httpsAgent to use a proxy for example.
      */
     constructor(uniqueId, options) {
         super();
@@ -67,7 +72,7 @@ class WebcastPushConnection extends EventEmitter {
         this.#setOptions(options || {});
 
         this.#uniqueStreamerId = validateAndNormalizeUniqueId(uniqueId);
-        this.#httpClient = new TikTokHttpClient(this.#options.requestHeaders);
+        this.#httpClient = new TikTokHttpClient(this.#options.requestHeaders, this.#options.requestOptions);
 
         this.#clientParams = {
             ...Config.DEFAULT_CLIENT_PARAMS,
@@ -89,6 +94,8 @@ class WebcastPushConnection extends EventEmitter {
                 clientParams: {},
                 requestHeaders: {},
                 websocketHeaders: {},
+                requestOptions: {},
+                websocketOptions: {},
             },
             providedOptions
         );
@@ -148,7 +155,7 @@ class WebcastPushConnection extends EventEmitter {
 
             let state = this.getState();
 
-            this.emit(Events.CONNECTED, state);
+            this.emit(ControlEvents.CONNECTED, state);
             return state;
         } catch (err) {
             this.#handleError(err, 'Error while connecting');
@@ -170,7 +177,7 @@ class WebcastPushConnection extends EventEmitter {
             // Reset state
             this.#setUnconnected();
 
-            this.emit(Events.DISCONNECTED);
+            this.emit(ControlEvents.DISCONNECTED);
         }
     }
 
@@ -311,7 +318,7 @@ class WebcastPushConnection extends EventEmitter {
             this.#isWsUpgradeDone = true;
             this.#isPollingEnabled = false;
 
-            this.emit(Events.WSCONNECTED, this.#websocket);
+            this.emit(ControlEvents.WSCONNECTED, this.#websocket);
         } catch (err) {
             this.#handleError(err, 'Upgrade to websocket failed. Using request polling...');
         }
@@ -319,7 +326,7 @@ class WebcastPushConnection extends EventEmitter {
 
     async #setupWebsocket(wsUrl, wsParams) {
         return new Promise((resolve, reject) => {
-            this.#websocket = new WebcastWebsocket(wsUrl, this.#httpClient.cookieJar, this.#clientParams, wsParams, this.#options.websocketHeaders);
+            this.#websocket = new WebcastWebsocket(wsUrl, this.#httpClient.cookieJar, this.#clientParams, wsParams, this.#options.websocketHeaders, this.#options.websocketOptions);
 
             this.#websocket.on('connect', (wsConnection) => {
                 resolve();
@@ -339,7 +346,7 @@ class WebcastPushConnection extends EventEmitter {
     #processWebcastResponse(webcastResponse) {
         // Emit raw (protobuf encoded) data for a use case specific processing
         webcastResponse.messages.forEach((message) => {
-            this.emit(Events.RAWDATA, message.type, message.binary);
+            this.emit(ControlEvents.RAWDATA, message.type, message.binary);
         });
 
         // Process and emit decoded data depending on the the message type
@@ -351,51 +358,51 @@ class WebcastPushConnection extends EventEmitter {
                 switch (message.type) {
                     case 'WebcastControlMessage':
                         if (message.decodedData.action === 3) {
-                            this.emit(Events.STREAMEND);
+                            this.emit(ControlEvents.STREAMEND);
                             this.disconnect();
                         }
                         break;
                     case 'WebcastRoomUserSeqMessage':
-                        this.emit(Events.ROOMUSER, simplifiedObj);
+                        this.emit(MessageEvents.ROOMUSER, simplifiedObj);
                         break;
                     case 'WebcastChatMessage':
-                        this.emit(Events.CHAT, simplifiedObj);
+                        this.emit(MessageEvents.CHAT, simplifiedObj);
                         break;
                     case 'WebcastMemberMessage':
-                        this.emit(Events.MEMBER, simplifiedObj);
+                        this.emit(MessageEvents.MEMBER, simplifiedObj);
                         break;
                     case 'WebcastGiftMessage':
                         // Add extended gift info if option enabled
                         if (Array.isArray(this.#availableGifts) && simplifiedObj.giftId) {
                             simplifiedObj.extendedGiftInfo = this.#availableGifts.find((x) => x.id === simplifiedObj.giftId);
                         }
-                        this.emit(Events.GIFT, simplifiedObj);
+                        this.emit(MessageEvents.GIFT, simplifiedObj);
                         break;
                     case 'WebcastSocialMessage':
-                        this.emit(Events.SOCIAL, simplifiedObj);
+                        this.emit(MessageEvents.SOCIAL, simplifiedObj);
                         break;
                     case 'WebcastLikeMessage':
-                        this.emit(Events.LIKE, simplifiedObj);
+                        this.emit(MessageEvents.LIKE, simplifiedObj);
                         break;
                     case 'WebcastQuestionNewMessage':
-                        this.emit(Events.QUESTIONNEW, simplifiedObj);
+                        this.emit(MessageEvents.QUESTIONNEW, simplifiedObj);
                         break;
                     case 'WebcastLinkMicBattle':
-                        this.emit(Events.LINKMICBATTLE, simplifiedObj);
+                        this.emit(MessageEvents.LINKMICBATTLE, simplifiedObj);
                         break;
                     case 'WebcastLinkMicArmies':
-                        this.emit(Events.LINKMICARMIES, simplifiedObj);
+                        this.emit(MessageEvents.LINKMICARMIES, simplifiedObj);
                         break;
                     case 'WebcastLiveIntroMessage':
-                        this.emit(Events.LIVEINTRO, simplifiedObj);
+                        this.emit(MessageEvents.LIVEINTRO, simplifiedObj);
                         break;
                 }
             });
     }
 
     #handleError(exception, info) {
-        if (this.listenerCount(Events.ERROR) > 0) {
-            this.emit(Events.ERROR, { info, exception });
+        if (this.listenerCount(ControlEvents.ERROR) > 0) {
+            this.emit(ControlEvents.ERROR, { info, exception });
         }
     }
 }

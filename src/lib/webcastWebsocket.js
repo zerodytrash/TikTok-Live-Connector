@@ -3,19 +3,19 @@ const websocket = require('websocket');
 const { deserializeWebsocketMessage, serializeMessage } = require('./webcastProtobuf.js');
 
 class WebcastWebsocket extends websocket.client {
-    constructor(wsUrl, cookieJar, clientParams, wsParams, customHeaders) {
+    constructor(wsUrl, cookieJar, clientParams, wsParams, customHeaders, websocketOptions) {
         super();
         this.pingInterval = null;
         this.connection = null;
         this.wsParams = { ...clientParams, ...wsParams };
         this.wsUrlWithParams = `${wsUrl}?${new URLSearchParams(this.wsParams)}`;
         this.wsHeaders = {
-            Cookie: cookieJar.getCookieStringSync(Config.TIKTOK_URL_WEB),
+            Cookie: cookieJar.getCookieString(),
             ...(customHeaders || {}),
         };
 
         this.#handleEvents();
-        this.connect(this.wsUrlWithParams, 'echo-protocol', Config.TIKTOK_URL_WEBCAST, this.wsHeaders);
+        this.connect(this.wsUrlWithParams, 'echo-protocol', Config.TIKTOK_URL_WEBCAST, this.wsHeaders, websocketOptions);
     }
 
     #handleEvents() {
