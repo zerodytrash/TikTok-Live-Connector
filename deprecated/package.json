@@ -1,7 +1,7 @@
 {
-  "name": "tiktok-live-connector",
+  "name": "tiktok-livestream-chat-connector",
   "version": "0.9.16",
-  "description": "Node.js module to receive live stream chat events like comments and gifts from TikTok LIVE",
+  "description": "Node.js module to receive live stream events like comments and gifts from TikTok LIVE",
   "main": "index.js",
   "engines": {
     "node": ">=10.0.0"
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zerodytrash/TikTok-Live-Connector.git"
+    "url": "git+https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector.git"
   },
   "keywords": [
     "tiktok",
@@ -36,9 +36,9 @@
   "author": "zerodytrash",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/zerodytrash/TikTok-Live-Connector/issues"
+    "url": "https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector/issues"
   },
-  "homepage": "https://github.com/zerodytrash/TikTok-Live-Connector#readme",
+  "homepage": "https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector#readme",
   "dependencies": {
     "axios": "^0.25.0",
     "protobufjs": "^6.11.2",

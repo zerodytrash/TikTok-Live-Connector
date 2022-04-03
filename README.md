@@ -1,5 +1,5 @@
-# TikTok-Livestream-Chat-Connector
-A Node.js module to receive and decode livestream events such as comments and gifts in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides [Chat Comments](#chat), other events such as [Members Joining](#member), [Gifts](#gift), [Viewers](#roomuser), [Follows](#social), [Shares](#social), [Questions](#questionnew), [Likes](#like) and [Battles](#linkmicbattle) can be tracked.
+# TikTok-Live-Connector
+A Node.js module to receive and decode live stream events such as comments and gifts in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides [Chat Comments](#chat), other events such as [Members Joining](#member), [Gifts](#gift), [Viewers](#roomuser), [Follows](#social), [Shares](#social), [Questions](#questionnew), [Likes](#like) and [Battles](#linkmicbattle) can be tracked.
 
 Looking for a Python implementation of this library? Check out [TikTokLive](https://github.com/isaackogan/TikTokLive) by [@isaackogan](https://github.com/isaackogan)
 
@@ -19,13 +19,13 @@ Looking for a Python implementation of this library? Check out [TikTokLive](http
 
 1. Install the package via NPM
 ```
-npm i tiktok-livestream-chat-connector
+npm i tiktok-live-connector
 ```
 
 2. Create your first chat connection
 
 ```javascript
-const { WebcastPushConnection } = require('tiktok-livestream-chat-connector');
+const { WebcastPushConnection } = require('tiktok-live-connector');
 
 // Username of someone who is currently live
 let tiktokUsername = "officialgeilegisela";
@@ -499,7 +499,7 @@ npm i proxy-agent
 ````
 You can specify if you want to use a proxy for https requests, websockets or both:
 ````javascript
-const { WebcastPushConnection } = require('tiktok-livestream-chat-connector');
+const { WebcastPushConnection } = require('tiktok-live-connector');
 const ProxyAgent = require('proxy-agent');
 
 let tiktokChatConnection = new WebcastPushConnection('@username', {
@@ -518,4 +518,4 @@ let tiktokChatConnection = new WebcastPushConnection('@username', {
 
 
 ## Contributing
-Your improvements are welcome! Feel free to open an <a href="https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector/issues">issue</a> or <a href="https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector/pulls">pull request</a>.
+Your improvements are welcome! Feel free to open an <a href="https://github.com/zerodytrash/TikTok-Live-Connector/issues">issue</a> or <a href="https://github.com/zerodytrash/TikTok-Live-Connector/pulls">pull request</a>.
