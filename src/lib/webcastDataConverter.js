@@ -9,12 +9,6 @@ function simplifyObject(webcastObject) {
         delete webcastObject.user;
     }
 
-    if (webcastObject.giftJson) {
-        webcastObject.gift = JSON.parse(webcastObject.giftJson);
-        webcastObject.giftId = webcastObject.gift.gift_id;
-        delete webcastObject.giftJson;
-    }
-
     if (webcastObject.event) {
         Object.assign(webcastObject, webcastObject.event);
         delete webcastObject.event;
@@ -55,6 +49,19 @@ function simplifyObject(webcastObject) {
         });
 
         delete webcastObject.battleItems;
+    }
+
+    if (webcastObject.giftId) {
+        // Convert to boolean
+        webcastObject.repeatEnd = !!webcastObject.repeatEnd;
+
+        // Add previously used JSON structure (for compatibility reasons)
+        // Can be removed soon
+        webcastObject.gift = {
+            gift_id: webcastObject.giftId,
+            repeat_count: webcastObject.repeatCount,
+            repeat_end: webcastObject.repeatEnd ? 1 : 0,
+        };
     }
 
     return Object.assign({}, webcastObject);
