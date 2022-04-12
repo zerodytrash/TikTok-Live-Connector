@@ -47,6 +47,20 @@ message WebcastGiftMessage {
     int32 giftId = 2;
     int32 repeatCount = 5;
     int32 repeatEnd = 9;
+
+    WebcastGiftMessageGiftDetails giftDetails = 15;
+}
+
+message WebcastGiftMessageGiftDetails {
+    WebcastGiftMessageGiftImage giftImage = 1;
+    string giftName = 16;
+    string describe = 2;
+    int32 giftType = 11;
+    int32 diamondCount = 12;
+}
+
+message WebcastGiftMessageGiftImage {
+    string giftPictureUrl = 1;
 }
 
 

@@ -61,7 +61,18 @@ function simplifyObject(webcastObject) {
             gift_id: webcastObject.giftId,
             repeat_count: webcastObject.repeatCount,
             repeat_end: webcastObject.repeatEnd ? 1 : 0,
+            gift_type: webcastObject.giftDetails?.giftType,
         };
+
+        if (webcastObject.giftDetails) {
+            Object.assign(webcastObject, webcastObject.giftDetails);
+            delete webcastObject.giftDetails;
+        }
+
+        if (webcastObject.giftImage) {
+            Object.assign(webcastObject, webcastObject.giftImage);
+            delete webcastObject.giftImage;
+        }
     }
 
     return Object.assign({}, webcastObject);
