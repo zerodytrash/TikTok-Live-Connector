@@ -238,17 +238,17 @@ Data structure:
 #### `gift`
 Triggered every time a gift arrives. You will receive additional information via the `extendedGiftInfo` attribute when you enable the [`enableExtendedGiftInfo`](#params-and-options) option. 
 
-> **NOTE:** Users have the capability to send gifts in a streak. This increases the `data.gift.repeat_count` value until the user terminates the streak. During this time new gift events are triggered again and again with an increased `data.gift.repeat_count` value. It should be noted that after the end of the streak, another gift event is triggered, which signals the end of the streak via `data.gift.repeat_end`:`1`. This applies only to gifts with `data.gift.gift_type`:`1`. This means that even if the user sends a `gift_type`:`1` gift only once, you will receive the event twice. Once with `repeat_end`:`0` and once with `repeat_end`:`1`. Therefore, the event should be handled as follows:
+> **NOTE:** Users have the capability to send gifts in a streak. This increases the `repeatCount` value until the user terminates the streak. During this time new gift events are triggered again and again with an increased `repeatCount` value. It should be noted that after the end of the streak, another gift event is triggered, which signals the end of the streak via `repeatEnd`:`true`. This applies only to gifts with `giftType`:`1`. This means that even if the user sends a `giftType`:`1` gift only once, you will receive the event twice. Once with `repeatEnd`:`false` and once with `repeatEnd`:`true`. Therefore, the event should be handled as follows:
 
 
 ```javascript
 tiktokChatConnection.on('gift', data => {
-    if (data.gift.gift_type === 1 && data.gift.repeat_end === 0) {
+    if (data.giftType === 1 && !data.repeatEnd) {
         // Streak in progress => show only temporary
-        console.log(`${data.uniqueId} is sending gift ${data.giftId} x${data.gift.repeat_count}`);
+        console.log(`${data.uniqueId} is sending gift ${data.giftName} x${data.repeatCount}`);
     } else {
         // Streak ended or non-streakable gift => process the gift with final repeat_count
-        console.log(`${data.uniqueId} has sent gift ${data.giftId} x${data.gift.repeat_count}`);
+        console.log(`${data.uniqueId} has sent gift ${data.giftName} x${data.repeatCount}`);
     }
 })
 ```
@@ -257,44 +257,24 @@ tiktokChatConnection.on('gift', data => {
 Data structure:
 ```javascript
 {
-  userId: '6776663624629974121',
+  // User Details
+  userId: '6976651226482787334',
   uniqueId: 'zerodytester',
   nickname: 'Zerody One',
-  profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...',
-  gift: {
-    gift_id: 5729,
-    gift_type: 2,
-    repeat_count: 1,
-    repeat_end: 0,
-    to_user_id: 6929592145315251000
-  },
-  giftId: 5729,
-  // Extended info is present if you have enabled the 'enableExtendedGiftInfo' option
+  followRole: 0,
+  profilePictureUrl: 'https://p16-sign.tiktokcdn-us.com/...',  
+  // Gift Details
+  giftId: 5655,
+  repeatCount: 1,
+  repeatEnd: true,  
+  userBadges: [],
+  describe: 'Sent Rose',
+  giftType: 1,
+  diamondCount: 1,
+  giftName: 'Rose',
+  giftPictureUrl: 'https://p19-webcast.tiktokcdn.com/...',
   extendedGiftInfo: {
-    describe: 'sent Rose',
-    diamond_count: 1,
-    duration: 1000,
-    icon: {
-      avg_color: '#A3897C',
-      is_animated: false,
-      url_list: [
-        // Icon URLs...
-      ]
-    },
-    id: 5655,
-    image: {
-      avg_color: '#FFEBEB',
-      is_animated: false,
-      url_list: [
-        // Image URLs...
-      ]
-    },
-    is_broadcast_gift: false,
-    is_displayed_on_panel: true,
-    is_effect_befview: false,
-    item_type: 1,
-    name: 'Rose',
-    type: 1
+    // This will be filled when you enable the `enableExtendedGiftInfo` option
   }
 }
 ```
