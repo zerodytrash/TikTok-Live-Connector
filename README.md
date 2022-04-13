@@ -1,7 +1,9 @@
 # TikTok-Live-Connector
 A Node.js module to receive and decode live stream events such as comments and gifts in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides [Chat Comments](#chat), other events such as [Members Joining](#member), [Gifts](#gift), [Viewers](#roomuser), [Follows](#social), [Shares](#social), [Questions](#questionnew), [Likes](#like) and [Battles](#linkmicbattle) can be tracked.
 
-Looking for a Python implementation of this library? Check out [TikTokLive](https://github.com/isaackogan/TikTokLive) by [@isaackogan](https://github.com/isaackogan)
+Do you prefer other programming languages?
+- **Python** rewrite: [TikTokLive](https://github.com/isaackogan/TikTokLive) by [@isaackogan](https://github.com/isaackogan)
+- **Go** rewrite: [GoTikTokLive](https://github.com/Davincible/gotiktoklive) by [@Davincible](https://github.com/Davincible)
 
 **NOTE:** This is not an official API. It's a reverse engineering project.
 
@@ -257,17 +259,18 @@ tiktokChatConnection.on('gift', data => {
 Data structure:
 ```javascript
 {
-  // User Details
+  // Sender Details
   userId: '6976651226482787334',
   uniqueId: 'zerodytester',
   nickname: 'Zerody One',
   followRole: 0,
+  userBadges: [],
   profilePictureUrl: 'https://p16-sign.tiktokcdn-us.com/...',  
+  
   // Gift Details
   giftId: 5655,
   repeatCount: 1,
   repeatEnd: true,  
-  userBadges: [],
   describe: 'Sent Rose',
   giftType: 1,
   diamondCount: 1,
