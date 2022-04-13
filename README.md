@@ -1,5 +1,7 @@
 # TikTok-Live-Connector
-A Node.js module to receive and decode live stream events such as comments and gifts in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides [Chat Comments](#chat), other events such as [Members Joining](#member), [Gifts](#gift), [Viewers](#roomuser), [Follows](#social), [Shares](#social), [Questions](#questionnew), [Likes](#like) and [Battles](#linkmicbattle) can be tracked.
+A Node.js library to receive and decode live stream events such as comments and gifts in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides [Chat Comments](#chat), other events such as [Members Joining](#member), [Gifts](#gift), [Viewers](#roomuser), [Follows](#social), [Shares](#social), [Questions](#questionnew), [Likes](#like) and [Battles](#linkmicbattle) can be tracked.
+
+**Example Project: [https://tiktok-chat-reader.zerody.one/](https://tiktok-chat-reader.zerody.one/)**
 
 Do you prefer other programming languages?
 - **Python** rewrite: [TikTokLive](https://github.com/isaackogan/TikTokLive) by [@isaackogan](https://github.com/isaackogan)
@@ -7,7 +9,7 @@ Do you prefer other programming languages?
 
 **NOTE:** This is not an official API. It's a reverse engineering project.
 
-### Demo: [https://tiktok-chat-reader.zerody.one/](https://tiktok-chat-reader.zerody.one/)
+**NOTE:** This JavaScript library is intended for use in [Node.js](https://nodejs.org/) environments. If you want to process or display the data in the browser (client-side), you need to transfer the data from the Node.js environment to the browser. A good approach for this is to use [Socket.IO](https://socket.io/) or a different low-latency communication framework. A complete example project can be found here: [TikTok-Chat-Reader](https://github.com/zerodytrash/TikTok-Chat-Reader)
 
 #### Overview
 - [Getting started](#getting-started)
