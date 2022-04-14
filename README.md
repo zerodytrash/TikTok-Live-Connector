@@ -279,9 +279,13 @@ Data structure:
   diamondCount: 1,
   giftName: 'Rose',
   giftPictureUrl: 'https://p19-webcast.tiktokcdn.com/...',
+  timestamp: 1649962111957,
   extendedGiftInfo: {
     // This will be filled when you enable the `enableExtendedGiftInfo` option
-  }
+  },
+  
+  // Receiver Details
+  receiverUserId: '7044962356446839814'
 }
 ```
 
