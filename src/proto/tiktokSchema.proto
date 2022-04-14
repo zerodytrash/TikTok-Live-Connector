@@ -49,6 +49,7 @@ message WebcastGiftMessage {
     int32 repeatEnd = 9;
 
     WebcastGiftMessageGiftDetails giftDetails = 15;
+    WebcastGiftMessageGiftExtra giftExtra = 23;
 }
 
 message WebcastGiftMessageGiftDetails {
@@ -57,6 +58,12 @@ message WebcastGiftMessageGiftDetails {
     string describe = 2;
     int32 giftType = 11;
     int32 diamondCount = 12;
+}
+
+// Taken from https://github.com/Davincible/gotiktoklive/blob/da4630622bc586629a53faae64e8c53509af29de/proto/tiktok.proto#L57
+message WebcastGiftMessageGiftExtra {
+    uint64 timestamp = 6;
+    uint64 receiverUserId = 8;
 }
 
 message WebcastGiftMessageGiftImage {

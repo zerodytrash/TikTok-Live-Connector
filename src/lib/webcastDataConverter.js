@@ -1,3 +1,8 @@
+/**
+ * This ugly function brings the nested protobuf objects to a flat level
+ * In addition, attributes in "Long" format are converted to strings (e.g. UserIds)
+ * This makes it easier to handle the data later, since some libraries have problems to serialize this protobuf specific data.
+ */
 function simplifyObject(webcastObject) {
     if (webcastObject.questionDetails) {
         Object.assign(webcastObject, webcastObject.questionDetails);
@@ -72,6 +77,19 @@ function simplifyObject(webcastObject) {
         if (webcastObject.giftImage) {
             Object.assign(webcastObject, webcastObject.giftImage);
             delete webcastObject.giftImage;
+        }
+
+        if (webcastObject.giftExtra) {
+            Object.assign(webcastObject, webcastObject.giftExtra);
+            delete webcastObject.giftExtra;
+
+            if (webcastObject.receiverUserId) {
+                webcastObject.receiverUserId = webcastObject.receiverUserId.toString();
+            }
+
+            if (webcastObject.timestamp) {
+                webcastObject.timestamp = parseInt(webcastObject.timestamp);
+            }
         }
     }
 
