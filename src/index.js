@@ -60,6 +60,7 @@ class WebcastPushConnection extends EventEmitter {
      * @param {boolean} [options[].enableExtendedGiftInfo=false] Enable this option to get extended information on 'gift' events like gift name and cost
      * @param {boolean} [options[].enableWebsocketUpgrade=true] Use WebSocket instead of request polling if TikTok offers it
      * @param {number} [options[].requestPollingIntervalMs=1000] Request polling interval if WebSocket is not used
+     * @param {string} [options[].sessionId=null] The session ID from the "sessionid" cookie is required if you want to send automated messages in the chat.
      * @param {object} [options[].clientParams={}] Custom client params for Webcast API
      * @param {object} [options[].requestHeaders={}] Custom request headers for axios
      * @param {object} [options[].websocketHeaders={}] Custom request headers for websocket.client
@@ -91,6 +92,7 @@ class WebcastPushConnection extends EventEmitter {
                 enableExtendedGiftInfo: false,
                 enableWebsocketUpgrade: true,
                 requestPollingIntervalMs: 1000,
+                sessionId: null,
                 clientParams: {},
                 requestHeaders: {},
                 websocketHeaders: {},
@@ -218,6 +220,52 @@ class WebcastPushConnection extends EventEmitter {
         await this.#fetchAvailableGifts();
 
         return this.#availableGifts;
+    }
+
+    /**
+     * Sends a chat message into the current live room using the provided session cookie
+     * @param {string} text Message Content
+     * @param {string} [sessionId] The "sessionid" cookie value from your TikTok Website if not provided via the constructor options
+     * @returns {Promise} Promise that will be resolved when the chat message has been submitted to the API
+     */
+    async sendMessage(text, sessionId) {
+        if (sessionId) {
+            // Update sessionId
+            this.#options.sessionId = sessionId;
+        }
+
+        if (!this.#options.sessionId) {
+            throw new Error('Missing SessionId. Please provide your current SessionId to use this feature.');
+        }
+
+        try {
+            // Retrieve current room_id if not connected
+            if (!this.#isConnected) {
+                await this.#retrieveRoomId();
+            }
+
+            // Add the session cookie to the CookieJar
+            this.#httpClient.cookieJar.setCookie('sessionid', this.#options.sessionId);
+
+            // Submit the chat request
+            let requestParams = { ...this.#clientParams, content: text };
+            let response = await this.#httpClient.postFormDataToWebcastApi('room/chat/', requestParams, null);
+
+            // Success?
+            if (response?.status_code === 0) {
+                return response.data;
+            }
+
+            // Handle errors
+            switch (response?.status_code) {
+                case 20003:
+                    throw new Error('Your SessionId has expired. Please provide a new one.');
+                default:
+                    throw new Error(`TikTok responded with status code ${response?.status_code}: ${response?.data?.message}`);
+            }
+        } catch (err) {
+            throw new Error(`Failed to send chat message. ${err.message}`);
+        }
     }
 
     /**

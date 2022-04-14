@@ -69,6 +69,10 @@ class TikTokCookieJar {
 
         return cookieString;
     }
+
+    setCookie(name, value) {
+        this.cookies[name] = value;
+    }
 }
 
 module.exports = TikTokCookieJar;

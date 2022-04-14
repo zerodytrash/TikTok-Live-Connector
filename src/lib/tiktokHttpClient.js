@@ -22,6 +22,10 @@ class TikTokHttpClient {
         return this.axiosInstance.get(url, { params, responseType });
     }
 
+    #post(url, params, data, responseType) {
+        return this.axiosInstance.post(url, data, { params, responseType });
+    }
+
     async getMainPage(path) {
         let response = await this.#get(`${Config.TIKTOK_URL_WEB}${path}`);
         return response.data;
@@ -34,6 +38,11 @@ class TikTokHttpClient {
 
     async getJsonObjectFromWebcastApi(path, params) {
         let response = await this.#get(`${Config.TIKTOK_URL_WEBCAST}${path}`, params, 'json');
+        return response.data;
+    }
+
+    async postFormDataToWebcastApi(path, params, formData) {
+        let response = await this.#post(`${Config.TIKTOK_URL_WEBCAST}${path}`, params, formData, 'json');
         return response.data;
     }
 }
