@@ -190,3 +190,30 @@ message WebcastWebsocketAck {
     uint64 id = 2;
     string type = 7;
 }
+
+message WebcastEnvelopeMessage {
+    TreasureBoxData box = 2;
+    TreasureBoxUser user = 1;
+}
+
+message TreasureBoxUser {
+    TreasureBoxUser2 user = 8;
+}
+
+message TreasureBoxUser2 {
+    TreasureBoxUser3 user = 4;
+}
+
+message TreasureBoxUser3 {
+    TreasureBoxUser4 user = 21;
+}
+
+message TreasureBoxUser4 {
+    User user = 1;
+}
+
+message TreasureBoxData {
+    uint32 coins = 5;
+    uint32 canOpen = 6;
+    uint64 timestamp = 7;
+}
