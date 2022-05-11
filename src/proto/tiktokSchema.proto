@@ -193,19 +193,19 @@ message WebcastWebsocketAck {
 
 message WebcastEnvelopeMessage {
     TreasureBoxData box = 2;
-    TreasureBoxUser user = 1;
+    TreasureBoxUser user1 = 1;
 }
 
 message TreasureBoxUser {
-    TreasureBoxUser2 user = 8;
+    TreasureBoxUser2 user2 = 8;
 }
 
 message TreasureBoxUser2 {
-    TreasureBoxUser3 user = 4;
+    repeated TreasureBoxUser3 user3 = 4;
 }
 
 message TreasureBoxUser3 {
-    TreasureBoxUser4 user = 21;
+    TreasureBoxUser4 user4 = 21;
 }
 
 message TreasureBoxUser4 {

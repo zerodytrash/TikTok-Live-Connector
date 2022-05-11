@@ -24,6 +24,7 @@ function deserializeMessage(protoName, binaryMessage) {
         // Contains different object structures depending on the type field
         webcastData.messages.forEach((message) => {
             switch (message.type) {
+                case 'WebcastEnvelopeMessage':
                 case 'WebcastControlMessage':
                 case 'WebcastRoomUserSeqMessage':
                 case 'WebcastChatMessage':
@@ -35,7 +36,6 @@ function deserializeMessage(protoName, binaryMessage) {
                 case 'WebcastLinkMicBattle':
                 case 'WebcastLinkMicArmies':
                 case 'WebcastLiveIntroMessage':
-                case 'WebcastEnvelopeMessage':
                     message.decodedData = tiktokSchema.lookupType(`TikTok.${message.type}`).decode(message.binary);
                     break;
             }

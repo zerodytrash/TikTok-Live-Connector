@@ -446,7 +446,7 @@ class WebcastPushConnection extends EventEmitter {
                         this.emit(MessageEvents.LIVEINTRO, simplifiedObj);
                         break;
                     case 'WebcastEnvelopeMessage':
-                        this.emit(MessageEvents.TREASUREBOX, simplifiedObj);
+                        if (simplifiedObj.userId) this.emit(MessageEvents.TREASUREBOX, simplifiedObj);
                         break;
                 }
             });

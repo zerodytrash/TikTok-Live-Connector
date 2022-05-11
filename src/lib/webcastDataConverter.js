@@ -9,6 +9,21 @@ function simplifyObject(webcastObject) {
         delete webcastObject.questionDetails;
     }
 
+    if (webcastObject.user1 && webcastObject.user1.user2) {
+        Object.assign(webcastObject, getUserAttributes(webcastObject.user1.user2.user3[0].user4.user));
+        delete webcastObject.user1;
+    }
+
+    if (webcastObject.box) {
+        Object.assign(webcastObject, webcastObject.box);
+        delete webcastObject.box;
+    }
+  
+    if (webcastObject.user) {
+        Object.assign(webcastObject, getUserAttributes(webcastObject.user));
+        delete webcastObject.user;
+    }
+
     if (webcastObject.user) {
         Object.assign(webcastObject, getUserAttributes(webcastObject.user));
         delete webcastObject.user;
