@@ -93,29 +93,60 @@ function simplifyObject(webcastObject) {
         }
     }
 
+    if (webcastObject.emote) {
+        webcastObject.emoteId = webcastObject.emote?.emoteId;
+        webcastObject.emoteImageUrl = webcastObject.emote?.image?.imageUrl;
+        delete webcastObject.emote;
+    }
+
+    if (webcastObject.treasureBoxUser) {
+        // holy crap
+        Object.assign(webcastObject, getUserAttributes(webcastObject.treasureBoxUser?.user2?.user3[0]?.user4?.user || {}));
+        delete webcastObject.treasureBoxUser;
+    }
+
+    if (webcastObject.treasureBoxData) {
+        Object.assign(webcastObject, webcastObject.treasureBoxData);
+        delete webcastObject.treasureBoxData;
+        webcastObject.timestamp = parseInt(webcastObject.timestamp);
+    }
+
     return Object.assign({}, webcastObject);
 }
 
 function getUserAttributes(webcastUser) {
     return {
-        userId: webcastUser.userId.toString(),
+        userId: webcastUser.userId?.toString(),
         uniqueId: webcastUser.uniqueId !== '' ? webcastUser.uniqueId : undefined,
         nickname: webcastUser.nickname !== '' ? webcastUser.nickname : undefined,
         profilePictureUrl: webcastUser.profilePicture?.urls[2],
         followRole: webcastUser.extraAttributes?.followRole,
-        userBadges: mapBadges(webcastUser.badge),
+        userBadges: mapBadges(webcastUser.badges),
     };
 }
 
-function mapBadges(badge) {
-    if (!badge || !Array.isArray(badge.badges)) return [];
+function mapBadges(badges) {
+    let simplifiedBadges = [];
 
-    let badges = [];
-    badge.badges.forEach((badge) => {
-        badges.push(Object.assign({}, badge));
-    });
+    if (Array.isArray(badges)) {
+        badges.forEach((innerBadges) => {
+            if (Array.isArray(innerBadges.badges)) {
+                innerBadges.badges.forEach((badge) => {
+                    simplifiedBadges.push(Object.assign({}, badge));
+                });
+            }
 
-    return badges;
+            if (Array.isArray(innerBadges.imageBadges)) {
+                innerBadges.imageBadges.forEach((badge) => {
+                    if (badge && badge.image && badge.image.url) {
+                        simplifiedBadges.push({ type: 'image', displayType: badge.displayType, url: badge.image.url });
+                    }
+                });
+            }
+        });
+    }
+
+    return simplifiedBadges;
 }
 
 module.exports = {

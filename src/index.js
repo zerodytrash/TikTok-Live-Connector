@@ -28,6 +28,8 @@ const MessageEvents = {
     LINKMICBATTLE: 'linkMicBattle',
     LINKMICARMIES: 'linkMicArmies',
     LIVEINTRO: 'liveIntro',
+    EMOTE: 'emote',
+    ENVELOPE: 'envelope',
 };
 
 /**
@@ -443,6 +445,12 @@ class WebcastPushConnection extends EventEmitter {
                         break;
                     case 'WebcastLiveIntroMessage':
                         this.emit(MessageEvents.LIVEINTRO, simplifiedObj);
+                        break;
+                    case 'WebcastEmoteChatMessage':
+                        this.emit(MessageEvents.EMOTE, simplifiedObj);
+                        break;
+                    case 'WebcastEnvelopeMessage':
+                        this.emit(MessageEvents.ENVELOPE, simplifiedObj);
                         break;
                 }
             });
