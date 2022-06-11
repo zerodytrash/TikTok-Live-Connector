@@ -115,7 +115,7 @@ function simplifyObject(webcastObject) {
 }
 
 function getUserAttributes(webcastUser) {
-    return {
+    let userAttributes = {
         userId: webcastUser.userId?.toString(),
         uniqueId: webcastUser.uniqueId !== '' ? webcastUser.uniqueId : undefined,
         nickname: webcastUser.nickname !== '' ? webcastUser.nickname : undefined,
@@ -123,6 +123,17 @@ function getUserAttributes(webcastUser) {
         followRole: webcastUser.extraAttributes?.followRole,
         userBadges: mapBadges(webcastUser.badges),
     };
+
+    userAttributes.isModerator = userAttributes.userBadges.some((x) => x.type && x.type.toLowerCase().includes('moderator'));
+    userAttributes.isNewGifter = userAttributes.userBadges.some((x) => x.type && x.type.toLowerCase().includes('live_ng_'));
+    userAttributes.isSubscriber = userAttributes.userBadges.some((x) => x.url && x.url.toLowerCase().includes('/sub_'));
+    userAttributes.topGifterRank =
+        userAttributes.userBadges
+            .find((x) => x.url && x.url.includes('/ranklist_top_gifter_'))
+            ?.url.match(/(?<=ranklist_top_gifter_)(\d+)(?=.png)/g)
+            ?.map(Number)[0] ?? null;
+
+    return userAttributes;
 }
 
 function mapBadges(badges) {
