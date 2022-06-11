@@ -126,6 +126,8 @@ Message Events:
 - [`roomUser`](#roomuser)
 - [`like`](#like)
 - [`social`](#social)
+- [`emote`](#emote)
+- [`envelope`](#envelope)
 - [`questionNew`](#questionnew)
 - [`linkMicBattle`](#linkmicbattle)
 - [`linkMicArmies`](#linkmicarmies)
@@ -209,7 +211,11 @@ Data structure:
   nickname: 'Zerody One',
   profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...',
   followRole: 1, // 0 = none; 1 = follower; 2 = friends
-  userBadges: [] // e.g. Moderator badge
+  userBadges: [], // e.g. Moderator badge
+  isModerator: true,
+  isNewGifter: false,
+  isSubscriber: false,
+  topGifterRank: 3
 }
 ```
 
@@ -235,8 +241,24 @@ Data structure:
         {
             type: 'pm_mt_moderator_im', 
             name: 'Moderator'
+        },
+        {
+            // Top Gifter Badge
+            type: 'image',
+            displayType: 1,
+            url: 'https://p19-webcast.tiktokcdn.com/webcast-va/ranklist_top_gifter_3.png~tplv-obj.image' 
+        },
+        {
+            // Subscriber Badge
+            type: 'image',
+            displayType: 1,
+            url: 'https://p19-webcast.tiktokcdn.com/webcast-va/e1b3cdc5d3a687ca5602d84c09117d9b~tplv-obj.image'
         }
-    ]
+    ],
+    isModerator: true,
+    isNewGifter: false,
+    isSubscriber: true,
+    topGifterRank: 3
 }
 ```
 
@@ -268,7 +290,11 @@ Data structure:
   nickname: 'Zerody One',
   followRole: 0,
   userBadges: [],
-  profilePictureUrl: 'https://p16-sign.tiktokcdn-us.com/...',  
+  profilePictureUrl: 'https://p16-sign.tiktokcdn-us.com/...',
+  isModerator: true,
+  isNewGifter: false,
+  isSubscriber: true,
+  topGifterRank: 3,
   
   // Gift Details
   giftId: 5655,
@@ -284,7 +310,7 @@ Data structure:
     // This will be filled when you enable the `enableExtendedGiftInfo` option
   },
   
-  // Receiver Details
+  // Receiver Details (can also be a guest broadcaster)
   receiverUserId: '7044962356446839814'
 }
 ```
@@ -339,6 +365,52 @@ Data structure:
   profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...',
   displayType: 'pm_main_follow_message_viewer_2', // or 'pm_mt_guidance_share' for sharing
   label: '{0:user} followed the host'
+}
+```
+
+#### `emote`
+Triggered every time a subscriber sends an emote (sticker).
+
+```javascript
+tiktokChatConnection.on('emote', data => {
+    console.log('emote received', data);
+})
+```
+
+Data structure:
+```javascript
+{
+  userId: '6889810001851728898',
+  uniqueId: 'zerodytest',
+  nickname: 'Zerody One',
+  profilePictureUrl: 'https://p77-sign-va.tiktokcdn.com/...',        
+  followRole: 2,
+  userBadges: [ ],
+  isSubscriber: true,
+  topGifterRank: 3,
+  emoteId: '7101355900887796486',
+  emoteImageUrl: 'https://p19-webcast.tiktokcdn.com/...'
+}
+```
+
+#### `envelope`
+Triggered every time someone sends a treasure chest.
+
+```javascript
+tiktokChatConnection.on('envelope', data => {
+    console.log('envelope received', data);
+})
+```
+
+Data structure:
+```javascript
+{
+  userId: '6889810001851728898',
+  uniqueId: 'zerodytest',
+  nickname: 'Zerody One',
+  coins: 220,
+  canOpen: 10,
+  timestamp: 1654802658
 }
 ```
 
