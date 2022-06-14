@@ -112,6 +112,7 @@ class WebcastPushConnection extends EventEmitter {
         this.#isPollingEnabled = false;
         this.#isWsUpgradeDone = false;
         this.#clientParams.cursor = '';
+        this.#clientParams.internal_ext = '';
     }
 
     /**
@@ -294,6 +295,7 @@ class WebcastPushConnection extends EventEmitter {
 
             this.#roomId = roomId;
             this.#clientParams.room_id = roomId;
+            this.#clientParams.msToken = this.#httpClient.cookieJar.getCookieByName('msToken');
         } catch (err) {
             throw new Error(`Failed to retrieve room_id from page source. ${err.message}`);
         }
@@ -337,10 +339,9 @@ class WebcastPushConnection extends EventEmitter {
         let webcastResponse = await this.#httpClient.getDeserializedObjectFromWebcastApi('im/fetch/', this.#clientParams, 'WebcastResponse');
         let upgradeToWsOffered = !!webcastResponse.wsUrl && !!webcastResponse.wsParam;
 
-        // Set cursor param to continue with the next request
-        if (webcastResponse.cursor) {
-            this.#clientParams.cursor = webcastResponse.cursor;
-        }
+        // Set cursor and internal_ext param to continue with the next request
+        if (webcastResponse.cursor) this.#clientParams.cursor = webcastResponse.cursor;
+        if (webcastResponse.internalExt) this.#clientParams.internal_ext = webcastResponse.internalExt;
 
         // Upgrade to Websocket offered? => Try upgrade
         if (!this.#isWsUpgradeDone && this.#options.enableWebsocketUpgrade && upgradeToWsOffered) {

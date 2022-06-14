@@ -61,6 +61,10 @@ class TikTokCookieJar {
         }
     }
 
+    getCookieByName(cookieName) {
+        return this.cookies[cookieName];
+    }
+
     getCookieString() {
         let cookieString = '';
         for (const cookieName in this.cookies) {
