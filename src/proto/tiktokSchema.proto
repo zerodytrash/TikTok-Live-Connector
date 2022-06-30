@@ -43,6 +43,7 @@ message WebcastChatMessage {
 message WebcastMemberMessage {
     User user = 2;
     WebcastMessageEvent event = 1;
+    int32 actionId = 10;
 }
 
 message WebcastGiftMessage {

@@ -32,6 +32,10 @@ const MessageEvents = {
     ENVELOPE: 'envelope',
 };
 
+const CustomEvents = {
+    SUBSCRIBE: 'subscribe',
+};
+
 /**
  * Wrapper class for TikTok's internal Webcast Push Service
  */
@@ -421,6 +425,9 @@ class WebcastPushConnection extends EventEmitter {
                         break;
                     case 'WebcastMemberMessage':
                         this.emit(MessageEvents.MEMBER, simplifiedObj);
+                        if (simplifiedObj.actionId === 7) {
+                            this.emit(CustomEvents.SUBSCRIBE, simplifiedObj);
+                        }
                         break;
                     case 'WebcastGiftMessage':
                         // Add extended gift info if option enabled
