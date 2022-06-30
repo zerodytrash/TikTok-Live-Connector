@@ -1,5 +1,5 @@
 # TikTok-Live-Connector
-A Node.js library to receive live stream events such as comments and gifts in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides [Chat Comments](#chat), other events such as [Members Joining](#member), [Gifts](#gift), [Viewers](#roomuser), [Follows](#social), [Shares](#social), [Questions](#questionnew), [Likes](#like) and [Battles](#linkmicbattle) can be tracked. You can also send [automatic messages](#send-chat-messages) into the chat by providing your Session ID.
+A Node.js library to receive live stream events such as comments and gifts in realtime from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal WebCast push service. The package includes a wrapper that connects to the WebCast service using just the username (`uniqueId`). This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are required. Besides [Chat Comments](#chat), other events such as [Members Joining](#member), [Gifts](#gift), [Subscriptions](#subscribe), [Viewers](#roomuser), [Follows](#social), [Shares](#social), [Questions](#questionnew), [Likes](#like) and [Battles](#linkmicbattle) can be tracked. You can also send [automatic messages](#send-chat-messages) into the chat by providing your Session ID.
 
 ### Demo Project: [https://tiktok-chat-reader.zerody.one/](https://tiktok-chat-reader.zerody.one/)
 
@@ -133,6 +133,9 @@ Message Events:
 - [`linkMicBattle`](#linkmicbattle)
 - [`linkMicArmies`](#linkmicarmies)
 - [`liveIntro`](#liveintro)
+
+Other Events:
+- [`subscribe`](#subscribe)
 
 ### Control Events
 
@@ -524,6 +527,17 @@ Triggered when a live intro message appears.
 ```javascript
 tiktokChatConnection.on('liveIntro', (msg) => {
     console.log(msg);
+})
+```
+
+### Other Events
+
+#### `subscribe`
+Triggers when a user creates a subscription.
+
+```javascript
+tiktokChatConnection.on('subscribe', (data) => {
+    console.log(data.uniqueId, "subscribed!");
 })
 ```
 
