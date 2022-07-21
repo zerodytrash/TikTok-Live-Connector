@@ -79,7 +79,7 @@ class WebcastPushConnection extends EventEmitter {
         this.#setOptions(options || {});
 
         this.#uniqueStreamerId = validateAndNormalizeUniqueId(uniqueId);
-        this.#httpClient = new TikTokHttpClient(this.#options.requestHeaders, this.#options.requestOptions);
+        this.#httpClient = new TikTokHttpClient(this.#options.requestHeaders, this.#options.requestOptions, this.#options.sessionId);
 
         this.#clientParams = {
             ...Config.DEFAULT_CLIENT_PARAMS,
@@ -252,7 +252,7 @@ class WebcastPushConnection extends EventEmitter {
             }
 
             // Add the session cookie to the CookieJar
-            this.#httpClient.cookieJar.setCookie('sessionid', this.#options.sessionId);
+            this.#httpClient.setSessionId(this.#options.sessionId);
 
             // Submit the chat request
             let requestParams = { ...this.#clientParams, content: text };
@@ -299,7 +299,6 @@ class WebcastPushConnection extends EventEmitter {
 
             this.#roomId = roomId;
             this.#clientParams.room_id = roomId;
-            this.#clientParams.msToken = this.#httpClient.cookieJar.getCookieByName('msToken');
         } catch (err) {
             throw new Error(`Failed to retrieve room_id from page source. ${err.message}`);
         }
@@ -340,16 +339,29 @@ class WebcastPushConnection extends EventEmitter {
     }
 
     async #fetchRoomData(isInitial) {
-        let webcastResponse = await this.#httpClient.getDeserializedObjectFromWebcastApi('im/fetch/', this.#clientParams, 'WebcastResponse');
+        let webcastResponse = await this.#httpClient.getDeserializedObjectFromWebcastApi('im/fetch/', this.#clientParams, 'WebcastResponse', isInitial);
         let upgradeToWsOffered = !!webcastResponse.wsUrl && !!webcastResponse.wsParam;
+
+        if (isInitial && !webcastResponse.cursor) {
+            throw new Error('Missing cursor in initial fetch response.');
+        }
 
         // Set cursor and internal_ext param to continue with the next request
         if (webcastResponse.cursor) this.#clientParams.cursor = webcastResponse.cursor;
         if (webcastResponse.internalExt) this.#clientParams.internal_ext = webcastResponse.internalExt;
 
-        // Upgrade to Websocket offered? => Try upgrade
-        if (!this.#isWsUpgradeDone && this.#options.enableWebsocketUpgrade && upgradeToWsOffered) {
-            await this.#tryUpgradeToWebsocket(webcastResponse);
+        if (isInitial) {
+            // Upgrade to Websocket offered? => Try upgrade
+            if (this.#options.enableWebsocketUpgrade && upgradeToWsOffered) {
+                await this.#tryUpgradeToWebsocket(webcastResponse);
+            } else if (!this.#options.sessionId) {
+                // we cannot use request polling if the user has no sessionid defined.
+                // the reason for this is that it would generate too much traffic to the signing server.
+                // if a sessionid is present a signature is not required.
+                throw new Error(
+                    'TikTok does not offer a websocket upgrade or `enableWebsocketUpgrade` disabled. Please provide a valid `sessionId` to use request polling instead.'
+                );
+            }
         }
 
         // Skip processing initial data if option disabled
@@ -393,6 +405,7 @@ class WebcastPushConnection extends EventEmitter {
             });
 
             this.#websocket.on('connectFailed', (err) => reject(`Websocket connection failed, ${err}`));
+            this.#websocket.on('signingFailed', (err) => reject(`Websocket url signing failed, ${err}`));
             this.#websocket.on('webcastResponse', (msg) => this.#processWebcastResponse(msg));
             this.#websocket.on('messageDecodingFailed', (err) => this.#handleError(err, 'Websocket message decoding failed'));
         });
@@ -473,4 +486,5 @@ class WebcastPushConnection extends EventEmitter {
 
 module.exports = {
     WebcastPushConnection,
+    signatureProvider: require('./lib/tiktokSignatureProvider'),
 };

@@ -32,7 +32,6 @@ module.exports = {
         tz_name: 'Europe/Berlin',
         referer: 'https://www.tiktok.com/',
         root_referer: 'https://www.tiktok.com/',
-        msToken: '',
         version_code: 180800,
         webcast_sdk_version: '1.3.0',
         update_version_code: '1.3.0',
