@@ -12,6 +12,8 @@ Do you prefer other programming languages?
 
 **NOTE:** This JavaScript library is intended for use in [Node.js](https://nodejs.org/) environments. If you want to process or display the data in the browser (client-side), you need to transfer the data from the Node.js environment to the browser. A good approach for this is to use [Socket.IO](https://socket.io/) or a different low-latency communication framework. A complete example project can be found here: [TikTok-Chat-Reader](https://github.com/zerodytrash/TikTok-Chat-Reader)
 
+> **UPDATE**:<br>Due to a change on the part of TikTok, versions prior **v0.9.23** are no longer functional. If you are using one of these versions, upgrade to the latest version using the `npm update` command.
+
 #### Overview
 - [Getting started](#getting-started)
 - [Params and options](#params-and-options)
