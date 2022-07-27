@@ -1,4 +1,5 @@
 const { EventEmitter } = require('events');
+const { getUuc } = require('./tiktokUtils');
 const pkg = require('../../package.json');
 const axios = require('axios').create({
     timeout: 5000,
@@ -10,6 +11,7 @@ const axios = require('axios').create({
 let config = {
     enabled: true,
     signProviderHost: 'https://tiktok.isaackogan.com/',
+    extraParams: {},
 };
 
 let signEvents = new EventEmitter();
@@ -26,7 +28,10 @@ async function signRequest(providerPath, url, headers, cookieJar) {
     let params = {
         url,
         client: 'ttlive-node',
+        ...config.extraParams,
     };
+
+    params.uuc = getUuc();
 
     try {
         let signResponse = await axios.get(config.signProviderHost + providerPath, { params, responseType: 'json' });

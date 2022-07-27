@@ -1,6 +1,6 @@
 {
   "name": "tiktok-live-connector",
-  "version": "0.9.23",
+  "version": "0.9.24",
   "description": "Node.js module to receive live stream chat events like comments and gifts from TikTok LIVE",
   "main": "index.js",
   "engines": {
@@ -15,6 +15,16 @@
     "type": "git",
     "url": "git+https://github.com/zerodytrash/TikTok-Live-Connector.git"
   },
+  "funding": [
+    {
+      "type": "Ko-fi",
+      "url": "https://ko-fi.com/zerody"
+    },
+    {
+      "type": "Patreon",
+      "url": "https://www.patreon.com/zerody"
+    }
+  ],
   "keywords": [
     "tiktok",
     "tiktok live",
