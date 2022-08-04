@@ -35,9 +35,9 @@ class WebcastWebsocket extends websocket.client {
         });
     }
 
-    #handleMessage(message) {
+    async #handleMessage(message) {
         try {
-            let decodedContainer = deserializeWebsocketMessage(message.binaryData);
+            let decodedContainer = await deserializeWebsocketMessage(message.binaryData);
 
             if (decodedContainer.id > 0) {
                 this.#sendAck(decodedContainer.id);

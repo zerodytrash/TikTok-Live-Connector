@@ -1,7 +1,13 @@
 const protobufjs = require('protobufjs');
+const util = require('util');
+const zlib = require('zlib');
+const unzip = util.promisify(zlib.unzip);
 
 let tiktokSchemaPath = require.resolve('../proto/tiktokSchema.proto');
 let tiktokSchema = null;
+let config = {
+    skipMessageTypes: [],
+};
 
 // Load & cache schema
 function loadTikTokSchema() {
@@ -23,6 +29,10 @@ function deserializeMessage(protoName, binaryMessage) {
     if (protoName === 'WebcastResponse' && Array.isArray(webcastData.messages)) {
         // Contains different object structures depending on the type field
         webcastData.messages.forEach((message) => {
+            if (config.skipMessageTypes.includes(message.type)) {
+                return;
+            }
+
             switch (message.type) {
                 case 'WebcastControlMessage':
                 case 'WebcastRoomUserSeqMessage':
@@ -46,11 +56,19 @@ function deserializeMessage(protoName, binaryMessage) {
     return webcastData;
 }
 
-function deserializeWebsocketMessage(binaryMessage) {
+async function deserializeWebsocketMessage(binaryMessage) {
     // Websocket messages are in an container which contains additional data
     // Message type 'msg' represents a normal WebcastResponse
     let decodedWebsocketMessage = deserializeMessage('WebcastWebsocketMessage', binaryMessage);
     if (decodedWebsocketMessage.type === 'msg') {
+        let binary = decodedWebsocketMessage.binary;
+
+        // Decompress binary (if gzip compressed)
+        // https://www.rfc-editor.org/rfc/rfc1950.html
+        if (binary && binary.length > 2 && binary[0] === 0x1f && binary[1] === 0x8b && binary[2] === 0x08) {
+            decodedWebsocketMessage.binary = await unzip(binary);
+        }
+
         decodedWebsocketMessage.webcastResponse = deserializeMessage('WebcastResponse', decodedWebsocketMessage.binary);
     }
 
@@ -61,4 +79,5 @@ module.exports = {
     serializeMessage,
     deserializeMessage,
     deserializeWebsocketMessage,
+    config,
 };

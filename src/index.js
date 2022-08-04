@@ -4,7 +4,7 @@ const TikTokHttpClient = require('./lib/tiktokHttpClient.js');
 const WebcastWebsocket = require('./lib/webcastWebsocket.js');
 const { getRoomIdFromMainPageHtml, validateAndNormalizeUniqueId } = require('./lib/tiktokUtils.js');
 const { simplifyObject } = require('./lib/webcastDataConverter.js');
-const { deserializeMessage } = require('./lib/webcastProtobuf.js');
+const { deserializeMessage, deserializeWebsocketMessage } = require('./lib/webcastProtobuf.js');
 
 const Config = require('./lib/webcastConfig.js');
 
@@ -280,16 +280,34 @@ class WebcastPushConnection extends EventEmitter {
      * @param {string} messageType
      * @param {Buffer} messageBuffer
      */
-    decodeProtobufMessage(messageType, messageBuffer) {
-        let webcastMessage = deserializeMessage(messageType, messageBuffer);
-        this.#processWebcastResponse({
-            messages: [
-                {
-                    decodedData: webcastMessage,
-                    type: messageType,
-                },
-            ],
-        });
+    async decodeProtobufMessage(messageType, messageBuffer) {
+        switch (messageType) {
+            case 'WebcastResponse': {
+                let decodedWebcastResponse = deserializeMessage(messageType, messageBuffer);
+                this.#processWebcastResponse(decodedWebcastResponse);
+                break;
+            }
+
+            case 'WebcastWebsocketMessage': {
+                let decodedWebcastWebsocketMessage = await deserializeWebsocketMessage(messageBuffer);
+                if (typeof decodedWebcastWebsocketMessage.webcastResponse === 'object') {
+                    this.#processWebcastResponse(decodedWebcastWebsocketMessage.webcastResponse);
+                }
+                break;
+            }
+
+            default: {
+                let webcastMessage = deserializeMessage(messageType, messageBuffer);
+                this.#processWebcastResponse({
+                    messages: [
+                        {
+                            decodedData: webcastMessage,
+                            type: messageType,
+                        },
+                    ],
+                });
+            }
+        }
     }
 
     async #retrieveRoomId() {
@@ -377,6 +395,7 @@ class WebcastPushConnection extends EventEmitter {
             // Websocket specific params
             let wsParams = {
                 imprp: webcastResponse.wsParam.value,
+                compress: 'gzip',
             };
 
             // Wait until ws connected, then stop request polling
@@ -487,4 +506,5 @@ class WebcastPushConnection extends EventEmitter {
 module.exports = {
     WebcastPushConnection,
     signatureProvider: require('./lib/tiktokSignatureProvider'),
+    webcastProtobuf: require('./lib/webcastProtobuf.js'),
 };
