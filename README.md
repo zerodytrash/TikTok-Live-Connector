@@ -164,8 +164,13 @@ tiktokChatConnection.on('disconnected', () => {
 Triggered when the live stream gets terminated by the host. Will also trigger the [`disconnected`](#disconnected) event.
 
 ```javascript
-tiktokChatConnection.on('streamEnd', () => {
-    console.log('Stream ended');
+tiktokChatConnection.on('streamEnd', (actionId) => {
+    if (actionId === 3) {
+        console.log('Stream ended by user');
+    }
+    if (actionId === 4) {
+        console.log('Stream ended by platform moderator (ban)');
+    }
 })
 ```
 
