@@ -13,6 +13,7 @@ const ControlEvents = {
     DISCONNECTED: 'disconnected',
     ERROR: 'error',
     RAWDATA: 'rawData',
+    DECODEDDATA: 'decodedData',
     STREAMEND: 'streamEnd',
     WSCONNECTED: 'websocketConnected',
 };
@@ -442,10 +443,16 @@ class WebcastPushConnection extends EventEmitter {
             .forEach((message) => {
                 let simplifiedObj = simplifyObject(message.decodedData);
 
+                this.emit(ControlEvents.DECODEDDATA, message.type, simplifiedObj, message.binary);
+
                 switch (message.type) {
                     case 'WebcastControlMessage':
-                        if (message.decodedData.action === 3) {
-                            this.emit(ControlEvents.STREAMEND);
+                        // Known control actions:
+                        // 3 = Stream terminated by user
+                        // 4 = Stream terminated by platform moderator (ban)
+                        const action = message.decodedData.action;
+                        if ([3, 4].includes(action)) {
+                            this.emit(ControlEvents.STREAMEND, { action });
                             this.disconnect();
                         }
                         break;
