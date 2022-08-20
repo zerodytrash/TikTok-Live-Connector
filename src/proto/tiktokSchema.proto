@@ -135,9 +135,7 @@ message QuestionDetails {
 
 message WebcastMessageEvent {
   uint64 msgId = 2;
-  uint64 roomId = 3;
   uint64 createTime = 4;
-  uint32 isShowMsg = 6;
   WebcastMessageEventDetails eventDetails = 8;
 }
 
