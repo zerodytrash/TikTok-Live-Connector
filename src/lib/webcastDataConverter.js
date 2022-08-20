@@ -125,9 +125,22 @@ function getUserAttributes(webcastUser) {
         uniqueId: webcastUser.uniqueId !== '' ? webcastUser.uniqueId : undefined,
         nickname: webcastUser.nickname !== '' ? webcastUser.nickname : undefined,
         profilePictureUrl: webcastUser.profilePicture?.urls[2],
-        followRole: webcastUser.extraAttributes?.followRole,
+        followRole: webcastUser.followInfo?.followStatus,
         userBadges: mapBadges(webcastUser.badges),
+        userDetails: {
+            createTime: webcastUser.createTime?.toString(),
+            bioDescription: webcastUser.bioDescription,
+        },
     };
+
+    if (typeof webcastUser.followInfo === 'object') {
+        userAttributes.followInfo = {
+            followingCount: webcastUser.followInfo.followingCount,
+            followerCount: webcastUser.followInfo.followerCount,
+            followStatus: webcastUser.followInfo.followStatus,
+            pushStatus: webcastUser.followInfo.pushStatus,
+        };
+    }
 
     userAttributes.isModerator = userAttributes.userBadges.some((x) => x.type && x.type.toLowerCase().includes('moderator'));
     userAttributes.isNewGifter = userAttributes.userBadges.some((x) => x.type && x.type.toLowerCase().includes('live_ng_'));
