@@ -36,22 +36,14 @@ message WebcastRoomUserSeqMessage {
 }
 
 message WebcastChatMessage {
-  WebcastChatMessageDetails details = 1;
+  WebcastMessageEvent event = 1;
   User user = 2;
   string comment = 3;
 }
 
-message WebcastChatMessageDetails {
-  string type = 1;
-  uint64 chatId = 2;
-  uint64 otherId = 3;
-  uint64 timestamp = 4;
-  uint32 unknownValue = 6;
-}
-
 message WebcastMemberMessage {
-  User user = 2;
   WebcastMessageEvent event = 1;
+  User user = 2;
   int32 actionId = 10;
 }
 
@@ -119,14 +111,14 @@ message WebcastLinkMicArmiesGroup {
 
 // Follow & share event
 message WebcastSocialMessage {
-  User user = 2;
   WebcastMessageEvent event = 1;
+  User user = 2;
 }
 
 // Like event (is only sent from time to time, not with every like)
 message WebcastLikeMessage {
-  User user = 5;
   WebcastMessageEvent event = 1;
+  User user = 5;
   int32 likeCount = 2;
   int32 totalLikeCount = 3;
 }
@@ -144,6 +136,7 @@ message QuestionDetails {
 message WebcastMessageEvent {
   string type = 1;
   uint64 id = 2;
+  uint64 otherId = 3;
   uint64 timestamp = 4;
   uint32 unknownValue = 6;
   WebcastMessageEventDetails eventDetails = 8;
