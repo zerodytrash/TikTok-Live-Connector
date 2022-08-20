@@ -32,9 +32,14 @@ message WebcastControlMessage {
 
 // Statistics like viewer count
 message WebcastRoomUserSeqMessage {
+  repeated Users topUsers = 2;
   int32 viewerCount = 3;
 }
 
+message Users {
+  uint64 rankValue = 1;
+  User user = 2;
+}
 message WebcastChatMessage {
   WebcastMessageEvent event = 1;
   User user = 2;
@@ -230,10 +235,19 @@ message User {
   uint64 userId = 1;
   string nickname = 3;
   ProfilePicture profilePicture = 9;
-  UserExtraAttributes extraAttributes = 22;
   string uniqueId = 38;
   string secUid = 46;
   repeated UserBadgesAttributes badges = 64;
+  uint64 createTime = 16;
+  string bioDescription = 5;
+  FollowInfo followInfo = 22;
+}
+
+message FollowInfo {
+  int64 followingCount = 1;
+  int64 followerCount = 2;
+  int64 followStatus = 3;
+  int64 pushStatus = 4;
 }
 
 message LinkUser {
