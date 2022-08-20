@@ -117,6 +117,7 @@ function simplifyObject(webcastObject) {
 function getUserAttributes(webcastUser) {
     let userAttributes = {
         userId: webcastUser.userId?.toString(),
+        secUid: webcastUser.secUid?.toString(),
         uniqueId: webcastUser.uniqueId !== '' ? webcastUser.uniqueId : undefined,
         nickname: webcastUser.nickname !== '' ? webcastUser.nickname : undefined,
         profilePictureUrl: webcastUser.profilePicture?.urls[2],
