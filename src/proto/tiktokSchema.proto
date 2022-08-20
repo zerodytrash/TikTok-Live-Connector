@@ -228,6 +228,17 @@ message TreasureBoxData {
   uint64 timestamp = 7;
 }
 
+// New Subscriber message
+message WebcastSubNotifyMessage {
+  WebcastMessageEvent event = 1;
+  User user = 2;
+  int32 exhibitionType = 3;
+  int32 subMonth = 4;
+  int32 subscribeType = 5;
+  int32 oldSubscribeStatus = 6;
+  int32 subscribingStatus = 8;
+}
+
 // ==================================
 // Generic stuff
 

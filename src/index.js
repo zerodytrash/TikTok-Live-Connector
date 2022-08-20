@@ -477,9 +477,6 @@ class WebcastPushConnection extends EventEmitter {
                         break;
                     case 'WebcastMemberMessage':
                         this.emit(MessageEvents.MEMBER, simplifiedObj);
-                        if (simplifiedObj.actionId === 7) {
-                            this.emit(CustomEvents.SUBSCRIBE, simplifiedObj);
-                        }
                         break;
                     case 'WebcastGiftMessage':
                         // Add extended gift info if option enabled
@@ -511,6 +508,9 @@ class WebcastPushConnection extends EventEmitter {
                         break;
                     case 'WebcastEnvelopeMessage':
                         this.emit(MessageEvents.ENVELOPE, simplifiedObj);
+                        break;
+                    case 'WebcastSubNotifyMessage':
+                        this.emit(CustomEvents.SUBSCRIBE, simplifiedObj);
                         break;
                 }
             });
