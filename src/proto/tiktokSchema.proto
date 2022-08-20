@@ -32,12 +32,12 @@ message WebcastControlMessage {
 
 // Statistics like viewer count
 message WebcastRoomUserSeqMessage {
-  repeated Users topUsers = 2;
+  repeated Users topViewers = 2;
   int32 viewerCount = 3;
 }
 
 message Users {
-  uint64 rankValue = 1;
+  uint64 coinCount = 1;
   User user = 2;
 }
 message WebcastChatMessage {
@@ -53,14 +53,14 @@ message WebcastMemberMessage {
 }
 
 message WebcastGiftMessage {
-  User user = 7;
-
-  // New Data Structure since 04/2022
+  WebcastMessageEvent event = 1;
   int32 giftId = 2;
   int32 repeatCount = 5;
+  User user = 7;
   int32 repeatEnd = 9;
-
+  uint64 createTime = 11;
   WebcastGiftMessageGiftDetails giftDetails = 15;
+  string jsonAnchor = 22;
   WebcastGiftMessageGiftExtra giftExtra = 23;
 }
 
