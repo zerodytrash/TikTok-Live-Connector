@@ -134,7 +134,7 @@ function getUserAttributes(webcastUser) {
         secUid: webcastUser.secUid?.toString(),
         uniqueId: webcastUser.uniqueId !== '' ? webcastUser.uniqueId : undefined,
         nickname: webcastUser.nickname !== '' ? webcastUser.nickname : undefined,
-        profilePictureUrl: webcastUser.profilePicture?.urls[2],
+        profilePictureUrl: getPreferredPictureFormat(webcastUser.profilePicture?.urls),
         followRole: webcastUser.followInfo?.followStatus,
         userBadges: mapBadges(webcastUser.badges),
         userDetails: {
@@ -202,6 +202,19 @@ function mapBadges(badges) {
     }
 
     return simplifiedBadges;
+}
+
+function getPreferredPictureFormat(pictureUrls) {
+    if (!pictureUrls || !Array.isArray(pictureUrls) || !pictureUrls.length) {
+        return null;
+    }
+
+    return (
+        pictureUrls.find((x) => x.includes('100x100') && x.includes('.webp')) ||
+        pictureUrls.find((x) => x.includes('100x100') && x.includes('.jpeg')) ||
+        pictureUrls.find((x) => !x.includes('shrink')) ||
+        pictureUrls[0]
+    );
 }
 
 module.exports = {
