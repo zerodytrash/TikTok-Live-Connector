@@ -15,7 +15,7 @@ function simplifyObject(webcastObject) {
     }
 
     if (webcastObject.event) {
-        Object.assign(webcastObject, webcastObject.event);
+        Object.assign(webcastObject, getEventAttributes(webcastObject.event));
         delete webcastObject.event;
     }
 
@@ -117,6 +117,7 @@ function simplifyObject(webcastObject) {
 function getUserAttributes(webcastUser) {
     let userAttributes = {
         userId: webcastUser.userId?.toString(),
+        secUid: webcastUser.secUid?.toString(),
         uniqueId: webcastUser.uniqueId !== '' ? webcastUser.uniqueId : undefined,
         nickname: webcastUser.nickname !== '' ? webcastUser.nickname : undefined,
         profilePictureUrl: webcastUser.profilePicture?.urls[2],
@@ -134,6 +135,12 @@ function getUserAttributes(webcastUser) {
             ?.map(Number)[0] ?? null;
 
     return userAttributes;
+}
+
+function getEventAttributes(event) {
+    if (event.msgId) event.msgId = event.msgId.toString();
+    if (event.createTime) event.createTime = event.createTime.toString();
+    return event;
 }
 
 function mapBadges(badges) {
