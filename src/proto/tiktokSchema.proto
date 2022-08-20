@@ -32,11 +32,11 @@ message WebcastControlMessage {
 
 // Statistics like viewer count
 message WebcastRoomUserSeqMessage {
-  repeated Users topViewers = 2;
+  repeated TopUser topViewers = 2;
   int32 viewerCount = 3;
 }
 
-message Users {
+message TopUser {
   uint64 coinCount = 1;
   User user = 2;
 }
