@@ -134,7 +134,6 @@ message QuestionDetails {
 }
 
 message WebcastMessageEvent {
-  string method = 1;
   uint64 msgId = 2;
   uint64 roomId = 3;
   uint64 createTime = 4;
