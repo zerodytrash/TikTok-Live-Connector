@@ -66,6 +66,7 @@ class WebcastPushConnection extends EventEmitter {
      * @param {boolean} [options[].fetchRoomInfoOnConnect=true] Fetch the room info (room status, streamer info, etc.) on connect (will be returned when calling connect())
      * @param {boolean} [options[].enableExtendedGiftInfo=false] Enable this option to get extended information on 'gift' events like gift name and cost
      * @param {boolean} [options[].enableWebsocketUpgrade=true] Use WebSocket instead of request polling if TikTok offers it
+     * @param {boolean} [options[].enableRequestPolling=true] Use request polling if no WebSocket upgrade is offered. If `false` an exception will be thrown if TikTok does not offer a WebSocket upgrade.
      * @param {number} [options[].requestPollingIntervalMs=1000] Request polling interval if WebSocket is not used
      * @param {string} [options[].sessionId=null] The session ID from the "sessionid" cookie is required if you want to send automated messages in the chat.
      * @param {object} [options[].clientParams={}] Custom client params for Webcast API
@@ -98,6 +99,7 @@ class WebcastPushConnection extends EventEmitter {
                 fetchRoomInfoOnConnect: true,
                 enableExtendedGiftInfo: false,
                 enableWebsocketUpgrade: true,
+                enableRequestPolling: true,
                 requestPollingIntervalMs: 1000,
                 sessionId: null,
                 clientParams: {},
@@ -157,9 +159,21 @@ class WebcastPushConnection extends EventEmitter {
 
             this.#isConnected = true;
 
-            // Sometimes no upgrade to websocket is offered by TikTok
-            // In that case we use request polling
+            // Sometimes no upgrade to WebSocket is offered by TikTok
+            // In that case we use request polling (if enabled and possible)
             if (!this.#isWsUpgradeDone) {
+                if (!this.#options.enableRequestPolling) {
+                    throw new Error('TikTok does not offer a websocket upgrade and request polling is disabled (`enableRequestPolling` option).');
+                }
+
+                if (!this.#options.sessionId) {
+                    // We cannot use request polling if the user has no sessionid defined.
+                    // The reason for this is that TikTok needs a valid signature if the user is not logged in.
+                    // Signing a request every second would generate too much traffic to the signing server.
+                    // If a sessionid is present a signature is not required.
+                    throw new Error('TikTok does not offer a websocket upgrade. Please provide a valid `sessionId` to use request polling instead.');
+                }
+
                 this.#startFetchRoomPolling();
             }
 
@@ -348,7 +362,7 @@ class WebcastPushConnection extends EventEmitter {
 
         while (this.#isPollingEnabled) {
             try {
-                await this.#fetchRoomData();
+                await this.#fetchRoomData(false);
             } catch (err) {
                 this.#handleError(err, 'Error while fetching webcast data via request polling');
             }
@@ -361,8 +375,12 @@ class WebcastPushConnection extends EventEmitter {
         let webcastResponse = await this.#httpClient.getDeserializedObjectFromWebcastApi('im/fetch/', this.#clientParams, 'WebcastResponse', isInitial);
         let upgradeToWsOffered = !!webcastResponse.wsUrl && !!webcastResponse.wsParam;
 
-        if (isInitial && !webcastResponse.cursor) {
-            throw new Error('Missing cursor in initial fetch response.');
+        if (!webcastResponse.cursor) {
+            if (isInitial) {
+                throw new Error('Missing cursor in initial fetch response.');
+            } else {
+                this.#handleError(null, 'Missing cursor in fetch response.');
+            }
         }
 
         // Set cursor and internal_ext param to continue with the next request
@@ -373,13 +391,6 @@ class WebcastPushConnection extends EventEmitter {
             // Upgrade to Websocket offered? => Try upgrade
             if (this.#options.enableWebsocketUpgrade && upgradeToWsOffered) {
                 await this.#tryUpgradeToWebsocket(webcastResponse);
-            } else if (!this.#options.sessionId) {
-                // we cannot use request polling if the user has no sessionid defined.
-                // the reason for this is that it would generate too much traffic to the signing server.
-                // if a sessionid is present a signature is not required.
-                throw new Error(
-                    'TikTok does not offer a websocket upgrade or `enableWebsocketUpgrade` disabled. Please provide a valid `sessionId` to use request polling instead.'
-                );
             }
         }
 
@@ -407,7 +418,7 @@ class WebcastPushConnection extends EventEmitter {
 
             this.emit(ControlEvents.WSCONNECTED, this.#websocket);
         } catch (err) {
-            this.#handleError(err, 'Upgrade to websocket failed. Using request polling...');
+            this.#handleError(err, 'Upgrade to websocket failed');
         }
     }
 
@@ -425,9 +436,11 @@ class WebcastPushConnection extends EventEmitter {
             });
 
             this.#websocket.on('connectFailed', (err) => reject(`Websocket connection failed, ${err}`));
-            this.#websocket.on('signingFailed', (err) => reject(`Websocket url signing failed, ${err}`));
             this.#websocket.on('webcastResponse', (msg) => this.#processWebcastResponse(msg));
             this.#websocket.on('messageDecodingFailed', (err) => this.#handleError(err, 'Websocket message decoding failed'));
+
+            // Hard timeout if the WebSocketClient library does not handle connect errors correctly.
+            setTimeout(() => reject('Websocket not responding'), 30000);
         });
     }
 
