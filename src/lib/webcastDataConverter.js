@@ -95,6 +95,10 @@ function simplifyObject(webcastObject) {
                 webcastObject.timestamp = parseInt(webcastObject.timestamp);
             }
         }
+
+        if (webcastObject.groupId) {
+            webcastObject.groupId = webcastObject.groupId.toString();
+        }
     }
 
     if (webcastObject.emote) {

@@ -58,9 +58,9 @@ message WebcastGiftMessage {
   int32 repeatCount = 5;
   User user = 7;
   int32 repeatEnd = 9;
-  uint64 createTime = 11;
+  uint64 groupId = 11;
   WebcastGiftMessageGiftDetails giftDetails = 15;
-  string jsonAnchor = 22;
+  string monitorExtra = 22;
   WebcastGiftMessageGiftExtra giftExtra = 23;
 }
 
