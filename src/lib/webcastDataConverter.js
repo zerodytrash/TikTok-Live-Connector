@@ -24,6 +24,10 @@ function simplifyObject(webcastObject) {
         delete webcastObject.eventDetails;
     }
 
+    if (webcastObject.topViewers) {
+        webcastObject.topViewers = getTopViewerAttributes(webcastObject.topViewers);
+    }
+
     if (webcastObject.battleUsers) {
         let battleUsers = [];
         webcastObject.battleUsers.forEach((user) => {
@@ -141,6 +145,15 @@ function getEventAttributes(event) {
     if (event.msgId) event.msgId = event.msgId.toString();
     if (event.createTime) event.createTime = event.createTime.toString();
     return event;
+}
+
+function getTopViewerAttributes(topViewers) {
+    return topViewers.map((viewer) => {
+        return {
+            user: viewer.user ? getUserAttributes(viewer.user) : null,
+            coinCount: viewer.coinCount ? parseInt(viewer.coinCount) : 0,
+        };
+    });
 }
 
 function mapBadges(badges) {
