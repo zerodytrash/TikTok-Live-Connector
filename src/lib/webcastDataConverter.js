@@ -140,6 +140,7 @@ function getUserAttributes(webcastUser) {
         userDetails: {
             createTime: webcastUser.createTime?.toString(),
             bioDescription: webcastUser.bioDescription,
+            profilePictureUrls: webcastUser.profilePicture?.urls,
         },
     };
 
