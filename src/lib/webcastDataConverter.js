@@ -99,6 +99,12 @@ function simplifyObject(webcastObject) {
         if (webcastObject.groupId) {
             webcastObject.groupId = webcastObject.groupId.toString();
         }
+
+        if (typeof webcastObject.monitorExtra === 'string' && webcastObject.monitorExtra.indexOf('{') === 0) {
+            try {
+                webcastObject.monitorExtra = JSON.parse(webcastObject.monitorExtra);
+            } catch (err) {}
+        }
     }
 
     if (webcastObject.emote) {
@@ -137,7 +143,7 @@ function getUserAttributes(webcastUser) {
         },
     };
 
-    if (typeof webcastUser.followInfo === 'object') {
+    if (webcastUser.followInfo) {
         userAttributes.followInfo = {
             followingCount: webcastUser.followInfo.followingCount,
             followerCount: webcastUser.followInfo.followerCount,
