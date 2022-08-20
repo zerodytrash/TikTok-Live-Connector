@@ -134,11 +134,11 @@ message QuestionDetails {
 }
 
 message WebcastMessageEvent {
-  string type = 1;
-  uint64 id = 2;
-  uint64 otherId = 3;
-  uint64 timestamp = 4;
-  uint32 unknownValue = 6;
+  string method = 1;
+  uint64 msgId = 2;
+  uint64 roomId = 3;
+  uint64 createTime = 4;
+  uint32 isShowMsg = 6;
   WebcastMessageEventDetails eventDetails = 8;
 }
 
