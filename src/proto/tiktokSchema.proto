@@ -244,10 +244,10 @@ message User {
 }
 
 message FollowInfo {
-  int64 followingCount = 1;
-  int64 followerCount = 2;
-  int64 followStatus = 3;
-  int64 pushStatus = 4;
+  int32 followingCount = 1;
+  int32 followerCount = 2;
+  int32 followStatus = 3;
+  int32 pushStatus = 4;
 }
 
 message LinkUser {
@@ -261,9 +261,6 @@ message ProfilePicture {
   repeated string urls = 1;
 }
 
-message UserExtraAttributes {
-  int32 followRole = 3;
-}
 
 message UserBadgesAttributes {
   repeated UserBadge badges = 21;
