@@ -32,9 +32,14 @@ message WebcastControlMessage {
 
 // Statistics like viewer count
 message WebcastRoomUserSeqMessage {
+  repeated TopUser topViewers = 2;
   int32 viewerCount = 3;
 }
 
+message TopUser {
+  uint64 coinCount = 1;
+  User user = 2;
+}
 message WebcastChatMessage {
   WebcastMessageEvent event = 1;
   User user = 2;
@@ -48,14 +53,14 @@ message WebcastMemberMessage {
 }
 
 message WebcastGiftMessage {
-  User user = 7;
-
-  // New Data Structure since 04/2022
+  WebcastMessageEvent event = 1;
   int32 giftId = 2;
   int32 repeatCount = 5;
+  User user = 7;
   int32 repeatEnd = 9;
-
+  uint64 groupId = 11;
   WebcastGiftMessageGiftDetails giftDetails = 15;
+  string monitorExtra = 22;
   WebcastGiftMessageGiftExtra giftExtra = 23;
 }
 
@@ -230,10 +235,19 @@ message User {
   uint64 userId = 1;
   string nickname = 3;
   ProfilePicture profilePicture = 9;
-  UserExtraAttributes extraAttributes = 22;
   string uniqueId = 38;
   string secUid = 46;
   repeated UserBadgesAttributes badges = 64;
+  uint64 createTime = 16;
+  string bioDescription = 5;
+  FollowInfo followInfo = 22;
+}
+
+message FollowInfo {
+  int32 followingCount = 1;
+  int32 followerCount = 2;
+  int32 followStatus = 3;
+  int32 pushStatus = 4;
 }
 
 message LinkUser {
@@ -247,9 +261,6 @@ message ProfilePicture {
   repeated string urls = 1;
 }
 
-message UserExtraAttributes {
-  int32 followRole = 3;
-}
 
 message UserBadgesAttributes {
   repeated UserBadge badges = 21;

@@ -24,6 +24,10 @@ function simplifyObject(webcastObject) {
         delete webcastObject.eventDetails;
     }
 
+    if (webcastObject.topViewers) {
+        webcastObject.topViewers = getTopViewerAttributes(webcastObject.topViewers);
+    }
+
     if (webcastObject.battleUsers) {
         let battleUsers = [];
         webcastObject.battleUsers.forEach((user) => {
@@ -91,6 +95,16 @@ function simplifyObject(webcastObject) {
                 webcastObject.timestamp = parseInt(webcastObject.timestamp);
             }
         }
+
+        if (webcastObject.groupId) {
+            webcastObject.groupId = webcastObject.groupId.toString();
+        }
+
+        if (typeof webcastObject.monitorExtra === 'string' && webcastObject.monitorExtra.indexOf('{') === 0) {
+            try {
+                webcastObject.monitorExtra = JSON.parse(webcastObject.monitorExtra);
+            } catch (err) {}
+        }
     }
 
     if (webcastObject.emote) {
@@ -121,9 +135,22 @@ function getUserAttributes(webcastUser) {
         uniqueId: webcastUser.uniqueId !== '' ? webcastUser.uniqueId : undefined,
         nickname: webcastUser.nickname !== '' ? webcastUser.nickname : undefined,
         profilePictureUrl: webcastUser.profilePicture?.urls[2],
-        followRole: webcastUser.extraAttributes?.followRole,
+        followRole: webcastUser.followInfo?.followStatus,
         userBadges: mapBadges(webcastUser.badges),
+        userDetails: {
+            createTime: webcastUser.createTime?.toString(),
+            bioDescription: webcastUser.bioDescription,
+        },
     };
+
+    if (webcastUser.followInfo) {
+        userAttributes.followInfo = {
+            followingCount: webcastUser.followInfo.followingCount,
+            followerCount: webcastUser.followInfo.followerCount,
+            followStatus: webcastUser.followInfo.followStatus,
+            pushStatus: webcastUser.followInfo.pushStatus,
+        };
+    }
 
     userAttributes.isModerator = userAttributes.userBadges.some((x) => x.type && x.type.toLowerCase().includes('moderator'));
     userAttributes.isNewGifter = userAttributes.userBadges.some((x) => x.type && x.type.toLowerCase().includes('live_ng_'));
@@ -141,6 +168,15 @@ function getEventAttributes(event) {
     if (event.msgId) event.msgId = event.msgId.toString();
     if (event.createTime) event.createTime = event.createTime.toString();
     return event;
+}
+
+function getTopViewerAttributes(topViewers) {
+    return topViewers.map((viewer) => {
+        return {
+            user: viewer.user ? getUserAttributes(viewer.user) : null,
+            coinCount: viewer.coinCount ? parseInt(viewer.coinCount) : 0,
+        };
+    });
 }
 
 function mapBadges(badges) {
