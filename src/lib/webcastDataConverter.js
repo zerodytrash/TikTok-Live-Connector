@@ -153,9 +153,13 @@ function getUserAttributes(webcastUser) {
         };
     }
 
-    userAttributes.isModerator = userAttributes.userBadges.some((x) => x.type && x.type.toLowerCase().includes('moderator'));
+    // badgeSceneType:1 = ADMIN
+    // badgeSceneType:4 = SUBSCRIBER
+    // badgeSceneType:7 = NEWSUBSCRIBER
+
+    userAttributes.isModerator = userAttributes.userBadges.some((x) => (x.type && x.type.toLowerCase().includes('moderator')) || x.badgeSceneType === 1);
     userAttributes.isNewGifter = userAttributes.userBadges.some((x) => x.type && x.type.toLowerCase().includes('live_ng_'));
-    userAttributes.isSubscriber = userAttributes.userBadges.some((x) => x.url && x.url.toLowerCase().includes('/sub_'));
+    userAttributes.isSubscriber = userAttributes.userBadges.some((x) => (x.url && x.url.toLowerCase().includes('/sub_')) || x.badgeSceneType === 4 || x.badgeSceneType === 7);
     userAttributes.topGifterRank =
         userAttributes.userBadges
             .find((x) => x.url && x.url.includes('/ranklist_top_gifter_'))
@@ -185,16 +189,18 @@ function mapBadges(badges) {
 
     if (Array.isArray(badges)) {
         badges.forEach((innerBadges) => {
+            let badgeSceneType = innerBadges.badgeSceneType;
+
             if (Array.isArray(innerBadges.badges)) {
                 innerBadges.badges.forEach((badge) => {
-                    simplifiedBadges.push(Object.assign({}, badge));
+                    simplifiedBadges.push(Object.assign({ badgeSceneType }, badge));
                 });
             }
 
             if (Array.isArray(innerBadges.imageBadges)) {
                 innerBadges.imageBadges.forEach((badge) => {
                     if (badge && badge.image && badge.image.url) {
-                        simplifiedBadges.push({ type: 'image', displayType: badge.displayType, url: badge.image.url });
+                        simplifiedBadges.push({ type: 'image', badgeSceneType, displayType: badge.displayType, url: badge.image.url });
                     }
                 });
             }

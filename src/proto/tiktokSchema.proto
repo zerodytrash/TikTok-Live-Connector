@@ -274,8 +274,9 @@ message ProfilePicture {
 
 
 message UserBadgesAttributes {
-  repeated UserBadge badges = 21;
+  int32 badgeSceneType = 3;
   repeated UserImageBadge imageBadges = 20;
+  repeated UserBadge badges = 21;
 }
 
 message UserBadge {
