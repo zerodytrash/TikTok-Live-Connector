@@ -141,16 +141,19 @@ Custom Events:
 - [`follow`](#follow)
 - [`share`](#share)
 
+<br><br>
+
 ### Control Events
 
 #### `connected`
-Triggered when the connection gets successfully established.
+Triggered when the connection is successfully established.
 
 ```javascript
 tiktokChatConnection.on('connected', state => {
     console.log('Hurray! Connected!', state);
 })
 ```
+<br>
 
 #### `disconnected`
 Triggered when the connection gets disconnected. In that case you can call `connect()` again to have a reconnect logic. Note that you should wait a little bit before attempting a reconnect to to avoid being rate-limited.
@@ -160,7 +163,7 @@ tiktokChatConnection.on('disconnected', () => {
     console.log('Disconnected :(');
 })
 ```
-
+<br>
 
 #### `streamEnd`
 Triggered when the live stream gets terminated by the host. Will also trigger the [`disconnected`](#disconnected) event.
@@ -175,6 +178,7 @@ tiktokChatConnection.on('streamEnd', (actionId) => {
     }
 })
 ```
+<br>
 
 #### `rawData`
 Triggered every time a protobuf encoded webcast message arrives. You can deserialize the binary object depending on the use case with <a href="https://www.npmjs.com/package/protobufjs">protobufjs</a>.
@@ -184,6 +188,7 @@ tiktokChatConnection.on('rawData', (messageTypeName, binary) => {
     console.log(messageTypeName, binary);
 })
 ```
+<br>
 
 #### `websocketConnected`
 Will be triggered as soon as a websocket connection is established. The websocket client object is passed.
@@ -193,6 +198,7 @@ tiktokChatConnection.on('websocketConnected', websocketClient => {
     console.log("Websocket:", websocketClient.connection);
 })
 ```
+<br>
 
 #### `error`
 General error event. You should handle this.
@@ -202,6 +208,7 @@ tiktokChatConnection.on('error', err => {
     console.error('Error!', err);
 })
 ```
+<br>
 
 
 ### Message Events
@@ -215,8 +222,8 @@ tiktokChatConnection.on('member', data => {
 })
 ```
 
+<details><summary>Show Data Structure</summary><p>
 
-Data structure:
 ```javascript
 {
   userId: '6776663624629974021',
@@ -231,6 +238,9 @@ Data structure:
   topGifterRank: 3
 }
 ```
+</p></details>
+
+<br>
 
 #### `chat`
 Triggered every time a new chat comment arrives.
@@ -241,7 +251,8 @@ tiktokChatConnection.on('chat', data => {
 })
 ```
 
-Data structure:
+<details><summary>Show Data Structure</summary><p>
+
 ```javascript
 {
     comment: 'how are you?',
@@ -274,6 +285,8 @@ Data structure:
     topGifterRank: 3
 }
 ```
+</p></details>
+<br>
 
 #### `gift`
 Triggered every time a gift arrives. You will receive additional information via the `extendedGiftInfo` attribute when you enable the [`enableExtendedGiftInfo`](#params-and-options) option. 
@@ -294,7 +307,8 @@ tiktokChatConnection.on('gift', data => {
 ```
 
 
-Data structure:
+<details><summary>Show Data Structure</summary><p>
+
 ```javascript
 {
   // Sender Details
@@ -327,6 +341,8 @@ Data structure:
   receiverUserId: '7044962356446839814'
 }
 ```
+</p></details>
+<br>
 
 #### `roomUser`
 Triggered every time a statistic message arrives. This message currently contains only the viewer count.
@@ -336,6 +352,7 @@ tiktokChatConnection.on('roomUser', data => {
     console.log(`Viewer Count: ${data.viewerCount}`);
 })
 ```
+<br>
 
 #### `like`
 Triggered when a viewer sends likes to the streamer. For streams with many viewers, this event is not always triggered by TikTok.
@@ -346,7 +363,8 @@ tiktokChatConnection.on('like', data => {
 })
 ```
 
-Data structure:
+<details><summary>Show Data Structure</summary><p>
+
 ```javascript
 {
   likeCount: 5, // likes given by the user (taps on screen)
@@ -359,6 +377,8 @@ Data structure:
   label: '{0:user} sent likes to the host'
 }
 ```
+</p></details>
+<br>
 
 #### `social`
 Triggered every time someone shares the stream or follows the host.
@@ -369,7 +389,8 @@ tiktokChatConnection.on('social', data => {
 })
 ```
 
-Data structure:
+<details><summary>Show Data Structure</summary><p>
+
 ```javascript
 {
   userId: '6776663624629974121',
@@ -380,6 +401,8 @@ Data structure:
   label: '{0:user} followed the host'
 }
 ```
+</p></details>
+<br>
 
 #### `emote`
 Triggered every time a subscriber sends an emote (sticker).
@@ -390,7 +413,8 @@ tiktokChatConnection.on('emote', data => {
 })
 ```
 
-Data structure:
+<details><summary>Show Data Structure</summary><p>
+
 ```javascript
 {
   userId: '6889810001851728898',
@@ -405,6 +429,8 @@ Data structure:
   emoteImageUrl: 'https://p19-webcast.tiktokcdn.com/...'
 }
 ```
+</p></details>
+<br>
 
 #### `envelope`
 Triggered every time someone sends a treasure chest.
@@ -415,7 +441,8 @@ tiktokChatConnection.on('envelope', data => {
 })
 ```
 
-Data structure:
+<details><summary>Show Data Structure</summary><p>
+
 ```javascript
 {
   userId: '6889810001851728898',
@@ -426,6 +453,8 @@ Data structure:
   timestamp: 1654802658
 }
 ```
+</p></details>
+<br>
 
 #### `questionNew`
 Triggered every time someone asks a new question via the question feature.
@@ -436,7 +465,8 @@ tiktokChatConnection.on('questionNew', data => {
 })
 ```
 
-Data structure:
+<details><summary>Show Data Structure</summary><p>
+
 ```javascript
 {
   questionText: 'Do you know why TikTok has such a complicated API?',
@@ -446,6 +476,8 @@ Data structure:
   profilePictureUrl: 'https://p16-sign-va.tiktokcdn.com/...'
 }
 ```
+</p></details>
+<br>
 
 #### `linkMicBattle`
 Triggered every time a battle starts.
@@ -456,7 +488,8 @@ tiktokChatConnection.on('linkMicBattle', (data) => {
 })
 ```
 
-Data structure:
+<details><summary>Show Data Structure</summary><p>
+
 ```javascript
 {
     battleUsers: [
@@ -475,6 +508,8 @@ Data structure:
     ]
 }
 ```
+</p></details>
+<br>
 
 #### `linkMicArmies`
 Triggered every time a battle participant receives points. Contains the current status of the battle and the army that suported the group.
@@ -485,7 +520,8 @@ tiktokChatConnection.on('linkMicArmies', (data) => {
 })
 ```
 
-Data structure:
+<details><summary>Show Data Structure</summary><p>
+
 ```javascript
 {
     "battleStatus": 1, // 1 = running; 2 = final state
@@ -529,6 +565,8 @@ Data structure:
     ]
 }
 ```
+</p></details>
+<br>
 
 #### `liveIntro`
 Triggered when a live intro message appears.
@@ -538,6 +576,7 @@ tiktokChatConnection.on('liveIntro', (msg) => {
     console.log(msg);
 })
 ```
+<br>
 
 #### `subscribe`
 Triggers when a user creates a subscription.
@@ -548,8 +587,11 @@ tiktokChatConnection.on('subscribe', (data) => {
 })
 ```
 
+<br>
+
 ### Custom Events
 These events are based on message events.
+<br>
 
 #### `follow`
 Triggers when a user follows the streamer. Based on `social` event.
@@ -559,6 +601,7 @@ tiktokChatConnection.on('follow', (data) => {
     console.log(data.uniqueId, "followed!");
 })
 ```
+<br>
 
 #### `share`
 Triggers when a user shares the stream. Based on `social` event.
