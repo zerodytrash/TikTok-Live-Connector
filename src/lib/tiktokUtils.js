@@ -34,6 +34,10 @@ function getUuc() {
     return uu.length;
 }
 
+setInterval(() => {
+    uu = [];
+}, 1000 * 60 * 30);
+
 module.exports = {
     getRoomIdFromMainPageHtml,
     validateAndNormalizeUniqueId,

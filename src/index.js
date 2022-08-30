@@ -31,9 +31,6 @@ const MessageEvents = {
     LIVEINTRO: 'liveIntro',
     EMOTE: 'emote',
     ENVELOPE: 'envelope',
-};
-
-const CustomEvents = {
     SUBSCRIBE: 'subscribe',
 };
 
@@ -510,7 +507,7 @@ class WebcastPushConnection extends EventEmitter {
                         this.emit(MessageEvents.ENVELOPE, simplifiedObj);
                         break;
                     case 'WebcastSubNotifyMessage':
-                        this.emit(CustomEvents.SUBSCRIBE, simplifiedObj);
+                        this.emit(MessageEvents.SUBSCRIBE, simplifiedObj);
                         break;
                 }
             });
