@@ -34,6 +34,11 @@ const MessageEvents = {
     SUBSCRIBE: 'subscribe',
 };
 
+const CustomEvents = {
+    FOLLOW: 'follow',
+    SHARE: 'share',
+};
+
 /**
  * Wrapper class for TikTok's internal Webcast Push Service
  */
@@ -484,6 +489,12 @@ class WebcastPushConnection extends EventEmitter {
                         break;
                     case 'WebcastSocialMessage':
                         this.emit(MessageEvents.SOCIAL, simplifiedObj);
+                        if (simplifiedObj.displayType?.includes('follow')) {
+                            this.emit(CustomEvents.FOLLOW, simplifiedObj);
+                        }
+                        if (simplifiedObj.displayType?.includes('share')) {
+                            this.emit(CustomEvents.SHARE, simplifiedObj);
+                        }
                         break;
                     case 'WebcastLikeMessage':
                         this.emit(MessageEvents.LIKE, simplifiedObj);
