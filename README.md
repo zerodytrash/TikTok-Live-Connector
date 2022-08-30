@@ -137,6 +137,10 @@ Message Events:
 - [`liveIntro`](#liveintro)
 - [`subscribe`](#subscribe)
 
+Custom Events:
+- [`follow`](#follow)
+- [`share`](#share)
+
 ### Control Events
 
 #### `connected`
@@ -541,6 +545,27 @@ Triggers when a user creates a subscription.
 ```javascript
 tiktokChatConnection.on('subscribe', (data) => {
     console.log(data.uniqueId, "subscribed!");
+})
+```
+
+### Custom Events
+These events are based on message events.
+
+#### `follow`
+Triggers when a user follows the streamer. Based on `social` event.
+
+```javascript
+tiktokChatConnection.on('follow', (data) => {
+    console.log(data.uniqueId, "followed!");
+})
+```
+
+#### `share`
+Triggers when a user shares the stream. Based on `social` event.
+
+```javascript
+tiktokChatConnection.on('share', (data) => {
+    console.log(data.uniqueId, "shared the stream!");
 })
 ```
 
