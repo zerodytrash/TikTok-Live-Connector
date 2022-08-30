@@ -135,8 +135,6 @@ Message Events:
 - [`linkMicBattle`](#linkmicbattle)
 - [`linkMicArmies`](#linkmicarmies)
 - [`liveIntro`](#liveintro)
-
-Other Events:
 - [`subscribe`](#subscribe)
 
 ### Control Events
@@ -536,8 +534,6 @@ tiktokChatConnection.on('liveIntro', (msg) => {
     console.log(msg);
 })
 ```
-
-### Other Events
 
 #### `subscribe`
 Triggers when a user creates a subscription.
