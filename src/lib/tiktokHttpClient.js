@@ -7,6 +7,12 @@ const Config = require('./webcastConfig.js');
 
 class TikTokHttpClient {
     constructor(customHeaders, axiosOptions, sessionId) {
+        const { Cookie } = customHeaders || {};
+
+        if (Cookie) {
+            delete customHeaders['Cookie'];
+        }
+
         this.axiosInstance = axios.create({
             timeout: 10000,
             headers: {
@@ -17,6 +23,10 @@ class TikTokHttpClient {
         });
 
         this.cookieJar = new TikTokCookieJar(this.axiosInstance);
+
+        if (Cookie) {
+            Cookie.split('; ').forEach((v) => this.cookieJar.processSetCookieHeader(v));
+        }
 
         if (sessionId) {
             this.setSessionId(sessionId);
