@@ -44,20 +44,51 @@ class TikTokCookieJar {
         }
 
         // Cookies already set by custom headers? => Append
-        if (typeof request.headers['Cookie'] === 'string') {
-            request.headers['Cookie'] += ';' + this.getCookieString();
-        } else {
-            request.headers['Cookie'] = this.getCookieString();
+        const headerCookie = request.headers['Cookie'];
+        if (typeof headerCookie === 'string') {
+            Object.assign(this.cookies, this.parseCookie(headerCookie), this.cookies);
         }
+
+        request.headers['Cookie'] = this.getCookieString();
+    }
+
+    /**
+     * parse cookies string to object
+     * @param {string} str  multi-cookie string
+     * @returns {Object} parsed cookie object
+     */
+    parseCookie(str) {
+        const cookies = {};
+
+        if (!str) {
+            return cookies;
+        }
+
+        str.split('; ').forEach((v) => {
+            if (!v) {
+                return;
+            }
+
+            const parts = String(v).split('=');
+
+            const cookieName = decodeURIComponent(parts.shift());
+            const cookieValue = parts.join('=');
+
+            cookies[cookieName] = cookieValue;
+        });
+
+        return cookies;
     }
 
     processSetCookieHeader(setCookieHeader) {
         const nameValuePart = setCookieHeader.split(';')[0];
-        const cookieName = nameValuePart.split('=')[0];
-        const cookieValue = nameValuePart.split('=')[1];
+        const parts = nameValuePart.split('=');
+        const cookieName = parts.shift();
+        const cookieValue = parts.join('=');
 
         if (typeof cookieName === 'string' && cookieName !== '' && typeof cookieValue === 'string') {
-            this.cookies[decodeURIComponent(cookieName)] = decodeURIComponent(cookieValue);
+            // this.cookies[decodeURIComponent(cookieName)] = decodeURIComponent(cookieValue);
+            this.cookies[decodeURIComponent(cookieName)] = cookieValue;
         }
     }
 
@@ -68,7 +99,7 @@ class TikTokCookieJar {
     getCookieString() {
         let cookieString = '';
         for (const cookieName in this.cookies) {
-            cookieString += encodeURIComponent(cookieName) + '=' + encodeURIComponent(this.cookies[cookieName]) + ';';
+            cookieString += encodeURIComponent(cookieName) + '=' + this.cookies[cookieName] + '; ';
         }
 
         return cookieString;
