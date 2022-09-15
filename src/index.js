@@ -159,8 +159,6 @@ class WebcastPushConnection extends EventEmitter {
 
             await this.#fetchRoomData(true);
 
-            this.#isConnected = true;
-
             // Sometimes no upgrade to WebSocket is offered by TikTok
             // In that case we use request polling (if enabled and possible)
             if (!this.#isWsUpgradeDone) {
@@ -178,6 +176,8 @@ class WebcastPushConnection extends EventEmitter {
 
                 this.#startFetchRoomPolling();
             }
+
+            this.#isConnected = true;
 
             let state = this.getState();
 
