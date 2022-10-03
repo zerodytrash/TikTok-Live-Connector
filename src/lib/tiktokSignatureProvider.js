@@ -10,31 +10,32 @@ const axios = require('axios').create({
 
 let config = {
     enabled: true,
+    signProvider: signProvider,
     signProviderHost: 'https://tiktok.isaackogan.com/',
+    signProviderPath: 'webcast/sign_url',
     extraParams: {},
 };
 
 let signEvents = new EventEmitter();
 
 function signWebcastRequest(url, headers, cookieJar) {
-    return signRequest('webcast/sign_url', url, headers, cookieJar);
-}
-
-async function signRequest(providerPath, url, headers, cookieJar) {
-    if (!config.enabled) {
+    if (config.enabled) {
+        return config.signProvider(url, headers, cookieJar, signEvents);
+    } else {
         return url;
     }
+}
 
+async function signProvider(url, headers, cookieJar, _signEvents) {
     let params = {
         url,
         client: 'ttlive-node',
+        uuc: getUuc(),
         ...config.extraParams,
     };
 
-    params.uuc = getUuc();
-
     try {
-        let signResponse = await axios.get(config.signProviderHost + providerPath, { params, responseType: 'json' });
+        let signResponse = await axios.get(config.signProviderHost + config.signProviderPath, { params, responseType: 'json' });
 
         if (signResponse.status !== 200) {
             throw new Error(`Status Code: ${signResponse.status}`);
@@ -52,7 +53,7 @@ async function signRequest(providerPath, url, headers, cookieJar) {
             cookieJar.setCookie('msToken', signResponse.data['msToken']);
         }
 
-        signEvents.emit('signSuccess', {
+        _signEvents.emit('signSuccess', {
             originalUrl: url,
             signedUrl: signResponse.data.signedUrl,
             headers,
@@ -61,7 +62,7 @@ async function signRequest(providerPath, url, headers, cookieJar) {
 
         return signResponse.data.signedUrl;
     } catch (error) {
-        signEvents.emit('signError', {
+        _signEvents.emit('signError', {
             originalUrl: url,
             headers,
             cookieJar,

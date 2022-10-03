@@ -61,6 +61,67 @@ tiktokLiveConnection.on('gift', data => {
 // ...and more events described in the documentation below
 ```
 
+3. Custom signature provider
+
+```javascript
+const { WebcastPushConnection, signatureProvider } = require('tiktok-live-connector');
+const axios = require('axios').create({
+    timeout: 5000
+});
+
+// Set custom signature provider before connect
+signatureProvider.config.signProvider = async function (url, headers, cookieJar, signEvents) {
+    try {
+        // Get signature from server
+        let params = {
+            url: url
+        }
+        let signResponse = await axios.get("https://your-sign-server/sign_url", { params, responseType: 'json' });
+
+        // Set headers
+        headers['User-Agent'] = signResponse.data['User-Agent'];
+
+        // Set cookies
+        cookieJar.setCookie('msToken', signResponse.data['msToken']);
+
+        // Emit success event
+        signEvents.emit('signSuccess', {
+            originalUrl: url,
+            signedUrl: signResponse.data.signedUrl,
+            headers,
+            cookieJar,
+        });
+
+        // Return signed url
+        return signResponse.data.signedUrl;
+
+    } catch (error) {
+        // Emit error event
+        signEvents.emit('signError', {
+            originalUrl: url,
+            headers,
+            cookieJar,
+            error,
+        });
+
+        throw new Error(`Failed to sign request: ${error.message}; URL: ${url}`);
+    }
+}
+
+// Username of someone who is currently live
+let tiktokUsername = "officialgeilegisela";
+
+// Create a new wrapper object and pass the username
+let tiktokLiveConnection = new WebcastPushConnection(tiktokUsername);
+
+// Connect to the chat (await can be used as well)
+tiktokLiveConnection.connect().then(state => {
+    console.info(`Connected to roomId ${state.roomId}`);
+}).catch(err => {
+    console.error('Failed to connect', err);
+});
+```
+
 ## Params and options
 
 To create a new `WebcastPushConnection` object the following parameters are required.
