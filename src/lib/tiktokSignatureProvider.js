@@ -10,7 +10,7 @@ const axios = require('axios').create({
 
 let config = {
     enabled: true,
-    signProviderHost: 'https://tiktok.isaackogan.com/',
+    signProviderHost: 'https://tiktok.eulerstream.com/',
     extraParams: {},
 };
 
