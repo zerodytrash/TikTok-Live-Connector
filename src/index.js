@@ -126,10 +126,9 @@ class WebcastPushConnection extends EventEmitter {
 
     /**
      * Connects to the current live stream room
-     * @param {string} [roomId] If you want to connect to a specific roomId. Otherwise the current roomId will be retrieved.
      * @returns {Promise} Promise that will be resolved when the connection is established.
      */
-    async connect(roomId = null) {
+    async connect() {
         if (this.#isConnecting) {
             throw new Error('Already connecting!');
         }
@@ -141,13 +140,7 @@ class WebcastPushConnection extends EventEmitter {
         this.#isConnecting = true;
 
         try {
-            // roomId already specified?
-            if (roomId) {
-                this.#roomId = roomId;
-                this.#clientParams.room_id = roomId;
-            } else {
-                await this.#retrieveRoomId();
-            }
+            await this.#retrieveRoomId();
 
             // Fetch room info if option enabled
             if (this.#options.fetchRoomInfoOnConnect) {
