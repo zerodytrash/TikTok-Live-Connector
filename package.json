@@ -1,6 +1,6 @@
 {
   "name": "tiktok-live-connector",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Node.js module to receive live stream chat events like comments and gifts from TikTok LIVE",
   "main": "index.js",
   "types": "./dist/index.d.ts",
