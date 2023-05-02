@@ -22,7 +22,6 @@ module.exports = {
         is_page_visible: true,
         did_rule: 3,
         fetch_rule: 1,
-        internal_ext: '',
         last_rtt: 0,
         live_id: 12,
         resp_content_type: 'protobuf',
