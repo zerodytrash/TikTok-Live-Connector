@@ -1,6 +1,6 @@
 const protobufjs = require('protobufjs');
-const util = require('util');
-const zlib = require('zlib');
+const util = require('node:util');
+const zlib = require('node:zlib');
 const unzip = util.promisify(zlib.unzip);
 
 let tiktokSchemaPath = require.resolve('../proto/tiktokSchema.proto');

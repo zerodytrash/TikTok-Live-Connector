@@ -1,4 +1,4 @@
-const { EventEmitter } = require('events');
+const { EventEmitter } = require('node:events');
 
 const TikTokHttpClient = require('./lib/tiktokHttpClient.js');
 const WebcastWebsocket = require('./lib/webcastWebsocket.js');
@@ -337,10 +337,23 @@ class WebcastPushConnection extends EventEmitter {
     async #retrieveRoomId() {
         try {
             let mainPageHtml = await this.#httpClient.getMainPage(`@${this.#uniqueStreamerId}/live`);
-            let roomId = getRoomIdFromMainPageHtml(mainPageHtml);
 
-            this.#roomId = roomId;
-            this.#clientParams.room_id = roomId;
+            try {
+                let roomId = getRoomIdFromMainPageHtml(mainPageHtml);
+
+                this.#roomId = roomId;
+                this.#clientParams.room_id = roomId;
+            } catch (err) {
+                // Use fallback method
+                let roomData = await this.#httpClient.getJsonObjectFromTiktokApi('api-live/user/room/', {
+                    ...this.#clientParams,
+                    uniqueId: this.#uniqueStreamerId,
+                    sourceType: 54,
+                });
+
+                this.#roomId = roomData.data.user.roomId;
+                this.#clientParams.room_id = roomData.data.user.roomId;
+            }
         } catch (err) {
             throw new Error(`Failed to retrieve room_id from page source. ${err.message}`);
         }
