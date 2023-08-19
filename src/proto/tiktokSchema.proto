@@ -62,6 +62,7 @@ message WebcastGiftMessage {
   WebcastGiftMessageGiftDetails giftDetails = 15;
   string monitorExtra = 22;
   WebcastGiftMessageGiftExtra giftExtra = 23;
+    WebcastGiftMessageFirstGift firstGiftDetails = 27;
 }
 
 message WebcastGiftMessageGiftDetails {
@@ -76,6 +77,11 @@ message WebcastGiftMessageGiftDetails {
 message WebcastGiftMessageGiftExtra {
   uint64 timestamp = 6;
   uint64 receiverUserId = 8;
+}
+
+message WebcastGiftMessageFirstGift {
+  string displayType = 1;
+  string label = 2;
 }
 
 message WebcastGiftMessageGiftImage {

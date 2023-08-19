@@ -158,7 +158,6 @@ function getUserAttributes(webcastUser) {
     // badgeSceneType:7 = NEWSUBSCRIBER
 
     userAttributes.isModerator = userAttributes.userBadges.some((x) => (x.type && x.type.toLowerCase().includes('moderator')) || x.badgeSceneType === 1);
-    userAttributes.isNewGifter = userAttributes.userBadges.some((x) => x.type && x.type.toLowerCase().includes('live_ng_'));
     userAttributes.isSubscriber = userAttributes.userBadges.some((x) => (x.url && x.url.toLowerCase().includes('/sub_')) || x.badgeSceneType === 4 || x.badgeSceneType === 7);
     userAttributes.topGifterRank =
         userAttributes.userBadges
