@@ -646,7 +646,6 @@ tiktokLiveConnection.on('member', data => {
         pushStatus: 0
     },
     isModerator: false,
-    isNewGifter: false,
     isSubscriber: false,
     topGifterRank: null,
     msgId: "7137750885996120859",
@@ -714,7 +713,6 @@ tiktokLiveConnection.on('chat', data => {
         pushStatus: 0
     },
     isModerator: false,
-    isNewGifter: false,
     isSubscriber: false,
     topGifterRank: null,
     msgId: "7137750790064065286",
@@ -752,6 +750,7 @@ tiktokLiveConnection.on('gift', data => {
     repeatCount: 1,
     repeatEnd: true,
     groupId: "1661887131074",
+    firstGiftDetails: null,
     monitorExtra: {
         anchor_id: 7087613897129494000,
         from_idc: "maliva",
@@ -791,7 +790,7 @@ tiktokLiveConnection.on('gift', data => {
         pushStatus: 0
     },
     isModerator: false,
-    isNewGifter: false,
+
     isSubscriber: false,
     topGifterRank: null,
     msgId: "7137749190944230150",
@@ -860,7 +859,6 @@ tiktokLiveConnection.on('roomUser', data => {
                     pushStatus: 0
                 },
                 isModerator: false,
-                isNewGifter: false,
                 isSubscriber: false,
                 topGifterRank: null
             },
@@ -891,7 +889,6 @@ tiktokLiveConnection.on('roomUser', data => {
                     pushStatus: 0
                 },
                 isModerator: false,
-                isNewGifter: false,
                 isSubscriber: false,
                 topGifterRank: null
             },
@@ -922,7 +919,6 @@ tiktokLiveConnection.on('roomUser', data => {
                     pushStatus: 0
                 },
                 isModerator: false,
-                isNewGifter: false,
                 isSubscriber: false,
                 topGifterRank: null
             },
@@ -952,7 +948,6 @@ tiktokLiveConnection.on('roomUser', data => {
                     pushStatus: 0
                 },
                 isModerator: false,
-                isNewGifter: false,
                 isSubscriber: false,
                 topGifterRank: null
             },
@@ -982,7 +977,6 @@ tiktokLiveConnection.on('roomUser', data => {
                     pushStatus: 0
                 },
                 isModerator: false,
-                isNewGifter: false,
                 isSubscriber: false,
                 topGifterRank: null
             },
@@ -1050,7 +1044,6 @@ tiktokLiveConnection.on('like', data => {
         pushStatus: 0
     },
     isModerator: false,
-    isNewGifter: false,
     isSubscriber: false,
     topGifterRank: null,
     msgId: "7137750883651619630",
@@ -1099,7 +1092,6 @@ tiktokLiveConnection.on('social', data => {
         pushStatus: 0
     },
     isModerator: false,
-    isNewGifter: false,
     isSubscriber: false,
     topGifterRank: null,
     msgId: "7137750889884076842",
@@ -1147,7 +1139,6 @@ tiktokLiveConnection.on('emote', data => {
         pushStatus: 0
     },
     isModerator: false,
-    isNewGifter: false,
     isSubscriber: true,
     topGifterRank: null,
     emoteId: "7121025198379731714",
@@ -1192,7 +1183,6 @@ tiktokLiveConnection.on('envelope', data => {
         pushStatus: 0
     },
     isModerator: false,
-    isNewGifter: false,
     isSubscriber: false,
     topGifterRank: null,
     coins: 20,
@@ -1240,7 +1230,6 @@ tiktokLiveConnection.on('questionNew', data => {
         pushStatus: 0
     },
     isModerator: false,
-    isNewGifter: false,
     isSubscriber: false,
     topGifterRank: null
 }
@@ -1275,7 +1264,6 @@ tiktokLiveConnection.on('linkMicBattle', (data) => {
                 ]
             },
             isModerator: false,
-            isNewGifter: false,
             isSubscriber: false,
             topGifterRank: null
         },
@@ -1292,7 +1280,6 @@ tiktokLiveConnection.on('linkMicBattle', (data) => {
                 ]
             },
             isModerator: false,
-            isNewGifter: false,
             isSubscriber: false,
             topGifterRank: null
         }
@@ -1337,7 +1324,6 @@ tiktokLiveConnection.on('linkMicArmies', (data) => {
                         bioDescription: ""
                     },
                     isModerator: false,
-                    isNewGifter: false,
                     isSubscriber: false,
                     topGifterRank: null
                 },
@@ -1352,7 +1338,6 @@ tiktokLiveConnection.on('linkMicArmies', (data) => {
                         bioDescription: ""
                     },
                     isModerator: false,
-                    isNewGifter: false,
                     isSubscriber: false,
                     topGifterRank: null
                 },
@@ -1367,7 +1352,6 @@ tiktokLiveConnection.on('linkMicArmies', (data) => {
                         bioDescription: ""
                     },
                     isModerator: false,
-                    isNewGifter: false,
                     isSubscriber: false,
                     topGifterRank: null
                 }
@@ -1431,7 +1415,6 @@ tiktokLiveConnection.on('liveIntro', (msg) => {
         pushStatus: 0
     },
     isModerator: false,
-    isNewGifter: false,
     isSubscriber: false,
     topGifterRank: null
 }
@@ -1478,7 +1461,6 @@ tiktokLiveConnection.on('subscribe', (data) => {
         pushStatus: 0
     },
     isModerator: false,
-    isNewGifter: false,
     isSubscriber: false,
     topGifterRank: null,
     msgId: "7137745705032043266",
@@ -1547,7 +1529,6 @@ tiktokLiveConnection.on('follow', (data) => {
         pushStatus: 0
     },
     isModerator: false,
-    isNewGifter: false,
     isSubscriber: false,
     topGifterRank: null,
     msgId: "7137750889884076842",
@@ -1612,7 +1593,6 @@ tiktokLiveConnection.on('share', (data) => {
         pushStatus: 0
     },
     isModerator: false,
-    isNewGifter: false,
     isSubscriber: false,
     topGifterRank: null,
     msgId: "7137750889884076842",
