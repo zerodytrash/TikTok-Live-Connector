@@ -78,6 +78,12 @@ class TikTokHttpClient {
         let response = await this.#post(`${Config.TIKTOK_URL_WEBCAST}${path}`, params, formData, 'json');
         return response.data;
     }
+
+    async getJsonObjectFromTiktokApi(path, params, shouldSign) {
+        let url = await this.#buildUrl(Config.TIKTOK_URL_WEB, path, params, shouldSign);
+        let response = await this.#get(url, 'json');
+        return response.data;
+    }
 }
 
 module.exports = TikTokHttpClient;
