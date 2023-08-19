@@ -750,7 +750,7 @@ tiktokLiveConnection.on('gift', data => {
     repeatCount: 1,
     repeatEnd: true,
     groupId: "1661887131074",
-    firstGiftDetails: null,
+    firstGiftDetails: undefined,
     monitorExtra: {
         anchor_id: 7087613897129494000,
         from_idc: "maliva",
