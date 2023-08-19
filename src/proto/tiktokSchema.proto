@@ -62,7 +62,7 @@ message WebcastGiftMessage {
   WebcastGiftMessageGiftDetails giftDetails = 15;
   string monitorExtra = 22;
   WebcastGiftMessageGiftExtra giftExtra = 23;
-    WebcastGiftMessageFirstGift firstGiftDetails = 27;
+  WebcastGiftMessageFirstGiftDetails firstGiftDetails = 27;
 }
 
 message WebcastGiftMessageGiftDetails {
