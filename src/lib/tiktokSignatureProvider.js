@@ -11,6 +11,7 @@ const axios = require('axios').create({
 let config = {
     enabled: true,
     signProviderHost: 'https://tiktok.eulerstream.com/',
+    signProviderFallbackHosts: ['https://tiktok-sign.zerody.one/'],
     extraParams: {},
 };
 
@@ -33,8 +34,26 @@ async function signRequest(providerPath, url, headers, cookieJar) {
 
     params.uuc = getUuc();
 
+    let signHost;
+    let signResponse;
+    let signError;
+
     try {
-        let signResponse = await axios.get(config.signProviderHost + providerPath, { params, responseType: 'json' });
+        for (signHost of [config.signProviderHost, ...config.signProviderFallbackHosts]) {
+            try {
+                signResponse = await axios.get(signHost + providerPath, { params, responseType: 'json' });
+
+                if (signResponse.status === 200 && typeof signResponse.data === 'object') {
+                    break;
+                }
+            } catch (err) {
+                signError = err;
+            }
+        }
+
+        if (!signResponse) {
+            throw signError;
+        }
 
         if (signResponse.status !== 200) {
             throw new Error(`Status Code: ${signResponse.status}`);
@@ -53,6 +72,7 @@ async function signRequest(providerPath, url, headers, cookieJar) {
         }
 
         signEvents.emit('signSuccess', {
+            signHost,
             originalUrl: url,
             signedUrl: signResponse.data.signedUrl,
             headers,
@@ -62,6 +82,7 @@ async function signRequest(providerPath, url, headers, cookieJar) {
         return signResponse.data.signedUrl;
     } catch (error) {
         signEvents.emit('signError', {
+            signHost,
             originalUrl: url,
             headers,
             cookieJar,
