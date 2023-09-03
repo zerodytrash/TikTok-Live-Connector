@@ -40,10 +40,17 @@ message TopUser {
   uint64 coinCount = 1;
   User user = 2;
 }
+
 message WebcastChatMessage {
   WebcastMessageEvent event = 1;
   User user = 2;
   string comment = 3;
+  repeated WebcastSubEmotes subemotes = 13;
+}
+
+message WebcastSubEmotes {
+ int32 placeInComment = 1; //starting at 0, you insert the emote itself into the comment at that place
+ EmoteDetails emote = 2;
 }
 
 message WebcastMemberMessage {
@@ -188,12 +195,6 @@ message RankContainer {
 
 message WebcastHourlyRankMessage {
   RankContainer data = 2;
-}
-
-// Chat Emotes (Subscriber)
-message WebcastEmoteChatMessage {
-  User user = 2;
-  EmoteDetails emote = 3;
 }
 
 message EmoteDetails {
