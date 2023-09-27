@@ -5,8 +5,9 @@ A Node.js library to receive live stream events such as comments and gifts in re
 
 Do you prefer other programming languages?
 - **Python** rewrite: [TikTokLive](https://github.com/isaackogan/TikTokLive) by [@isaackogan](https://github.com/isaackogan)
-- **Go** rewrite: [GoTikTokLive](https://github.com/Davincible/gotiktoklive) by [@Davincible](https://github.com/Davincible)
+- **Java** rewrite: [TikTokLiveJava](https://github.com/jwdeveloper/TikTokLiveJava) by [@jwdeveloper](https://github.com/jwdeveloper)
 - **C#** rewrite: [TikTokLiveSharp](https://github.com/frankvHoof93/TikTokLiveSharp) by [@frankvHoof93](https://github.com/frankvHoof93)
+- **Go** rewrite: [GoTikTokLive](https://github.com/Davincible/gotiktoklive) by [@Davincible](https://github.com/Davincible)
 
 **NOTE:** This is not an official API. It's a reverse engineering project.
 
