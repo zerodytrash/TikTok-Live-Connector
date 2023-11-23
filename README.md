@@ -614,7 +614,7 @@ tiktokLiveConnection.on('member', data => {
     uniqueId: "zerodytester",
     nickname: "Zerody Tester",
     profilePictureUrl: "https://p16-sign-va.tiktokcdn.com/tos-useast2a-avt...webp",
-    rollowRole: 0, // 0 = none; 1 = follower; 2 = friends
+    followRole: 0, // 0 = none; 1 = follower; 2 = friends
     userBadges: [
         {
             type: "pm_mt_moderator_im",
@@ -679,7 +679,7 @@ tiktokLiveConnection.on('chat', data => {
     uniqueId: "zerodytester",
     nickname: "Zerody Tester",
     profilePictureUrl: "https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-0...webp",
-    rollowRole: 0, // 0 = none; 1 = follower; 2 = friends
+    followRole: 0, // 0 = none; 1 = follower; 2 = friends
     userBadges: [
         {
             // Moderator badge
@@ -774,7 +774,7 @@ tiktokLiveConnection.on('gift', data => {
     uniqueId: "zerodytester",
     nickname: "Zerody Tester",
     profilePictureUrl: "https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-0...webp",
-    rollowRole: 0, // 0 = none; 1 = follower; 2 = friends
+    followRole: 0, // 0 = none; 1 = follower; 2 = friends
     userBadges: [],
     userDetails: {
         createTime: "0",
@@ -1017,7 +1017,7 @@ tiktokLiveConnection.on('like', data => {
     uniqueId: "zerodytester",
     nickname: "Zerody Tester",
     profilePictureUrl: "https://p16-sign.tiktokcdn-us.com/tos-useast5-avt-...webp",
-    rollowRole: 0, // 0 = none; 1 = follower; 2 = friends,
+    followRole: 0, // 0 = none; 1 = follower; 2 = friends,
     userBadges: [
         {
             type: "pm_mt_moderator_im",
@@ -1130,7 +1130,7 @@ tiktokLiveConnection.on('emote', data => {
     uniqueId: "zerodytester",
     nickname: "Zerody Tester",
     profilePictureUrl: "https://p16-sign-sg.tiktokcdn.com/aweme/100x100/to...webp",
-    rollowRole: 0, // 0 = none; 1 = follower; 2 = friends,
+    followRole: 0, // 0 = none; 1 = follower; 2 = friends,
     userBadges: [],
     userDetails: {
         createTime: "0",
@@ -1176,7 +1176,7 @@ tiktokLiveConnection.on('envelope', data => {
     uniqueId: "zerodytester",
     nickname: "Zerody Tester",
     profilePictureUrl: "https://p16-webcast.tiktokcdn.com/img/alisg/webcas...png",
-    rollowRole: 0, // 0 = none; 1 = follower; 2 = friends
+    followRole: 0, // 0 = none; 1 = follower; 2 = friends
     userBadges: [],
     userDetails: {
         createTime: "0",
@@ -1223,7 +1223,7 @@ tiktokLiveConnection.on('questionNew', data => {
     uniqueId: "zerodytester",
     nickname: "Zerody Tester",
     profilePictureUrl: "https://p16-sign-va.tiktokcdn.com/tos-maliva-avt-0...webp",
-    rollowRole: 0, // 0 = none; 1 = follower; 2 = friends
+    followRole: 0, // 0 = none; 1 = follower; 2 = friends
     userBadges: [],
     userDetails: {
         createTime: "0",
