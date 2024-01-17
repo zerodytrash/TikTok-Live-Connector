@@ -113,6 +113,12 @@ function simplifyObject(webcastObject) {
         delete webcastObject.emote;
     }
 
+    if (webcastObject.emotes) {
+        webcastObject.emotes = webcastObject.emotes.map((x) => {
+            return { emoteId: x.emote?.emoteId, emoteImageUrl: x.emote?.image?.imageUrl, placeInComment: x.placeInComment };
+        });
+    }
+
     if (webcastObject.treasureBoxUser) {
         // holy crap
         Object.assign(webcastObject, getUserAttributes(webcastObject.treasureBoxUser?.user2?.user3[0]?.user4?.user || {}));
