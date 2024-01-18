@@ -143,7 +143,7 @@ function getUserAttributes(webcastUser) {
         profilePictureUrl: getPreferredPictureFormat(webcastUser.profilePicture?.urls),
         followRole: webcastUser.followInfo?.followStatus,
         userBadges: mapBadges(webcastUser.badges),
-        userSceneTypes: webcastUser.badges.map((x) => x?.badgeSceneType || 0),
+        userSceneTypes: webcastUser.badges?.map((x) => x?.badgeSceneType || 0),
         userDetails: {
             createTime: webcastUser.createTime?.toString(),
             bioDescription: webcastUser.bioDescription,
