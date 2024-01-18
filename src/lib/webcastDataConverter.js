@@ -143,6 +143,7 @@ function getUserAttributes(webcastUser) {
         profilePictureUrl: getPreferredPictureFormat(webcastUser.profilePicture?.urls),
         followRole: webcastUser.followInfo?.followStatus,
         userBadges: mapBadges(webcastUser.badges),
+        userSceneTypes: webcastUser.badges.map((x) => x?.badgeSceneType || 0),
         userDetails: {
             createTime: webcastUser.createTime?.toString(),
             bioDescription: webcastUser.bioDescription,
@@ -171,6 +172,9 @@ function getUserAttributes(webcastUser) {
             .find((x) => x.url && x.url.includes('/ranklist_top_gifter_'))
             ?.url.match(/(?<=ranklist_top_gifter_)(\d+)(?=.png)/g)
             ?.map(Number)[0] ?? null;
+
+    userAttributes.gifterLevel = userAttributes.userBadges.find((x) => x.badgeSceneType === 8)?.level || 0; // BadgeSceneType_UserGrade
+    userAttributes.teamMemberLevel = userAttributes.userBadges.find((x) => x.badgeSceneType === 10)?.level || 0; // BadgeSceneType_Fans
 
     return userAttributes;
 }
@@ -208,6 +212,15 @@ function mapBadges(badges) {
                     if (badge && badge.image && badge.image.url) {
                         simplifiedBadges.push({ type: 'image', badgeSceneType, displayType: badge.displayType, url: badge.image.url });
                     }
+                });
+            }
+
+            if (innerBadges.privilegeLogExtra?.level && innerBadges.privilegeLogExtra?.level !== '0') {
+                simplifiedBadges.push({
+                    type: 'privilege',
+                    privilegeId: innerBadges.privilegeLogExtra.privilegeId,
+                    level: parseInt(innerBadges.privilegeLogExtra.level),
+                    badgeSceneType: innerBadges.badgeSceneType,
                 });
             }
         });

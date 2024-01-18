@@ -284,6 +284,12 @@ message UserBadgesAttributes {
   int32 badgeSceneType = 3;
   repeated UserImageBadge imageBadges = 20;
   repeated UserBadge badges = 21;
+  PrivilegeLogExtra privilegeLogExtra = 12;
+}
+
+message PrivilegeLogExtra {
+  string privilegeId = 2;
+  string level = 5;
 }
 
 message UserBadge {
