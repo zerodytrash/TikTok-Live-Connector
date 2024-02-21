@@ -2,7 +2,7 @@ const { EventEmitter } = require('node:events');
 
 const TikTokHttpClient = require('./lib/tiktokHttpClient.js');
 const WebcastWebsocket = require('./lib/webcastWebsocket.js');
-const { getRoomIdFromMainPageHtml, validateAndNormalizeUniqueId, addUniqueId } = require('./lib/tiktokUtils.js');
+const { getRoomIdFromMainPageHtml, validateAndNormalizeUniqueId, addUniqueId, removeUniqueId} = require('./lib/tiktokUtils.js');
 const { simplifyObject } = require('./lib/webcastDataConverter.js');
 const { deserializeMessage, deserializeWebsocketMessage } = require('./lib/webcastProtobuf.js');
 
@@ -84,9 +84,6 @@ class WebcastPushConnection extends EventEmitter {
 
         this.#uniqueStreamerId = validateAndNormalizeUniqueId(uniqueId);
         this.#httpClient = new TikTokHttpClient(this.#options.requestHeaders, this.#options.requestOptions, this.#options.sessionId);
-
-        // add streamerId to uu
-        addUniqueId(this.#uniqueStreamerId);
 
         this.#clientParams = {
             ...Config.DEFAULT_CLIENT_PARAMS,
@@ -191,6 +188,9 @@ class WebcastPushConnection extends EventEmitter {
 
             let state = this.getState();
 
+            // add streamerId to uu
+            addUniqueId(this.#uniqueStreamerId);
+
             this.emit(ControlEvents.CONNECTED, state);
             return state;
         } catch (err) {
@@ -212,6 +212,9 @@ class WebcastPushConnection extends EventEmitter {
 
             // Reset state
             this.#setUnconnected();
+
+            // remove streamerId from uu
+            removeUniqueId(this.#uniqueStreamerId);
 
             this.emit(ControlEvents.DISCONNECTED);
         }
