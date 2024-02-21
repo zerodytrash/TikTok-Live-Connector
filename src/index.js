@@ -140,6 +140,9 @@ class WebcastPushConnection extends EventEmitter {
 
         this.#isConnecting = true;
 
+        // add streamerId to uu
+        addUniqueId(this.#uniqueStreamerId);
+
         try {
             // roomId already specified?
             if (roomId) {
@@ -188,13 +191,14 @@ class WebcastPushConnection extends EventEmitter {
 
             let state = this.getState();
 
-            // add streamerId to uu
-            addUniqueId(this.#uniqueStreamerId);
-
             this.emit(ControlEvents.CONNECTED, state);
             return state;
         } catch (err) {
             this.#handleError(err, 'Error while connecting');
+
+            // remove streamerId from uu on connect fail
+            removeUniqueId(this.#uniqueStreamerId);
+
             throw err;
         } finally {
             this.#isConnecting = false;

@@ -28,17 +28,13 @@ function validateAndNormalizeUniqueId(uniqueId) {
 }
 
 function addUniqueId(uniqueId) {
-    let fixedId = validateAndNormalizeUniqueId(uniqueId);
-
-    if (!uu.includes(fixedId)) {
-        uu.push(fixedId);
+    if (!uu.includes(uniqueId)) {
+        uu.push(uniqueId);
     }
 }
 
 function removeUniqueId(uniqueId) {
-    let fixedId = validateAndNormalizeUniqueId(uniqueId);
-
-    let index = uu.indexOf(fixedId);
+    let index = uu.indexOf(uniqueId);
     if (index > -1) {
         uu.splice(index, 1);
     }
