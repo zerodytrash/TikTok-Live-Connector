@@ -23,25 +23,27 @@ function validateAndNormalizeUniqueId(uniqueId) {
     uniqueId = uniqueId.replace('@', '');
     uniqueId = uniqueId.trim();
 
-
     return uniqueId;
 }
 
 function addUniqueId(uniqueId) {
-    if (!uu.includes(uniqueId)) {
-        uu.push(uniqueId);
+    const existingEntry = uu.find((x) => x.uniqueId === uniqueId);
+    if (existingEntry) {
+        existingEntry.ts = new Date().getTime();
+    } else {
+        uu.push({
+            uniqueId,
+            ts: new Date().getTime(),
+        });
     }
 }
 
 function removeUniqueId(uniqueId) {
-    let index = uu.indexOf(uniqueId);
-    if (index > -1) {
-        uu.splice(index, 1);
-    }
+    uu = uu.filter((x) => x.uniqueId !== uniqueId);
 }
 
 function getUuc() {
-    return uu.length;
+    return uu.filter((x) => x.ts > new Date().getTime() - 10 * 60000).length;
 }
 
 module.exports = {
