@@ -23,23 +23,33 @@ function validateAndNormalizeUniqueId(uniqueId) {
     uniqueId = uniqueId.replace('@', '');
     uniqueId = uniqueId.trim();
 
-    if (!uu.includes(uniqueId)) {
-        uu.push(uniqueId);
-    }
-
     return uniqueId;
 }
 
-function getUuc() {
-    return uu.length;
+function addUniqueId(uniqueId) {
+    const existingEntry = uu.find((x) => x.uniqueId === uniqueId);
+    if (existingEntry) {
+        existingEntry.ts = new Date().getTime();
+    } else {
+        uu.push({
+            uniqueId,
+            ts: new Date().getTime(),
+        });
+    }
 }
 
-setInterval(() => {
-    uu = [];
-}, 1000 * 60 * 30);
+function removeUniqueId(uniqueId) {
+    uu = uu.filter((x) => x.uniqueId !== uniqueId);
+}
+
+function getUuc() {
+    return uu.filter((x) => x.ts > new Date().getTime() - 10 * 60000).length;
+}
 
 module.exports = {
     getRoomIdFromMainPageHtml,
     validateAndNormalizeUniqueId,
     getUuc,
+    addUniqueId,
+    removeUniqueId,
 };
