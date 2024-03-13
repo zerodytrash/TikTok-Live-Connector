@@ -15,7 +15,7 @@ class WebcastWebsocket extends websocket.client {
         };
 
         this.#handleEvents();
-        this.connect(this.wsUrlWithParams, 'echo-protocol', Config.TIKTOK_URL_WEBCAST, this.wsHeaders, websocketOptions);
+        this.connect(this.wsUrlWithParams, '', Config.TIKTOK_URL_WEB, this.wsHeaders, websocketOptions);
     }
 
     #handleEvents() {

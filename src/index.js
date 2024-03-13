@@ -405,7 +405,7 @@ class WebcastPushConnection extends EventEmitter {
 
     async #fetchRoomData(isInitial) {
         let webcastResponse = await this.#httpClient.getDeserializedObjectFromWebcastApi('im/fetch/', this.#clientParams, 'WebcastResponse', isInitial);
-        let upgradeToWsOffered = !!webcastResponse.wsUrl && !!webcastResponse.wsParam;
+        let upgradeToWsOffered = !!webcastResponse.wsUrl;
 
         if (!webcastResponse.cursor) {
             if (isInitial) {
@@ -438,7 +438,7 @@ class WebcastPushConnection extends EventEmitter {
         try {
             // Websocket specific params
             let wsParams = {
-                imprp: webcastResponse.wsParam.value,
+                imprp: webcastResponse.wsParam?.value || '',
                 compress: 'gzip',
             };
 
