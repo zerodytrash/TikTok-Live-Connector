@@ -1655,6 +1655,8 @@ tiktokLiveConnection.getAvailableGifts().then(giftList => {
 ````
 
 ### Send Chat Messages
+> Due to the increased signature requirements by TikTok, sending chat messages is currently not possible.
+
 You can send chat messages via the [`sendMessage()`](#methods) function to automatically respond to chat commands for example. For this you need to provide your Session ID. 
 
 To get the Session ID from your account, open TikTok in your web browser and make sure you are logged in, then press F12 to open the developer tools. Switch to the **Application** tab and select **Cookies** on the left side. Then take the value of the cookie with the name **`sessionid`**.
