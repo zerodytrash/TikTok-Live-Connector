@@ -361,6 +361,8 @@ class WebcastPushConnection extends EventEmitter {
                     sourceType: 54,
                 });
 
+                if (roomData.statusCode) throw new Error(`API Error ${roomData.statusCode} (${roomData.message || 'Unknown Error'})`);
+
                 this.#roomId = roomData.data.user.roomId;
                 this.#clientParams.room_id = roomData.data.user.roomId;
             }
