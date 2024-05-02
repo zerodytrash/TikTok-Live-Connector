@@ -441,6 +441,7 @@ class WebcastPushConnection extends EventEmitter {
             // Websocket specific params
             let wsParams = {
                 imprp: webcastResponse.wsParam?.value || '',
+                wrss: webcastResponse.wsParam?.value || '',
                 compress: 'gzip',
             };
 
