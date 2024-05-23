@@ -106,7 +106,7 @@ class WebcastPushConnection extends EventEmitter {
                 sessionId: null,
                 clientParams: {},
                 requestHeaders: {},
-                websocketHeaders: {},
+                websocketHeaders: Config.DEFAULT_REQUEST_HEADERS,
                 requestOptions: {},
                 websocketOptions: {},
             },
