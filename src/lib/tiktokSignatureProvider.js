@@ -30,8 +30,7 @@ async function signRequest(providerPath, url, headers, cookieJar, signProviderOp
         url,
         client: 'ttlive-node',
         ...config.extraParams,
-        // Include api key if header name and value are provided
-        ...(signProviderOptions?.apiKey && signProviderOptions?.apiKeyHeaderName ? { [signProviderOptions.apiKeyHeaderName]: signProviderOptions.apiKey } : {}),
+        ...signProviderOptions?.params,
     };
 
     params.uuc = getUuc();
@@ -51,7 +50,7 @@ async function signRequest(providerPath, url, headers, cookieJar, signProviderOp
     try {
         for (signHost of hostsToTry) {
             try {
-                signResponse = await axios.get(signHost + providerPath, { params, responseType: 'json' });
+                signResponse = await axios.get(signHost + providerPath, { params, headers: signProviderOptions?.headers, responseType: 'json' });
 
                 if (signResponse.status === 200 && typeof signResponse.data === 'object') {
                     break;
