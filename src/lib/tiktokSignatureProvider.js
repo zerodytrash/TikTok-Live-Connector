@@ -17,11 +17,11 @@ let config = {
 
 let signEvents = new EventEmitter();
 
-function signWebcastRequest(url, headers, cookieJar) {
-    return signRequest('webcast/sign_url', url, headers, cookieJar);
+function signWebcastRequest(url, headers, cookieJar, signProviderOptions) {
+    return signRequest('webcast/sign_url', url, headers, cookieJar, signProviderOptions);
 }
 
-async function signRequest(providerPath, url, headers, cookieJar) {
+async function signRequest(providerPath, url, headers, cookieJar, signProviderOptions) {
     if (!config.enabled) {
         return url;
     }
@@ -30,18 +30,27 @@ async function signRequest(providerPath, url, headers, cookieJar) {
         url,
         client: 'ttlive-node',
         ...config.extraParams,
+        ...signProviderOptions?.params,
     };
 
     params.uuc = getUuc();
+
+    let hostsToTry = [config.signProviderHost, ...config.signProviderFallbackHosts];
+    // Prioritize the custom host if provided
+    if (signProviderOptions?.host) {
+        // Remove any existing entries of the custom host to avoid duplication
+        hostsToTry = hostsToTry.filter((host) => host !== signProviderOptions.host);
+        hostsToTry.unshift(signProviderOptions.host);
+    }
 
     let signHost;
     let signResponse;
     let signError;
 
     try {
-        for (signHost of [config.signProviderHost, ...config.signProviderFallbackHosts]) {
+        for (signHost of hostsToTry) {
             try {
-                signResponse = await axios.get(signHost + providerPath, { params, responseType: 'json' });
+                signResponse = await axios.get(signHost + providerPath, { params, headers: signProviderOptions?.headers, responseType: 'json' });
 
                 if (signResponse.status === 200 && typeof signResponse.data === 'object') {
                     break;
