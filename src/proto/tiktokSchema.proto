@@ -9,7 +9,7 @@ message WebcastResponse {
   int64 serverTimestamp = 4;
   string internalExt = 5;
   int32 fetchType = 6; // ws (1) or polling (2)
-  WebsocketParam wsParam = 7;
+  repeated WebsocketParam wsParams = 7;
   int32 heartbeatDuration = 8;
   bool needAck = 9;
   string wsUrl = 10;
