@@ -442,10 +442,12 @@ class WebcastPushConnection extends EventEmitter {
         try {
             // Websocket specific params
             let wsParams = {
-                imprp: webcastResponse.wsParam?.value || '',
-                wrss: webcastResponse.wsParam?.value || '',
                 compress: 'gzip',
             };
+
+            for (let wsParam of webcastResponse.wsParams) {
+                wsParams[wsParam.name] = wsParam.value;
+            }
 
             // Wait until ws connected, then stop request polling
             await this.#setupWebsocket(webcastResponse.wsUrl, wsParams);
