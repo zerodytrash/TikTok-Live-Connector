@@ -1,6 +1,15 @@
 let uu = [];
 
 function getRoomIdFromMainPageHtml(mainPageHtml) {
+    let idx = 0;
+    do {
+        // loop thru many "room" excerpts and look for a match
+        idx = mainPageHtml.indexOf('roomId', idx+3);
+        const excerpt = mainPageHtml.substr(idx, 50);
+        let matchExcerpt = excerpt.match(/roomId":"([0-9]+)"/);
+        if (matchExcerpt && matchExcerpt[1]) return matchExcerpt[1];
+    } while (idx >= 0);
+    
     let matchMeta = mainPageHtml.match(/room_id=([0-9]*)/);
     if (matchMeta && matchMeta[1]) return matchMeta[1];
 
