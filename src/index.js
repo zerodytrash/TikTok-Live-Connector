@@ -76,14 +76,15 @@ class WebcastPushConnection extends EventEmitter {
      * @param {object} [options[].websocketHeaders={}] Custom request headers for websocket.client
      * @param {object} [options[].requestOptions={}] Custom request options for axios. Here you can specify an `httpsAgent` to use a proxy and a `timeout` value for example.
      * @param {object} [options[].websocketOptions={}] Custom request options for websocket.client. Here you can specify an `agent` to use a proxy and a `timeout` value for example.
-     */
+     * @param {object} [options[].signProviderOptions={}] Custom request options for the TikTok signing server. Here you can specify a `host`, `params`, and `headers`.
+    */
     constructor(uniqueId, options) {
         super();
 
         this.#setOptions(options || {});
 
         this.#uniqueStreamerId = validateAndNormalizeUniqueId(uniqueId);
-        this.#httpClient = new TikTokHttpClient(this.#options.requestHeaders, this.#options.requestOptions, this.#options.sessionId);
+        this.#httpClient = new TikTokHttpClient(this.#options.requestHeaders, this.#options.requestOptions, this.#options.signProviderOptions, this.#options.sessionId);
 
         this.#clientParams = {
             ...Config.DEFAULT_CLIENT_PARAMS,
@@ -109,6 +110,7 @@ class WebcastPushConnection extends EventEmitter {
                 websocketHeaders: Config.DEFAULT_REQUEST_HEADERS,
                 requestOptions: {},
                 websocketOptions: {},
+                signProviderOptions: {},
             },
             providedOptions
         );
