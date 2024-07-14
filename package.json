@@ -52,14 +52,14 @@
   "homepage": "https://github.com/zerodytrash/TikTok-Live-Connector#readme",
   "dependencies": {
     "axios": "^1.7.2",
-    "protobufjs": "^6.11.2",
-    "websocket": "^1.0.34"
+    "protobufjs": "^7.3.2",
+    "websocket": "^1.0.35"
   },
   "devDependencies": {
-    "@babel/cli": "^7.17.0",
-    "@babel/core": "^7.17.2",
-    "@babel/preset-env": "^7.16.11",
-    "prettier": "2.5.1",
-    "typescript": "^4.8.2"
+    "@babel/cli": "^7.24.8",
+    "@babel/core": "^7.24.8",
+    "@babel/preset-env": "^7.24.8",
+    "prettier": "3.3.3",
+    "typescript": "^5.5.3"
   }
 }
