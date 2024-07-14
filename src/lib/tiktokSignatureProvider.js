@@ -1,114 +1,30 @@
-const { EventEmitter } = require('node:events');
 const { getUuc } = require('./tiktokUtils');
-const pkg = require('../../package.json');
-const axios = require('axios').create({
-    timeout: 5000,
-    headers: {
-        'User-Agent': `${pkg.name}/${pkg.version} ${process.platform}`,
-    },
-});
 
-let config = {
-    enabled: true,
-    signProviderHost: 'https://tiktok.eulerstream.com/',
-    signProviderFallbackHosts: ['https://tiktok-sign.zerody.one/'],
-    extraParams: {},
-};
-
-let signEvents = new EventEmitter();
+const DEFAULT_SIGN_URL = 'https://tiktok.eulerstream.com/';
 
 function signWebcastRequest(url, headers, cookieJar, signProviderOptions) {
-    return signRequest('webcast/sign_url', url, headers, cookieJar, signProviderOptions);
+    return signRequest('webcast/fetch', url, headers, cookieJar, signProviderOptions);
 }
 
 async function signRequest(providerPath, url, headers, cookieJar, signProviderOptions) {
-    if (!config.enabled) {
-        return url;
-    }
+    const urlParams = new URLSearchParams(url.split('?')[1]);
+
+    const roomId = urlParams.get('room_id');
 
     let params = {
-        url,
+        room_id: roomId,
         client: 'ttlive-node',
-        ...config.extraParams,
+        uuc: getUuc(),
         ...signProviderOptions?.params,
     };
 
-    params.uuc = getUuc();
+    const host = signProviderOptions?.host || DEFAULT_SIGN_URL;
 
-    let hostsToTry = [config.signProviderHost, ...config.signProviderFallbackHosts];
-    // Prioritize the custom host if provided
-    if (signProviderOptions?.host) {
-        // Remove any existing entries of the custom host to avoid duplication
-        hostsToTry = hostsToTry.filter((host) => host !== signProviderOptions.host);
-        hostsToTry.unshift(signProviderOptions.host);
-    }
+    const signedUrl = `${host}${providerPath}?${new URLSearchParams(params).toString()}`;
 
-    let signHost;
-    let signResponse;
-    let signError;
-
-    try {
-        for (signHost of hostsToTry) {
-            try {
-                signResponse = await axios.get(signHost + providerPath, { params, headers: signProviderOptions?.headers, responseType: 'json' });
-
-                if (signResponse.status === 200 && typeof signResponse.data === 'object') {
-                    break;
-                }
-            } catch (err) {
-                signError = err;
-            }
-        }
-
-        if (!signResponse) {
-            throw signError;
-        }
-
-        if (signResponse.status !== 200) {
-            throw new Error(`Status Code: ${signResponse.status}`);
-        }
-
-        if (!signResponse.data?.signedUrl) {
-            throw new Error('missing signedUrl property');
-        }
-
-        if (headers) {
-            headers['User-Agent'] = signResponse.data['User-Agent'];
-        }
-
-        if (cookieJar) {
-            cookieJar.setCookie('msToken', signResponse.data['msToken']);
-        }
-
-        signEvents.emit('signSuccess', {
-            signHost,
-            originalUrl: url,
-            signedUrl: signResponse.data.signedUrl,
-            headers,
-            cookieJar,
-        });
-
-        return signResponse.data.signedUrl;
-    } catch (error) {
-        signEvents.emit('signError', {
-            signHost,
-            originalUrl: url,
-            headers,
-            cookieJar,
-            error,
-        });
-
-        // If a sessionid is present, the signature is optional => Do not throw an error.
-        if (cookieJar.getCookieByName('sessionid')) {
-            return url;
-        }
-
-        throw new Error(`Failed to sign request: ${error.message}; URL: ${url}`);
-    }
+    return signedUrl;
 }
 
 module.exports = {
-    config,
-    signEvents,
     signWebcastRequest,
 };
