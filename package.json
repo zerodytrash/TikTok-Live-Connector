@@ -51,7 +51,7 @@
   },
   "homepage": "https://github.com/zerodytrash/TikTok-Live-Connector#readme",
   "dependencies": {
-    "axios": "^0.25.0",
+    "axios": "^1.7.2",
     "protobufjs": "^6.11.2",
     "websocket": "^1.0.34"
   },
