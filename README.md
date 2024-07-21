@@ -8,6 +8,7 @@ Do you prefer other programming languages?
 - **Java** rewrite: [TikTokLiveJava](https://github.com/jwdeveloper/TikTokLiveJava) by [@jwdeveloper](https://github.com/jwdeveloper)
 - **C#** rewrite: [TikTokLiveSharp](https://github.com/frankvHoof93/TikTokLiveSharp) by [@frankvHoof93](https://github.com/frankvHoof93)
 - **Go** rewrite: [GoTikTokLive](https://github.com/Davincible/gotiktoklive) by [@Davincible](https://github.com/Davincible)
+- **Rust** rewrite: [TikTokLiveRust](https://github.com/jwdeveloper/TikTokLiveRust) by [@jwdeveloper](https://github.com/jwdeveloper) & [@ZmoleCristian](https://github.com/ZmoleCristian)
 
 **NOTE:** This is not an official API. It's a reverse engineering project.
 
