@@ -8,8 +8,8 @@ const { deserializeMessage, deserializeWebsocketMessage } = require('./lib/webca
 
 const Config = require('./lib/webcastConfig.js');
 const {
-    FetchRateLimitError, AlreadyConnectingError, AlreadyConnectedError, UserOfflineError, NoWSUpgradeError,
-    InvalidSessionIdError, InvalidResponseError, ExtractRoomIdError
+    AlreadyConnectingError, AlreadyConnectedError, UserOfflineError, NoWSUpgradeError,
+    InvalidSessionIdError, InvalidResponseError, ExtractRoomIdError, InitialFetchError
 } = require('./lib/tiktokErrors');
 
 const ControlEvents = {
@@ -177,15 +177,23 @@ class WebcastPushConnection extends EventEmitter {
             try {
                 await this.#fetchRoomData(true);
             } catch (ex) {
+                let jsonError;
+                let retryAfter;
 
-                if (ex.isAxiosError && ex.response?.status === 429) {
-                    const jsonData = JSON.parse(ex.response.data.toString());
-                    const errMessage = jsonData?.error || 'Hit the fetch connection rate limit.';
-                    const retryAfter = parseInt(ex.response.headers?.['retry-after'] || '-1');
-                    throw new FetchRateLimitError(errMessage, retryAfter);
+                try {
+                    jsonError = JSON.parse(ex.response.data.toString());
+                    retryAfter = (
+                        ex.response.headers?.['retry-after'] ? parseInt(ex.response.headers['retry-after']) : null
+                    )
+                } catch (parseErr) {
+                    throw ex;
                 }
 
-                throw ex;
+                if (!jsonError) throw ex;
+                const errorMessage = jsonError?.error || 'Failed to retrieve the initial room data.';
+                throw new InitialFetchError(errorMessage, retryAfter);
+
+
             }
 
             // Sometimes no upgrade to WebSocket is offered by TikTok

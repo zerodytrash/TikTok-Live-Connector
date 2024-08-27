@@ -36,11 +36,10 @@ class SignatureError extends InvalidResponseError {
 }
 
 
-class FetchRateLimitError extends ConnectError {
+class InitialFetchError extends ConnectError {
 
     constructor(message, retryAfter) {
         super(message);
-        this.name = 'FetchRateLimitError';
         this.retryAfter = retryAfter;
     }
 
@@ -61,7 +60,7 @@ class NoWSUpgradeError extends ConnectError {
 
 
 module.exports = {
-    FetchRateLimitError,
+    InitialFetchError,
     AlreadyConnectingError,
     AlreadyConnectedError,
     UserOfflineError,
