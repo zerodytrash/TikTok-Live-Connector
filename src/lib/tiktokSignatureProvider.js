@@ -1,6 +1,7 @@
 const { EventEmitter } = require('node:events');
 const { getUuc } = require('./tiktokUtils');
 const pkg = require('../../package.json');
+const { SignatureError } = require('./tiktokErrors');
 const axios = require('axios').create({
     timeout: 5000,
     headers: {
@@ -61,15 +62,15 @@ async function signRequest(providerPath, url, headers, cookieJar, signProviderOp
         }
 
         if (!signResponse) {
-            throw signError;
+            throw new SignatureError(`Failed to sign request: ${signError.message}; URL: ${url}`, signError);
         }
 
         if (signResponse.status !== 200) {
-            throw new Error(`Status Code: ${signResponse.status}`);
+            throw new SignatureError(`Status Code: ${signResponse.status}`);
         }
 
         if (!signResponse.data?.signedUrl) {
-            throw new Error('missing signedUrl property');
+            throw new SignatureError('missing signedUrl property');
         }
 
         if (headers) {
@@ -103,7 +104,7 @@ async function signRequest(providerPath, url, headers, cookieJar, signProviderOp
             return url;
         }
 
-        throw new Error(`Failed to sign request: ${error.message}; URL: ${url}`);
+        throw new SignatureError(`Failed to sign request: ${error.message}; URL: ${url}`);
     }
 }
 

@@ -7,6 +7,10 @@ const { simplifyObject } = require('./lib/webcastDataConverter.js');
 const { deserializeMessage, deserializeWebsocketMessage } = require('./lib/webcastProtobuf.js');
 
 const Config = require('./lib/webcastConfig.js');
+const {
+    FetchRateLimitError, AlreadyConnectingError, AlreadyConnectedError, UserOfflineError, NoWSUpgradeError,
+    InvalidSessionIdError, InvalidResponseError, ExtractRoomIdError
+} = require('./lib/tiktokErrors');
 
 const ControlEvents = {
     CONNECTED: 'connected',
@@ -88,7 +92,7 @@ class WebcastPushConnection extends EventEmitter {
 
         this.#clientParams = {
             ...Config.DEFAULT_CLIENT_PARAMS,
-            ...this.#options.clientParams,
+            ...this.#options.clientParams
         };
 
         this.#setUnconnected();
@@ -110,7 +114,7 @@ class WebcastPushConnection extends EventEmitter {
                 websocketHeaders: Config.DEFAULT_REQUEST_HEADERS,
                 requestOptions: {},
                 websocketOptions: {},
-                signProviderOptions: {},
+                signProviderOptions: {}
             },
             providedOptions
         );
@@ -133,11 +137,11 @@ class WebcastPushConnection extends EventEmitter {
      */
     async connect(roomId = null) {
         if (this.#isConnecting) {
-            throw new Error('Already connecting!');
+            throw new AlreadyConnectingError('Already connecting!');
         }
 
         if (this.#isConnected) {
-            throw new Error('Already connected!');
+            throw new AlreadyConnectedError('Already connected!');
         }
 
         this.#isConnecting = true;
@@ -160,7 +164,7 @@ class WebcastPushConnection extends EventEmitter {
 
                 // Prevent connections to finished rooms
                 if (this.#roomInfo.status === 4) {
-                    throw new Error('LIVE has ended');
+                    throw new UserOfflineError('LIVE has ended');
                 }
             }
 
@@ -169,13 +173,26 @@ class WebcastPushConnection extends EventEmitter {
                 await this.#fetchAvailableGifts();
             }
 
-            await this.#fetchRoomData(true);
+
+            try {
+                await this.#fetchRoomData(true);
+            } catch (ex) {
+
+                if (ex.isAxiosError && ex.response?.status === 429) {
+                    const jsonData = JSON.parse(ex.response.data.toString());
+                    const errMessage = jsonData?.error || 'Hit the fetch connection rate limit.';
+                    const retryAfter = parseInt(ex.response.headers?.['retry-after'] || '-1');
+                    throw new FetchRateLimitError(errMessage, retryAfter);
+                }
+
+                throw ex;
+            }
 
             // Sometimes no upgrade to WebSocket is offered by TikTok
             // In that case we use request polling (if enabled and possible)
             if (!this.#isWsUpgradeDone) {
                 if (!this.#options.enableRequestPolling) {
-                    throw new Error('TikTok does not offer a websocket upgrade and request polling is disabled (`enableRequestPolling` option).');
+                    throw new NoWSUpgradeError('TikTok does not offer a websocket upgrade and request polling is disabled (`enableRequestPolling` option).');
                 }
 
                 if (!this.#options.sessionId) {
@@ -183,7 +200,7 @@ class WebcastPushConnection extends EventEmitter {
                     // The reason for this is that TikTok needs a valid signature if the user is not logged in.
                     // Signing a request every second would generate too much traffic to the signing server.
                     // If a sessionid is present a signature is not required.
-                    throw new Error('TikTok does not offer a websocket upgrade. Please provide a valid `sessionId` to use request polling instead.');
+                    throw new NoWSUpgradeError('TikTok does not offer a websocket upgrade. Please provide a valid `sessionId` to use request polling instead.');
                 }
 
                 this.#startFetchRoomPolling();
@@ -278,7 +295,7 @@ class WebcastPushConnection extends EventEmitter {
         }
 
         if (!this.#options.sessionId) {
-            throw new Error('Missing SessionId. Please provide your current SessionId to use this feature.');
+            throw new InvalidSessionIdError('Missing SessionId. Please provide your current SessionId to use this feature.');
         }
 
         try {
@@ -302,12 +319,12 @@ class WebcastPushConnection extends EventEmitter {
             // Handle errors
             switch (response?.status_code) {
                 case 20003:
-                    throw new Error('Your SessionId has expired. Please provide a new one.');
+                    throw new InvalidSessionIdError('Your SessionId has expired. Please provide a new one.');
                 default:
-                    throw new Error(`TikTok responded with status code ${response?.status_code}: ${response?.data?.message}`);
+                    throw new InvalidResponseError(`TikTok responded with status code ${response?.status_code}: ${response?.data?.message}`, response);
             }
         } catch (err) {
-            throw new Error(`Failed to send chat message. ${err.message}`);
+            throw new InvalidResponseError(`Failed to send chat message. ${err.message}`, err);
         }
     }
 
@@ -363,13 +380,13 @@ class WebcastPushConnection extends EventEmitter {
                     sourceType: 54,
                 });
 
-                if (roomData.statusCode) throw new Error(`API Error ${roomData.statusCode} (${roomData.message || 'Unknown Error'})`);
+                if (roomData.statusCode) throw new InvalidResponseError(`API Error ${roomData.statusCode} (${roomData.message || 'Unknown Error'})`, undefined);
 
                 this.#roomId = roomData.data.user.roomId;
                 this.#clientParams.room_id = roomData.data.user.roomId;
             }
         } catch (err) {
-            throw new Error(`Failed to retrieve room_id from page source. ${err.message}`);
+            throw new ExtractRoomIdError(`Failed to retrieve room_id from page source. ${err.message}`);
         }
     }
 
@@ -378,7 +395,7 @@ class WebcastPushConnection extends EventEmitter {
             let response = await this.#httpClient.getJsonObjectFromWebcastApi('room/info/', this.#clientParams);
             this.#roomInfo = response.data;
         } catch (err) {
-            throw new Error(`Failed to fetch room info. ${err.message}`);
+            throw new InvalidResponseError(`Failed to fetch room info. ${err.message}`, err);
         }
     }
 
@@ -387,7 +404,7 @@ class WebcastPushConnection extends EventEmitter {
             let response = await this.#httpClient.getJsonObjectFromWebcastApi('gift/list/', this.#clientParams);
             this.#availableGifts = response.data.gifts;
         } catch (err) {
-            throw new Error(`Failed to fetch available gifts. ${err.message}`);
+            throw new InvalidResponseError(`Failed to fetch available gifts. ${err.message}`, err);
         }
     }
 
@@ -413,7 +430,7 @@ class WebcastPushConnection extends EventEmitter {
 
         if (!webcastResponse.cursor) {
             if (isInitial) {
-                throw new Error('Missing cursor in initial fetch response.');
+                throw new InvalidResponseError('Missing cursor in initial fetch response.');
             } else {
                 this.#handleError(null, 'Missing cursor in fetch response.');
             }
