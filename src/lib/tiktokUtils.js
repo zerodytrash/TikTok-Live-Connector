@@ -1,3 +1,4 @@
+const { UserOfflineError, InvalidUniqueIdError } = require('./tiktokErrors');
 let uu = [];
 
 function getRoomIdFromMainPageHtml(mainPageHtml) {
@@ -18,12 +19,12 @@ function getRoomIdFromMainPageHtml(mainPageHtml) {
 
     let validResponse = mainPageHtml.includes('"og:url"');
 
-    throw new Error(validResponse ? 'User might be offline.' : 'Your IP or country might be blocked by TikTok.');
+    throw new UserOfflineError(validResponse ? 'User might be offline.' : 'Your IP or country might be blocked by TikTok.');
 }
 
 function validateAndNormalizeUniqueId(uniqueId) {
     if (typeof uniqueId !== 'string') {
-        throw new Error("Missing or invalid value for 'uniqueId'. Please provide the username from TikTok URL.");
+        throw new InvalidUniqueIdError("Missing or invalid value for 'uniqueId'. Please provide the username from TikTok URL.");
     }
 
     // Support full URI
