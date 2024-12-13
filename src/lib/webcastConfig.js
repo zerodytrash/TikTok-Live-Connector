@@ -31,7 +31,6 @@ module.exports = {
         referer: 'https://www.tiktok.com/',
         root_referer: 'https://www.tiktok.com/',
         host: 'https://webcast.tiktok.com',
-        version_code: 270000,
         webcast_sdk_version: '1.3.0',
         update_version_code: '1.3.0',
     },
