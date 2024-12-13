@@ -8,8 +8,14 @@ const { deserializeMessage, deserializeWebsocketMessage } = require('./lib/webca
 
 const Config = require('./lib/webcastConfig.js');
 const {
-    AlreadyConnectingError, AlreadyConnectedError, UserOfflineError, NoWSUpgradeError,
-    InvalidSessionIdError, InvalidResponseError, ExtractRoomIdError, InitialFetchError
+    AlreadyConnectingError,
+    AlreadyConnectedError,
+    UserOfflineError,
+    NoWSUpgradeError,
+    InvalidSessionIdError,
+    InvalidResponseError,
+    ExtractRoomIdError,
+    InitialFetchError,
 } = require('./lib/tiktokErrors');
 
 const ControlEvents = {
@@ -92,7 +98,7 @@ class WebcastPushConnection extends EventEmitter {
 
         this.#clientParams = {
             ...Config.DEFAULT_CLIENT_PARAMS,
-            ...this.#options.clientParams
+            ...this.#options.clientParams,
         };
 
         this.#setUnconnected();
@@ -114,7 +120,7 @@ class WebcastPushConnection extends EventEmitter {
                 websocketHeaders: Config.DEFAULT_REQUEST_HEADERS,
                 requestOptions: {},
                 websocketOptions: {},
-                signProviderOptions: {}
+                signProviderOptions: {},
             },
             providedOptions
         );
@@ -173,7 +179,6 @@ class WebcastPushConnection extends EventEmitter {
                 await this.#fetchAvailableGifts();
             }
 
-
             try {
                 await this.#fetchRoomData(true);
             } catch (ex) {
@@ -182,9 +187,7 @@ class WebcastPushConnection extends EventEmitter {
 
                 try {
                     jsonError = JSON.parse(ex.response.data.toString());
-                    retryAfter = (
-                        ex.response.headers?.['retry-after'] ? parseInt(ex.response.headers['retry-after']) : null
-                    )
+                    retryAfter = ex.response.headers?.['retry-after'] ? parseInt(ex.response.headers['retry-after']) : null;
                 } catch (parseErr) {
                     throw ex;
                 }
@@ -192,8 +195,6 @@ class WebcastPushConnection extends EventEmitter {
                 if (!jsonError) throw ex;
                 const errorMessage = jsonError?.error || 'Failed to retrieve the initial room data.';
                 throw new InitialFetchError(errorMessage, retryAfter);
-
-
             }
 
             // Sometimes no upgrade to WebSocket is offered by TikTok
