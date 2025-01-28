@@ -32,7 +32,7 @@ module.exports = {
         root_referer: 'https://www.tiktok.com/',
         host: 'https://webcast.tiktok.com',
         webcast_sdk_version: '1.3.0',
-        update_version_code: '1.3.0',
+        update_version_code: '1.3.0'
     },
     DEFAULT_REQUEST_HEADERS: {
         Connection: 'keep-alive',
@@ -44,4 +44,5 @@ module.exports = {
         'Accept-Language': 'en-US,en;q=0.9',
         'Accept-Encoding': 'gzip, deflate',
     },
+    WEBCAST_VERSION_CODE: '180800',
 };

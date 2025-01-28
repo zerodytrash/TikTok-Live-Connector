@@ -8,7 +8,7 @@ class WebcastWebsocket extends websocket.client {
         this.pingInterval = null;
         this.connection = null;
         this.wsParams = { ...clientParams, ...wsParams };
-        this.wsUrlWithParams = `${wsUrl}?${new URLSearchParams(this.wsParams)}`;
+        this.wsUrlWithParams = `${wsUrl}?${new URLSearchParams(this.wsParams)}&version_code=${Config.WEBCAST_VERSION_CODE}`;
         this.wsHeaders = {
             Cookie: cookieJar.getCookieString(),
             ...(customHeaders || {}),
