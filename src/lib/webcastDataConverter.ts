@@ -1,36 +1,63 @@
+import {
+    EmoteDetails,
+    Message,
+    User,
+    WebcastGiftMessage,
+    WebcastGiftMessageGiftDetails,
+    WebcastLinkMicArmies,
+    WebcastLinkMicBattle,
+    WebcastLinkMicBattleItems,
+    WebcastMessageEvent,
+    WebcastQuestionNewMessage,
+    WebcastRoomUserSeqMessage
+} from '../proto/tiktokSchema';
+import { WebcastEventMessage } from '../types';
+import { EmoteSimplified, UserSimplified } from '../types/extendedSchema';
+
 /**
  * This ugly function brings the nested protobuf objects to a flat level
  * In addition, attributes in "Long" format are converted to strings (e.g. UserIds)
  * This makes it easier to handle the data later, since some libraries have problems to serialize this protobuf specific data.
  */
-function simplifyObject(webcastObject) {
-    if (webcastObject.questionDetails) {
-        Object.assign(webcastObject, webcastObject.questionDetails);
-        delete webcastObject.questionDetails;
+function simplifyObject(
+    message: Message
+) {
+    const objectKeys = Object.keys(message);
+
+    if (message.type == 'WebcastQuestionNewMessage') {
+        let decodedData = message.decodedData as WebcastQuestionNewMessage;
+        Object.assign(message.decodedData, decodedData.questionDetails);
+        delete decodedData.questionDetails;
     }
 
-    if (webcastObject.user) {
-        Object.assign(webcastObject, getUserAttributes(webcastObject.user));
+    if (objectKeys.includes('user')) {
+        let webcastObject = message.decodedData as WebcastEventMessage & { user: User };
+        Object.assign(message.decodedData, getUserAttributes(webcastObject.user));
         delete webcastObject.user;
     }
 
-    if (webcastObject.event) {
-        Object.assign(webcastObject, getEventAttributes(webcastObject.event));
+    if (objectKeys.includes('event')) {
+        let webcastObject = message.decodedData as typeof message.decodedData & { event: WebcastMessageEvent };
+        Object.assign(message.decodedData, getEventAttributes(webcastObject.event));
         delete webcastObject.event;
     }
 
-    if (webcastObject.eventDetails) {
-        Object.assign(webcastObject, webcastObject.eventDetails);
+    if (message.type === 'WebcastMessageEvent') {
+        let webcastObject = message.decodedData as WebcastMessageEvent;
+        Object.assign(message.decodedData, webcastObject.eventDetails);
         delete webcastObject.eventDetails;
     }
 
-    if (webcastObject.topViewers) {
+    if (message.type === 'WebcastRoomUserSeqMessage') {
+        let webcastObject = message.decodedData as WebcastRoomUserSeqMessage;
         webcastObject.topViewers = getTopViewerAttributes(webcastObject.topViewers);
     }
 
-    if (webcastObject.battleUsers) {
+    if (message.type === 'WebcastLinkMicBattle') {
+        let webcastObject = message.decodedData as WebcastLinkMicBattle;
         let battleUsers = [];
-        webcastObject.battleUsers.forEach((user) => {
+
+        webcastObject.battleUsers.forEach((user: WebcastLinkMicBattleItems) => {
             if (user?.battleGroup?.user) {
                 battleUsers.push(getUserAttributes(user.battleGroup.user));
             }
@@ -39,30 +66,31 @@ function simplifyObject(webcastObject) {
         webcastObject.battleUsers = battleUsers;
     }
 
-    if (webcastObject.battleItems) {
-        webcastObject.battleArmies = [];
-        webcastObject.battleItems.forEach((battleItem) => {
-            battleItem.battleGroups.forEach((battleGroup) => {
+    if (message.type === 'WebcastLinkMicArmies') {
+        let webcastObject = message.decodedData as WebcastLinkMicArmies;
+        let battleArmies = [];
+
+        webcastObject.battleItems.forEach(battleItem => {
+            battleItem.battleGroups.find(battleGroup => {
                 let group = {
                     hostUserId: battleItem.hostUserId.toString(),
-                    points: parseInt(battleGroup.points),
-                    participants: [],
+                    points: battleGroup.points,
+                    participants: []
                 };
 
                 battleGroup.users.forEach((user) => {
                     group.participants.push(getUserAttributes(user));
                 });
 
-                webcastObject.battleArmies.push(group);
+                battleArmies.push(group);
             });
         });
 
-        delete webcastObject.battleItems;
+        webcastObject.battleArmies = battleArmies;
     }
 
-    if (webcastObject.giftId) {
-        // Convert to boolean
-        webcastObject.repeatEnd = !!webcastObject.repeatEnd;
+    if (message.type === 'WebcastGiftMessage') {
+        let webcastObject = message.decodedData as WebcastGiftMessage;
 
         // Add previously used JSON structure (for compatibility reasons)
         // Can be removed soon
@@ -70,52 +98,47 @@ function simplifyObject(webcastObject) {
             gift_id: webcastObject.giftId,
             repeat_count: webcastObject.repeatCount,
             repeat_end: webcastObject.repeatEnd ? 1 : 0,
-            gift_type: webcastObject.giftDetails?.giftType,
+            gift_type: webcastObject.giftDetails?.giftType
         };
 
         if (webcastObject.giftDetails) {
-            Object.assign(webcastObject, webcastObject.giftDetails);
+            const giftDetails: WebcastGiftMessageGiftDetails = webcastObject.giftDetails;
+
+            if (giftDetails) {
+                Object.assign(webcastObject, giftDetails.giftImage);
+                delete giftDetails.giftImage;
+            }
+
+            Object.assign(webcastObject, giftDetails);
             delete webcastObject.giftDetails;
-        }
-
-        if (webcastObject.giftImage) {
-            Object.assign(webcastObject, webcastObject.giftImage);
-            delete webcastObject.giftImage;
-        }
-
-        if (webcastObject.giftExtra) {
-            Object.assign(webcastObject, webcastObject.giftExtra);
-            delete webcastObject.giftExtra;
-
-            if (webcastObject.receiverUserId) {
-                webcastObject.receiverUserId = webcastObject.receiverUserId.toString();
-            }
-
-            if (webcastObject.timestamp) {
-                webcastObject.timestamp = parseInt(webcastObject.timestamp);
-            }
-        }
-
-        if (webcastObject.groupId) {
-            webcastObject.groupId = webcastObject.groupId.toString();
         }
 
         if (typeof webcastObject.monitorExtra === 'string' && webcastObject.monitorExtra.indexOf('{') === 0) {
             try {
                 webcastObject.monitorExtra = JSON.parse(webcastObject.monitorExtra);
-            } catch (err) {}
+            } catch (err) {
+            }
         }
     }
 
-    if (webcastObject.emote) {
-        webcastObject.emoteId = webcastObject.emote?.emoteId;
+    if (message.type === 'WebcastEmoteChatMessage' || message.type === 'WebcastSubEmote') {
+        let webcastObject = message.decodedData as typeof message.decodedData & { emote: EmoteDetails } & EmoteSimplified;
+        webcastObject.emoteId = webcastObject.emote.emoteId;
         webcastObject.emoteImageUrl = webcastObject.emote?.image?.imageUrl;
         delete webcastObject.emote;
     }
 
+    if (message.type === 'WebcastChatMessage') {
+
+    }
+
     if (webcastObject.emotes) {
         webcastObject.emotes = webcastObject.emotes.map((x) => {
-            return { emoteId: x.emote?.emoteId, emoteImageUrl: x.emote?.image?.imageUrl, placeInComment: x.placeInComment };
+            return {
+                emoteId: x.emote?.emoteId,
+                emoteImageUrl: x.emote?.image?.imageUrl,
+                placeInComment: x.placeInComment
+            };
         });
     }
 
@@ -134,8 +157,8 @@ function simplifyObject(webcastObject) {
     return Object.assign({}, webcastObject);
 }
 
-function getUserAttributes(webcastUser) {
-    let userAttributes = {
+function getUserAttributes(webcastUser: Partial<User>): UserSimplified {
+    let userAttributes: Partial<UserSimplified> = {
         userId: webcastUser.userId?.toString(),
         secUid: webcastUser.secUid?.toString(),
         uniqueId: webcastUser.uniqueId !== '' ? webcastUser.uniqueId : undefined,
@@ -147,8 +170,8 @@ function getUserAttributes(webcastUser) {
         userDetails: {
             createTime: webcastUser.createTime?.toString(),
             bioDescription: webcastUser.bioDescription,
-            profilePictureUrls: webcastUser.profilePicture?.urls,
-        },
+            profilePictureUrls: webcastUser.profilePicture?.urls
+        }
     };
 
     if (webcastUser.followInfo) {
@@ -156,7 +179,7 @@ function getUserAttributes(webcastUser) {
             followingCount: webcastUser.followInfo.followingCount,
             followerCount: webcastUser.followInfo.followerCount,
             followStatus: webcastUser.followInfo.followStatus,
-            pushStatus: webcastUser.followInfo.pushStatus,
+            pushStatus: webcastUser.followInfo.pushStatus
         };
     }
 
@@ -176,7 +199,7 @@ function getUserAttributes(webcastUser) {
     userAttributes.gifterLevel = userAttributes.userBadges.find((x) => x.badgeSceneType === 8)?.level || 0; // BadgeSceneType_UserGrade
     userAttributes.teamMemberLevel = userAttributes.userBadges.find((x) => x.badgeSceneType === 10)?.level || 0; // BadgeSceneType_Fans
 
-    return userAttributes;
+    return userAttributes as UserSimplified;
 }
 
 function getEventAttributes(event) {
@@ -189,7 +212,7 @@ function getTopViewerAttributes(topViewers) {
     return topViewers.map((viewer) => {
         return {
             user: viewer.user ? getUserAttributes(viewer.user) : null,
-            coinCount: viewer.coinCount ? parseInt(viewer.coinCount) : 0,
+            coinCount: viewer.coinCount ? parseInt(viewer.coinCount) : 0
         };
     });
 }
@@ -210,7 +233,12 @@ function mapBadges(badges) {
             if (Array.isArray(innerBadges.imageBadges)) {
                 innerBadges.imageBadges.forEach((badge) => {
                     if (badge && badge.image && badge.image.url) {
-                        simplifiedBadges.push({ type: 'image', badgeSceneType, displayType: badge.displayType, url: badge.image.url });
+                        simplifiedBadges.push({
+                            type: 'image',
+                            badgeSceneType,
+                            displayType: badge.displayType,
+                            url: badge.image.url
+                        });
                     }
                 });
             }
@@ -220,7 +248,7 @@ function mapBadges(badges) {
                     type: 'privilege',
                     privilegeId: innerBadges.privilegeLogExtra.privilegeId,
                     level: parseInt(innerBadges.privilegeLogExtra.level),
-                    badgeSceneType: innerBadges.badgeSceneType,
+                    badgeSceneType: innerBadges.badgeSceneType
                 });
             }
         });
@@ -243,5 +271,5 @@ function getPreferredPictureFormat(pictureUrls) {
 }
 
 module.exports = {
-    simplifyObject,
+    simplifyObject
 };

@@ -1,4 +1,6 @@
-module.exports = {
+import { IWebcastConfig } from '../types';
+
+const WebcastConfig: IWebcastConfig = {
     TIKTOK_URL_WEB: 'https://www.tiktok.com/',
     TIKTOK_URL_WEBCAST: 'https://webcast.tiktok.com/webcast/',
     TIKTOK_HTTP_ORIGIN: 'https://www.tiktok.com',
@@ -42,7 +44,9 @@ module.exports = {
         Referer: 'https://www.tiktok.com/',
         Origin: 'https://www.tiktok.com',
         'Accept-Language': 'en-US,en;q=0.9',
-        'Accept-Encoding': 'gzip, deflate',
+        'Accept-Encoding': 'gzip, deflate'
     },
-    WEBCAST_VERSION_CODE: '180800',
+    WEBCAST_VERSION_CODE: '180800'
 };
+
+export default WebcastConfig;

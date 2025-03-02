@@ -1,14 +1,22 @@
+import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+
 /**
  * Custom cookie jar for axios
  * Because axios-cookiejar-support does not work as expected when using proxy agents
  * https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector/issues/18
  */
+export default class TikTokCookieJar {
 
-class TikTokCookieJar {
-    constructor(axiosInstance) {
-        this.axiosInstance = axiosInstance;
-        this.cookies = {};
-
+    /**
+     * Constructor
+     *
+     * @param axiosInstance The axios instance to attach the cookie jar to
+     * @param cookies The initial cookies to set
+     */
+    constructor(
+        public readonly axiosInstance: AxiosInstance,
+        public readonly cookies: Record<string, string> = {}
+    ) {
         // Intercept responses to store cookies
         this.axiosInstance.interceptors.response.use((response) => {
             this.readCookies(response);
@@ -20,23 +28,51 @@ class TikTokCookieJar {
             this.appendCookies(request);
             return request;
         });
+
+        // Return a proxy object to allow direct access to cookies
+        return new Proxy(
+            this,
+            {
+                get(target: TikTokCookieJar, p: string): any {
+                    if (p in target) {
+                        return target[p];
+                    } else {
+
+                    }
+                },
+                set(target: TikTokCookieJar, p: string, value: any): boolean {
+                    target.cookies[p] = value;
+                    return true;
+                },
+                deleteProperty(target: TikTokCookieJar, p: string): boolean {
+                    delete target.cookies[p];
+                    return true;
+                },
+            }
+        );
     }
 
-    readCookies(response) {
+    /**
+     * Read cookies from response headers
+     * @param response The axios response
+     */
+    public readCookies(response: AxiosResponse) {
         const setCookieHeaders = response.headers['set-cookie'];
 
         if (Array.isArray(setCookieHeaders)) {
-            // Mutiple set-cookie headers
-            setCookieHeaders.forEach((setCookieHeader) => {
-                this.processSetCookieHeader(setCookieHeader);
-            });
+            // Multiple set-cookie headers
+            setCookieHeaders.forEach((setCookieHeader) => this.processSetCookieHeader(setCookieHeader));
         } else if (typeof setCookieHeaders === 'string') {
             // Single set-cookie header
             this.processSetCookieHeader(setCookieHeaders);
         }
     }
 
-    appendCookies(request) {
+    /**
+     * Append cookies to request headers
+     * @param request The axios request
+     */
+    public appendCookies(request: AxiosRequestConfig) {
         // We use the capitalized 'Cookie' header, because every browser does that
         if (request.headers['cookie']) {
             request.headers['Cookie'] = request.headers['cookie'];
@@ -53,34 +89,28 @@ class TikTokCookieJar {
     }
 
     /**
-     * parse cookies string to object
-     * @param {string} str  multi-cookie string
-     * @returns {Object} parsed cookie object
+     * Parse cookie string
+     * @param str The cookie string
      */
-    parseCookie(str) {
-        const cookies = {};
-
-        if (!str) {
-            return cookies;
-        }
+    public parseCookie(str: string): Record<string, string> {
+        const cookies: Record<string, string> = {};
+        if (!str) return cookies;
 
         str.split('; ').forEach((v) => {
-            if (!v) {
-                return;
-            }
-
+            if (!v) return;
             const parts = String(v).split('=');
-
             const cookieName = decodeURIComponent(parts.shift());
-            const cookieValue = parts.join('=');
-
-            cookies[cookieName] = cookieValue;
+            cookies[cookieName] = parts.join('=');
         });
 
         return cookies;
     }
 
-    processSetCookieHeader(setCookieHeader) {
+    /**
+     * Process a single set-cookie header
+     * @param setCookieHeader The set-cookie header
+     */
+    public processSetCookieHeader(setCookieHeader: string): void {
         const nameValuePart = setCookieHeader.split(';')[0];
         const parts = nameValuePart.split('=');
         const cookieName = parts.shift();
@@ -92,11 +122,7 @@ class TikTokCookieJar {
         }
     }
 
-    getCookieByName(cookieName) {
-        return this.cookies[cookieName];
-    }
-
-    getCookieString() {
+    public getCookieString(): string {
         let cookieString = '';
         for (const cookieName in this.cookies) {
             cookieString += encodeURIComponent(cookieName) + '=' + this.cookies[cookieName] + '; ';
@@ -105,9 +131,5 @@ class TikTokCookieJar {
         return cookieString;
     }
 
-    setCookie(name, value) {
-        this.cookies[name] = value;
-    }
 }
 
-module.exports = TikTokCookieJar;
