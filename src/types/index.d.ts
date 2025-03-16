@@ -1,5 +1,5 @@
-import * as tikTokSchema from '../proto/tiktokSchema';
-import { MessageFns, WebcastWebsocketMessage } from '../proto/tiktokSchema';
+import * as tikTokSchema from '../../.proto/tiktokSchema';
+import { MessageFns, WebcastWebsocketMessage } from '../../.proto/tiktokSchema';
 
 export type WebcastPushConnectionOptions = {
     processInitialData: boolean;
@@ -66,3 +66,10 @@ export interface IWebcastSignatureProviderConfig {
     extraParams: Record<string, any>;
 }
 
+
+declare module '../../.proto/tiktokSchema' {
+    export interface Message {
+        decodedData?: WebcastEventMessage[keyof WebcastEventMessage];
+    }
+
+}

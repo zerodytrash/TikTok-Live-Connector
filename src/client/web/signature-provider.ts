@@ -1,9 +1,9 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
-import { name, version } from '../../package.json';
-import { IWebcastSignatureProviderConfig } from '../types';
+import { name, version } from '../../../package.json';
+import { IWebcastSignatureProviderConfig } from '../../types';
 import { util } from 'protobufjs';
-import TikTokCookieJar from './tiktokCookieJar';
-import { SignatureError } from './tiktokErrors';
+import CookieJar from './cookie-jar';
+import { SignatureError } from '../../types/errors';
 import EventEmitter = util.EventEmitter;
 
 
@@ -14,7 +14,7 @@ export const WebcastSignatureProviderConfig: IWebcastSignatureProviderConfig = {
     extraParams: {}
 };
 
-export default class TiktokSignatureProvider extends EventEmitter {
+export default class SignatureProvider extends EventEmitter {
 
     public signatureProviderAxiosInstance: AxiosInstance = axios.create({
         timeout: 5000,
@@ -27,7 +27,7 @@ export default class TiktokSignatureProvider extends EventEmitter {
         providerPath: string,
         url: string,
         headers: Record<string, any>,
-        cookieJar: TikTokCookieJar,
+        cookieJar: CookieJar,
         signProviderOptions: any
     ) {
         if (!WebcastSignatureProviderConfig.enabled) {
@@ -119,7 +119,7 @@ export default class TiktokSignatureProvider extends EventEmitter {
     public async signWebcastRequest(
         url: string,
         headers: Record<string, any>,
-        cookieJar: TikTokCookieJar,
+        cookieJar: CookieJar,
         signProviderOptions: any
     ): Promise<any> {
         return this.signRequest(

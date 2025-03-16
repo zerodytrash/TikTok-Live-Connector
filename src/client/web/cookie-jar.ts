@@ -5,7 +5,7 @@ import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
  * Because axios-cookiejar-support does not work as expected when using proxy agents
  * https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector/issues/18
  */
-export default class TikTokCookieJar {
+export default class CookieJar {
 
     /**
      * Constructor
@@ -33,18 +33,18 @@ export default class TikTokCookieJar {
         return new Proxy(
             this,
             {
-                get(target: TikTokCookieJar, p: string): any {
+                get(target: CookieJar, p: string): any {
                     if (p in target) {
                         return target[p];
                     } else {
 
                     }
                 },
-                set(target: TikTokCookieJar, p: string, value: any): boolean {
+                set(target: CookieJar, p: string, value: any): boolean {
                     target.cookies[p] = value;
                     return true;
                 },
-                deleteProperty(target: TikTokCookieJar, p: string): boolean {
+                deleteProperty(target: CookieJar, p: string): boolean {
                     delete target.cookies[p];
                     return true;
                 },

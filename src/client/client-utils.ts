@@ -1,4 +1,4 @@
-import { InvalidUniqueIdError, UserOfflineError } from './tiktokErrors';
+import { InvalidUniqueIdError, UserOfflineError } from '../types/errors';
 
 export function getRoomIdFromMainPageHtml(
     mainPageHtml: string

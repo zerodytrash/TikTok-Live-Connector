@@ -2,15 +2,15 @@ import {
     DecodedWebcastWebsocketMessage,
     WebcastPushConnectionClientParams,
     WebcastPushConnectionWebSocketParams
-} from '../types';
+} from '../../types';
 import { client as WebSocket, connection as WebSocketConnection, Message as WebSocketMessage } from 'websocket';
 import * as http from 'node:http';
-import { deserializeWebSocketMessage } from './webcastProtobuf';
-import { WebcastWebsocketAck } from '../proto/tiktokSchema';
+import { deserializeWebSocketMessage } from './proto-utils';
+import { WebcastWebsocketAck } from '../../.proto/tiktokSchema';
 import { BinaryWriter } from '@bufbuild/protobuf/wire';
-import WebcastConfig from './webcastConfig';
+import Config from '../web/config';
 
-export default class WebcastWebsocket extends WebSocket {
+export default class WsClient extends WebSocket {
     protected pingInterval: NodeJS.Timeout | null;
     protected connection: WebSocketConnection | null;
     protected wsParams: WebcastPushConnectionClientParams & WebcastPushConnectionWebSocketParams;
@@ -32,11 +32,11 @@ export default class WebcastWebsocket extends WebSocket {
         this.pingInterval = null;
         this.connection = null;
         this.wsParams = { ...clientParams, ...wsParams };
-        this.wsUrlWithParams = `${wsUrl}?${new URLSearchParams(this.wsParams)}&version_code=${WebcastConfig.WEBCAST_VERSION_CODE}`;
+        this.wsUrlWithParams = `${wsUrl}?${new URLSearchParams(this.wsParams)}&version_code=${Config.WEBCAST_VERSION_CODE}`;
         this.wsHeaders = { Cookie: cookieJar.getCookieString(), ...(customHeaders || {}) };
 
         this.on('connect', this.onConnect.bind(this));
-        this.connect(this.wsUrlWithParams, '', WebcastConfig.TIKTOK_URL_WEB, this.wsHeaders, webSocketOptions);
+        this.connect(this.wsUrlWithParams, '', Config.TIKTOK_URL_WEB, this.wsHeaders, webSocketOptions);
     }
 
     protected onConnect(wsConnection: WebSocketConnection) {

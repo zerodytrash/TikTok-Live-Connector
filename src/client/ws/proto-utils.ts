@@ -1,14 +1,14 @@
-import * as tikTokSchema from '../proto/tiktokSchema';
-import { MessageFns, WebcastResponse, WebcastWebsocketMessage } from '../proto/tiktokSchema';
+import * as tikTokSchema from '../../.proto/tiktokSchema';
+import { MessageFns, WebcastResponse, WebcastWebsocketMessage } from '../../.proto/tiktokSchema';
 import {
     DecodedWebcastWebsocketMessage,
     IWebcastDeserializeConfig,
     WebcastEventMessage,
     WebcastMessage
-} from '../types';
+} from '../../types';
 import * as zlib from 'node:zlib';
 import * as util from 'node:util';
-import { InvalidSchemaNameError } from './tiktokErrors';
+import { InvalidSchemaNameError } from '../../types/errors';
 
 const unzip = util.promisify(zlib.unzip);
 const webcastEvents: (keyof WebcastMessage)[] = Object.keys(tikTokSchema).filter((message) => message.startsWith('Webcast')) as (keyof WebcastMessage)[];

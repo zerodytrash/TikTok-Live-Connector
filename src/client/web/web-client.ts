@@ -1,14 +1,14 @@
 import axios, { AxiosInstance, AxiosRequestConfig, ResponseType } from 'axios';
-import WebcastConfig from './webcastConfig';
-import TikTokCookieJar from './tiktokCookieJar';
-import TiktokSignatureProvider from './tiktokSignatureProvider';
-import { deserializeMessage } from './webcastProtobuf';
-import { WebcastMessage } from '../types';
+import Config from './config';
+import CookieJar from './cookie-jar';
+import SignatureProvider from './signature-provider';
+import { deserializeMessage } from '../ws/proto-utils';
+import { WebcastMessage } from '../../types';
 
-export default class TikTokHttpClient {
-    public static signatureProvider = new TiktokSignatureProvider();
+export default class WebClient {
+    public static signatureProvider = new SignatureProvider();
     protected axiosInstance: AxiosInstance;
-    protected cookieJar: TikTokCookieJar;
+    protected cookieJar: CookieJar;
 
     constructor(
         customHeaders: Record<string, any>,
@@ -21,14 +21,14 @@ export default class TikTokHttpClient {
         this.axiosInstance = axios.create({
             timeout: 10000,
             headers: {
-                ...WebcastConfig.DEFAULT_REQUEST_HEADERS,
+                ...Config.DEFAULT_REQUEST_HEADERS,
                 ...customHeaders
             },
             ...(axiosOptions || {})
         });
 
         // Create the cookie jar
-        this.cookieJar = new TikTokCookieJar(this.axiosInstance);
+        this.cookieJar = new CookieJar(this.axiosInstance);
         const { Cookie } = customHeaders || {};
 
         if (Cookie) {
@@ -72,7 +72,7 @@ export default class TikTokHttpClient {
         let fullUrl = `${host}${path}?${new URLSearchParams(params || {})}`;
 
         if (signRequest) {
-            fullUrl = await TikTokHttpClient.signatureProvider.signWebcastRequest(
+            fullUrl = await WebClient.signatureProvider.signWebcastRequest(
                 fullUrl,
                 this.axiosInstance.defaults.headers,
                 this.cookieJar,
@@ -86,7 +86,7 @@ export default class TikTokHttpClient {
     async getMainPage(
         path: string
     ) {
-        let response = await this.get(`${WebcastConfig.TIKTOK_URL_WEB}${path}`);
+        let response = await this.get(`${Config.TIKTOK_URL_WEB}${path}`);
         return response.data;
     }
 
@@ -96,7 +96,7 @@ export default class TikTokHttpClient {
         schemaName: T,
         signRequest: boolean = false
     ) {
-        let url = await this.buildUrl(WebcastConfig.TIKTOK_URL_WEBCAST, path, params, signRequest);
+        let url = await this.buildUrl(Config.TIKTOK_URL_WEBCAST, path, params, signRequest);
         let response = await this.get(url, 'arraybuffer');
         return deserializeMessage(schemaName, response.data);
     }
@@ -106,7 +106,7 @@ export default class TikTokHttpClient {
         params: Record<string, any>,
         signRequest: boolean = false
     ) {
-        let url = await this.buildUrl(WebcastConfig.TIKTOK_URL_WEBCAST, path, params, signRequest);
+        let url = await this.buildUrl(Config.TIKTOK_URL_WEBCAST, path, params, signRequest);
         let response = await this.get(url, 'json');
         return response.data;
     }
@@ -116,7 +116,7 @@ export default class TikTokHttpClient {
         params: Record<string, any>,
         formData: Record<string, any>
     ) {
-        let response = await this.post(`${WebcastConfig.TIKTOK_URL_WEBCAST}${path}`, params, formData, 'json');
+        let response = await this.post(`${Config.TIKTOK_URL_WEBCAST}${path}`, params, formData, 'json');
         return response.data;
     }
 
@@ -125,7 +125,7 @@ export default class TikTokHttpClient {
         params: Record<string, any>,
         signRequest: boolean = false
     ) {
-        let url = await this.buildUrl(WebcastConfig.TIKTOK_URL_WEB, path, params, signRequest);
+        let url = await this.buildUrl(Config.TIKTOK_URL_WEB, path, params, signRequest);
         let response = await this.get(url, 'json');
         return response.data;
     }

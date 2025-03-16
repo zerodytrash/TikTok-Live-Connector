@@ -1,6 +1,6 @@
-import { IWebcastConfig } from '../types';
+import { IWebcastConfig } from '../../types';
 
-const WebcastConfig: IWebcastConfig = {
+const Config: IWebcastConfig = {
     TIKTOK_URL_WEB: 'https://www.tiktok.com/',
     TIKTOK_URL_WEBCAST: 'https://webcast.tiktok.com/webcast/',
     TIKTOK_HTTP_ORIGIN: 'https://www.tiktok.com',
@@ -49,4 +49,4 @@ const WebcastConfig: IWebcastConfig = {
     WEBCAST_VERSION_CODE: '180800'
 };
 
-export default WebcastConfig;
+export default Config;

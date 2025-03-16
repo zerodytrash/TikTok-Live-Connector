@@ -2,10 +2,10 @@
 // versions:
 //   protoc-gen-ts_proto  v2.6.1
 //   protoc               v5.27.1
-// source: tiktokSchema.proto
+// source: tiktok-protobuf.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "TikTok";
 
