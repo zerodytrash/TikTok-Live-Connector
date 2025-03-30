@@ -86,7 +86,7 @@ class WebcastPushConnection extends EventEmitter {
      * @param {object} [options[].websocketHeaders={}] Custom request headers for websocket.client
      * @param {object} [options[].requestOptions={}] Custom request options for axios. Here you can specify an `httpsAgent` to use a proxy and a `timeout` value for example.
      * @param {object} [options[].websocketOptions={}] Custom request options for websocket.client. Here you can specify an `agent` to use a proxy and a `timeout` value for example.
-     * @param {object} [options[].signProviderOptions={}] Custom request options for the TikTok signing server. Here you can specify a `host`, `params`, and `headers`.
+     * @param {object} [options[].signProviderOptions={}] Custom request options for the TikTok signing server. By default, the custom server is prioritized and will be attempted first. If you prefer to use it as a fallback, set `isFallback: true`. Here you can specify a `host`, `params`, and `headers`.
      */
     constructor(uniqueId, options) {
         super();
