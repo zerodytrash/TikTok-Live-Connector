@@ -1,41 +1,21 @@
-import { WebcastPushConnectionClientParams, WebcastPushConnectionOptions } from './types';
-import { WebcastResponse } from './proto/tiktokSchema';
-import { deserializeWebSocketMessage } from './lib/webcastProtobuf';
-
-const { EventEmitter } = require('node:events');
-
-const TikTokHttpClient = require('./lib/tiktokHttpClient.js');
-const WebcastWebsocket = require('./lib/webcastWebsocket.js');
-const {
-    getRoomIdFromMainPageHtml,
-    validateAndNormalizeUniqueId,
-    addUniqueId,
-    removeUniqueId
-} = require('./lib/tiktokUtils.js');
-const { simplifyObject } = require('./lib/webcastDataConverter.js');
-const { deserializeMessage, deserializeWebsocketMessage } = require('./lib/webcastProtobuf.js');
-
-const Config = require('./lib/webcastConfig.js');
-const {
-    AlreadyConnectingError,
+import {
     AlreadyConnectedError,
-    UserOfflineError,
-    NoWSUpgradeError,
-    InvalidSessionIdError,
-    InvalidResponseError,
+    AlreadyConnectingError,
     ExtractRoomIdError,
-    InitialFetchError
-} = require('./lib/tiktokErrors');
+    InvalidResponseError,
+    InvalidSessionIdError,
+    UserOfflineError
+} from '@/types/errors';
 
-export enum ControlEvents {
-    CONNECTED = 'connected',
-    DISCONNECTED = 'disconnected',
-    ERROR = 'error',
-    RAWDATA = 'rawData',
-    DECODEDDATA = 'decodedData',
-    STREAMEND = 'streamEnd',
-    WSCONNECTED = 'websocketConnected'
-}
+import { EventEmitter } from 'node:events';
+import { ControlEvents, RoomGiftInfo, RoomInfo, WebcastPushConnectionOptions } from '@/types';
+import Config from '@/lib/modules/config';
+import { getRoomIdFromMainPageHtml, validateAndNormalizeUniqueId } from '@/lib/modules/client-utilities';
+import WebcastHttpClient from '@/lib/webcast-http-client';
+import WebcastWsClient from '@/lib/webcast-ws-client';
+import { WebcastResponse } from '@/types/tiktok-schema';
+import { deserializeMessage, deserializeWebSocketMessage } from '@/lib/modules/protobuf-utilities';
+
 
 const MessageEvents = {
     CHAT: 'chat',
@@ -58,9 +38,13 @@ const CustomEvents = {
     SHARE: 'share'
 };
 
-/**
- * Wrapper class for TikTok's internal Webcast Push Service
- */
+export enum ConnectState {
+    DISCONNECTED = 'DISCONNECTED',
+    CONNECTING = 'CONNECTING',
+    CONNECTED = 'CONNECTED'
+}
+
+
 export class WebcastPushConnection extends EventEmitter {
 
     // Default Options
@@ -72,7 +56,7 @@ export class WebcastPushConnection extends EventEmitter {
         enableRequestPolling: true,
         requestPollingIntervalMs: 1000,
         sessionId: null,
-        clientParams: {},
+        clientParams: {room_id: '', cursor: '', internal_ext: ''},
         requestHeaders: {},
         websocketHeaders: Config.DEFAULT_REQUEST_HEADERS,
         requestOptions: {},
@@ -80,26 +64,36 @@ export class WebcastPushConnection extends EventEmitter {
         signProviderOptions: {}
     };
 
-    protected clientParams: WebcastPushConnectionClientParams = {
-        cursor: '',
-        internal_ext: '',
-        room_id: ''
-    };
+    public readonly uniqueStreamerId: string;
+    public readonly httpClient: WebcastHttpClient;
+    public wsClient: WebcastWsClient | null = null;
+    protected _roomInfo: RoomInfo | null = null;
+    protected _availableGifts: Record<any, any> | null = null;
+    protected _connectState: ConnectState = ConnectState.DISCONNECTED;
 
-    #uniqueStreamerId;
-    #roomId;
-    #roomInfo;
-    #httpClient;
-    availableGifts;
+    public get roomInfo() {
+        return this._roomInfo;
+    }
 
-    // Websocket
-    #websocket;
+    public get availableGifts() {
+        return this._availableGifts;
+    }
 
-    // State
-    #isConnecting;
-    #isConnected;
-    #isPollingEnabled;
-    #isWsUpgradeDone;
+    public get isConnecting() {
+        return this._connectState === ConnectState.CONNECTING;
+    }
+
+    public get isConnected() {
+        return this._connectState === ConnectState.CONNECTED;
+    }
+
+    public get clientParams() {
+        return this.httpClient.clientParams;
+    }
+
+    public get roomId(): string {
+        return this.clientParams.room_id;
+    }
 
     /**
      * Create a new WebcastPushConnection instance
@@ -125,153 +119,125 @@ export class WebcastPushConnection extends EventEmitter {
     ) {
         super();
         this.options = Object.assign(this.options, options || {});
-        this.#uniqueStreamerId = validateAndNormalizeUniqueId(uniqueId);
-        this.#httpClient = new TikTokHttpClient(this.options.requestHeaders, this.options.requestOptions, this.options.sessionId,  this.options.signProviderOptions,);
+        this.uniqueStreamerId = validateAndNormalizeUniqueId(uniqueId);
 
-        this.clientParams = {
-            ...Config.DEFAULT_CLIENT_PARAMS,
-            ...this.options.clientParams
-        };
+        this.httpClient = new WebcastHttpClient(
+            this.options.requestHeaders,
+            this.options.requestOptions,
+            this.options.sessionId,
+            this.options.signProviderOptions,
+            this.options.clientParams
+        );
 
-        this.setUnconnected();
+        this.setDisconnected();
     }
 
-    protected setUnconnected() {
-        this.#roomInfo = null;
-        this.#isConnecting = false;
-        this.#isConnected = false;
-        this.#isPollingEnabled = false;
-        this.#isWsUpgradeDone = false;
+    protected setDisconnected() {
+        this._connectState = ConnectState.DISCONNECTED;
+        this._roomInfo = null;
         this.clientParams.cursor = '';
         this.clientParams.internal_ext = '';
     }
 
     /**
-     * Connects to the current live stream room
-     * @param {string} [roomId] If you want to connect to a specific roomId. Otherwise the current roomId will be retrieved.
-     * @returns {Promise} Promise that will be resolved when the connection is established.
+     * Connects to the live stream of the specified streamer
+     * @param roomId Room ID to connect to. If not specified, the room ID will be retrieved from the TikTok API
      */
-    async connect(roomId = null) {
-        if (this.#isConnecting) {
-            throw new AlreadyConnectingError('Already connecting!');
-        }
+    async connect(roomId?: string): Promise<void> {
 
-        if (this.#isConnected) {
-            throw new AlreadyConnectedError('Already connected!');
-        }
+        switch (this._connectState) {
 
-        this.#isConnecting = true;
+            case ConnectState.CONNECTED:
+                throw new AlreadyConnectedError('Already connected!');
 
-        // add streamerId to uu
-        addUniqueId(this.#uniqueStreamerId);
+            case ConnectState.CONNECTING:
+                throw new AlreadyConnectingError('Already connecting!');
 
-        try {
-            // roomId already specified?
-            if (roomId) {
-                this.#roomId = roomId;
-                this.clientParams.room_id = roomId;
-            } else {
-                await this.#retrieveRoomId();
-            }
-
-            // Fetch room info if option enabled
-            if (this.options.fetchRoomInfoOnConnect) {
-                await this.#fetchRoomInfo();
-
-                // Prevent connections to finished rooms
-                if (this.#roomInfo.status === 4) {
-                    throw new UserOfflineError('LIVE has ended');
-                }
-            }
-
-            // Fetch all available gift info if option enabled
-            if (this.options.enableExtendedGiftInfo) {
-                await this.#fetchAvailableGifts();
-            }
-
-            try {
-                await this.#fetchRoomData(true);
-            } catch (ex) {
-                let jsonError;
-                let retryAfter;
-
+            default:
+            case ConnectState.DISCONNECTED:
                 try {
-                    jsonError = JSON.parse(ex.response.data.toString());
-                    retryAfter = ex.response.headers?.['retry-after'] ? parseInt(ex.response.headers['retry-after']) : null;
-                } catch (parseErr) {
-                    throw ex;
+                    this._connectState = ConnectState.CONNECTING;
+                    await this._connect(roomId);
+                    this._connectState = ConnectState.CONNECTED;
+                    this.emit(ControlEvents.CONNECTED, this.getState());
+                } catch (err) {
+                    this._connectState = ConnectState.DISCONNECTED;
+                    this.handleError(err, 'Error while connecting');
+                    throw err;
                 }
 
-                if (!jsonError) throw ex;
-                const errorMessage = jsonError?.error || 'Failed to retrieve the initial room data.';
-                throw new InitialFetchError(errorMessage, retryAfter);
-            }
-
-            // Sometimes no upgrade to WebSocket is offered by TikTok
-            // In that case we use request polling (if enabled and possible)
-            if (!this.#isWsUpgradeDone) {
-                if (!this.options.enableRequestPolling) {
-                    throw new NoWSUpgradeError('TikTok does not offer a websocket upgrade and request polling is disabled (`enableRequestPolling` option).');
-                }
-
-                if (!this.options.sessionId) {
-                    // We cannot use request polling if the user has no sessionid defined.
-                    // The reason for this is that TikTok needs a valid signature if the user is not logged in.
-                    // Signing a request every second would generate too much traffic to the signing server.
-                    // If a sessionid is present a signature is not required.
-                    throw new NoWSUpgradeError('TikTok does not offer a websocket upgrade. Please provide a valid `sessionId` to use request polling instead.');
-                }
-
-                this.#startFetchRoomPolling();
-            }
-
-            this.#isConnected = true;
-
-            let state = this.getState();
-
-            this.emit(ControlEvents.CONNECTED, state);
-            return state;
-        } catch (err) {
-            this.handleError(err, 'Error while connecting');
-
-            // remove streamerId from uu on connect fail
-            removeUniqueId(this.#uniqueStreamerId);
-
-            throw err;
-        } finally {
-            this.#isConnecting = false;
         }
+
+    }
+
+    protected async _connect(roomId?: string): Promise<void> {
+
+        // First we set the Room ID
+        this.clientParams.room_id = roomId || this.clientParams.room_id || await this.retrieveRoomId();
+
+        // <Optional> Fetch Room Info
+        if (this.options.fetchRoomInfoOnConnect) {
+            this._roomInfo = await this.fetchRoomInfo();
+
+            if (this._roomInfo.status === 4) {
+                throw new UserOfflineError('LIVE has ended');
+            }
+
+        }
+
+        // <Optional> Fetch Gift Info
+        if (this.options.enableExtendedGiftInfo) {
+            this._availableGifts = await this.fetchAvailableGifts();
+        }
+
+        // <Required> Fetch initial room info
+        let webcastResponse: WebcastResponse = await this.httpClient.getDeserializedObjectFromWebcastApi('im/fetch/', this.clientParams, 'WebcastResponse', true);
+        let upgradeToWsOffered = !!webcastResponse.wsUrl;
+
+        // <Optional> Process the initial data
+        if (this.options.processInitialData) {
+            this.processWebcastResponse(webcastResponse);
+        }
+
+        // If we didn't receive a cursor
+        if (!webcastResponse.cursor) {
+            throw new InvalidResponseError('Missing cursor in initial fetch response.');
+        }
+
+        // Update client parameters
+        this.clientParams.cursor = webcastResponse.cursor;
+        this.clientParams.internal_ext = webcastResponse.internalExt;
+
+        // Connect to the WebSocket
+        const wsParams: Record<string, any> = { compress: 'gzip' };
+        webcastResponse.wsParams.forEach((wsParam) => wsParams[wsParam.name] = wsParam.value);
+        this.wsClient = await this.setupWebsocket(webcastResponse.wsUrl, wsParams);
+        this.emit(ControlEvents.WSCONNECTED, this.wsClient);
+
     }
 
     /**
      * Disconnects the connection to the live stream
      */
-    disconnect() {
-        if (this.#isConnected) {
-            if (this.#isWsUpgradeDone && this.#websocket.connection.connected) {
-                this.#websocket.connection.close();
-            }
+    disconnect(): void {
 
-            // Reset state
-            this.setUnconnected();
-
-            // remove streamerId from uu
-            removeUniqueId(this.#uniqueStreamerId);
-
-            this.emit(ControlEvents.DISCONNECTED);
+        if (!this.isConnected) {
+            return;
         }
+
+        this.wsClient?.close();
+        this.setDisconnected();
+        this.emit(ControlEvents.DISCONNECTED);
     }
 
     /**
      * Get the current connection state including the cached room info and all available gifts (if `enableExtendedGiftInfo` option enabled)
-     * @returns {object} current state object
      */
-    getState() {
+    public getState() {
         return {
-            isConnected: this.#isConnected,
-            upgradedToWebsocket: this.#isWsUpgradeDone,
-            roomId: this.#roomId,
-            roomInfo: this.#roomInfo,
+            isConnected: this.isConnected,
+            roomId: this.roomId,
+            roomInfo: this.roomInfo,
             availableGifts: this.availableGifts
         };
     }
@@ -282,23 +248,13 @@ export class WebcastPushConnection extends EventEmitter {
      */
     async getRoomInfo() {
         // Retrieve current room_id if not connected
-        if (!this.#isConnected) {
-            await this.#retrieveRoomId();
+        if (!this.isConnected) {
+            await this.retrieveRoomId();
         }
 
-        await this.#fetchRoomInfo();
+        await this.fetchRoomInfo();
 
-        return this.#roomInfo;
-    }
-
-    /**
-     * Get a list of all available gifts including gift name, image url, diamont cost and a lot of other information
-     * @returns {Promise} Promise that will be resolved when all available gifts has been retrieved from the API
-     */
-    async getAvailableGifts() {
-        await this.#fetchAvailableGifts();
-
-        return this.availableGifts;
+        return this.roomInfo;
     }
 
     /**
@@ -319,16 +275,16 @@ export class WebcastPushConnection extends EventEmitter {
 
         try {
             // Retrieve current room_id if not connected
-            if (!this.#isConnected) {
-                await this.#retrieveRoomId();
+            if (!this.isConnected) {
+                await this.retrieveRoomId();
             }
 
             // Add the session cookie to the CookieJar
-            this.#httpClient.setSessionId(this.options.sessionId);
+            this.httpClient.setSessionId(this.options.sessionId);
 
             // Submit the chat request
             let requestParams = { ...this.clientParams, content: text };
-            let response = await this.#httpClient.postFormDataToWebcastApi('room/chat/', requestParams, null);
+            let response = await this.httpClient.postFormDataToWebcastApi('room/chat/', requestParams, null);
 
             // Success?
             if (response?.status_code === 0) {
@@ -382,26 +338,24 @@ export class WebcastPushConnection extends EventEmitter {
         }
     }
 
-    async #retrieveRoomId() {
+    protected retrieveRoomId(): Promise<string> {
         try {
-            let mainPageHtml = await this.#httpClient.getMainPage(`@${this.#uniqueStreamerId}/live`);
+            let mainPageHtml = await this.httpClient.getMainPage(`@${this.uniqueStreamerId}/live`);
 
             try {
                 let roomId = getRoomIdFromMainPageHtml(mainPageHtml);
-
-                this.#roomId = roomId;
                 this.clientParams.room_id = roomId;
             } catch (err) {
                 // Use fallback method
-                let roomData = await this.#httpClient.getJsonObjectFromTiktokApi('api-live/user/room/', {
+                let roomData = await this.httpClient.getJsonObjectFromTiktokApi('api-live/user/room/', {
                     ...this.clientParams,
-                    uniqueId: this.#uniqueStreamerId,
+                    uniqueId: this.uniqueStreamerId,
                     sourceType: 54
                 });
 
                 if (roomData.statusCode) throw new InvalidResponseError(`API Error ${roomData.statusCode} (${roomData.message || 'Unknown Error'})`, undefined);
 
-                this.#roomId = roomData.data.user.roomId;
+                this.roomId = roomData.data.user.roomId;
                 this.clientParams.room_id = roomData.data.user.roomId;
             }
         } catch (err) {
@@ -409,117 +363,55 @@ export class WebcastPushConnection extends EventEmitter {
         }
     }
 
-    async #fetchRoomInfo() {
+    public async fetchRoomInfo(): Promise<RoomInfo> {
         try {
-            let response = await this.#httpClient.getJsonObjectFromWebcastApi('room/info/', this.clientParams);
-            this.#roomInfo = response.data;
+            return await this.httpClient.getJsonObjectFromWebcastApi('room/info/', this.clientParams);
         } catch (err) {
             throw new InvalidResponseError(`Failed to fetch room info. ${err.message}`, err);
         }
     }
 
-    async #fetchAvailableGifts() {
+    public async fetchAvailableGifts(): Promise<RoomGiftInfo> {
         try {
-            let response = await this.#httpClient.getJsonObjectFromWebcastApi('gift/list/', this.clientParams);
-            this.availableGifts = response.data.gifts;
+            let response = await this.httpClient.getJsonObjectFromWebcastApi('gift/list/', this.clientParams);
+            return response.data.gifts;
         } catch (err) {
             throw new InvalidResponseError(`Failed to fetch available gifts. ${err.message}`, err);
         }
     }
 
-    async #startFetchRoomPolling() {
-        this.#isPollingEnabled = true;
 
-        let sleepMs = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    protected async setupWebsocket(wsUrl: string, wsParams: Record<string, string>): Promise<WebcastWsClient> {
+        return new Promise<WebcastWsClient>((resolve, reject) => {
 
-        while (this.#isPollingEnabled) {
-            try {
-                await this.#fetchRoomData(false);
-            } catch (err) {
-                this.handleError(err, 'Error while fetching webcast data via request polling');
-            }
+            // Instantiate the client
+            const wsClient = new WebcastWsClient(
+                wsUrl,
+                this.httpClient.cookieJar,
+                this.clientParams,
+                wsParams,
+                this.options.websocketHeaders,
+                this.options.websocketOptions
+            );
 
-            await sleepMs(this.options.requestPollingIntervalMs);
-        }
-    }
-
-    async #fetchRoomData(isInitial) {
-        let webcastResponse = await this.#httpClient.getDeserializedObjectFromWebcastApi('im/fetch/', this.clientParams, 'WebcastResponse', isInitial);
-        let upgradeToWsOffered = !!webcastResponse.wsUrl;
-
-        if (!webcastResponse.cursor) {
-            if (isInitial) {
-                throw new InvalidResponseError('Missing cursor in initial fetch response.');
-            } else {
-                this.handleError(null, 'Missing cursor in fetch response.');
-            }
-        }
-
-        // Set cursor and internal_ext param to continue with the next request
-        if (webcastResponse.cursor) this.clientParams.cursor = webcastResponse.cursor;
-        if (webcastResponse.internalExt) this.clientParams.internal_ext = webcastResponse.internalExt;
-
-        if (isInitial) {
-            // Upgrade to Websocket offered? => Try upgrade
-            if (this.options.enableWebsocketUpgrade && upgradeToWsOffered) {
-                await this.#tryUpgradeToWebsocket(webcastResponse);
-            }
-        }
-
-        // Skip processing initial data if option disabled
-        if (isInitial && !this.options.processInitialData) {
-            return;
-        }
-
-        this.processWebcastResponse(webcastResponse);
-    }
-
-    async #tryUpgradeToWebsocket(webcastResponse) {
-        try {
-            // Websocket specific params
-            let wsParams = {
-                compress: 'gzip'
-            };
-
-            for (let wsParam of webcastResponse.wsParams) {
-                wsParams[wsParam.name] = wsParam.value;
-            }
-
-            // Wait until ws connected, then stop request polling
-            await this.#setupWebsocket(webcastResponse.wsUrl, wsParams);
-
-            this.#isWsUpgradeDone = true;
-            this.#isPollingEnabled = false;
-
-            this.emit(ControlEvents.WSCONNECTED, this.#websocket);
-        } catch (err) {
-            this.handleError(err, 'Upgrade to websocket failed');
-        }
-    }
-
-    async #setupWebsocket(wsUrl, wsParams) {
-        return new Promise((resolve, reject) => {
-            this.#websocket = new WebcastWebsocket(wsUrl, this.#httpClient.cookieJar, this.clientParams, wsParams, this.options.websocketHeaders, this.options.websocketOptions);
-
-            this.#websocket.on('connect', (wsConnection) => {
-                resolve();
-
-                wsConnection.on('error', (err) => this.handleError(err, 'Websocket Error'));
-                wsConnection.on('close', () => {
-                    this.disconnect();
-                });
+            // Handle the connection
+            wsClient.on('connect', (ws) => {
+                ws.on('error', (e: any) => this.handleError(e, 'WebSocket Error'));
+                ws.on('close', () => this.disconnect());
+                resolve(wsClient);
             });
 
-            this.#websocket.on('connectFailed', (err) => reject(`Websocket connection failed, ${err}`));
-            this.#websocket.on('webcastResponse', (msg) => this.processWebcastResponse(msg));
-            this.#websocket.on('messageDecodingFailed', (err) => this.handleError(err, 'Websocket message decoding failed'));
 
-            // Hard timeout if the WebSocketClient library does not handle connect errors correctly.
-            setTimeout(() => reject('Websocket not responding'), 30000);
+            wsClient.on('connectFailed', (err: any) => reject(`Websocket connection failed, ${err}`));
+            wsClient.on('webcastResponse', (msg: WebcastResponse) => this.processWebcastResponse(msg));
+            wsClient.on('messageDecodingFailed', (err: any) => this.handleError(err, 'Websocket message decoding failed'));
+            setTimeout(() => reject('Websocket not responding'), 20_000);
         });
     }
 
     protected processWebcastResponse(webcastResponse: WebcastResponse) {
+
+
         // Emit raw (protobuf encoded) data for a use case specific processing
         webcastResponse.messages.forEach((message) => {
             this.emit(ControlEvents.RAWDATA, message.type, message.binary);
@@ -604,9 +496,3 @@ export class WebcastPushConnection extends EventEmitter {
     }
 
 }
-
-module.exports = {
-    WebcastPushConnection,
-    signatureProvider: require('./lib/tiktokSignatureProvider'),
-    webcastProtobuf: require('./lib/webcastProtobuf.js')
-};

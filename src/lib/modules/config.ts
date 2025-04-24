@@ -1,4 +1,4 @@
-import { IWebcastConfig } from '../../types';
+import { IWebcastConfig } from '@/types';
 
 const Config: IWebcastConfig = {
     TIKTOK_URL_WEB: 'https://www.tiktok.com/',

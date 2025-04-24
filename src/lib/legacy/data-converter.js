@@ -3,7 +3,7 @@
  * In addition, attributes in "Long" format are converted to strings (e.g. UserIds)
  * This makes it easier to handle the data later, since some libraries have problems to serialize this protobuf specific data.
  */
-export function simplifyObject(webcastObject: any): any {
+function simplifyObject(webcastObject) {
     if (webcastObject.questionDetails) {
         Object.assign(webcastObject, webcastObject.questionDetails);
         delete webcastObject.questionDetails;
@@ -30,7 +30,7 @@ export function simplifyObject(webcastObject: any): any {
 
     if (webcastObject.battleUsers) {
         let battleUsers = [];
-        webcastObject.battleUsers.forEach((user: any) => {
+        webcastObject.battleUsers.forEach((user) => {
             if (user?.battleGroup?.user) {
                 battleUsers.push(getUserAttributes(user.battleGroup.user));
             }
@@ -41,15 +41,15 @@ export function simplifyObject(webcastObject: any): any {
 
     if (webcastObject.battleItems) {
         webcastObject.battleArmies = [];
-        webcastObject.battleItems.forEach((battleItem: any) => {
-            battleItem.battleGroups.forEach((battleGroup: any) => {
+        webcastObject.battleItems.forEach((battleItem) => {
+            battleItem.battleGroups.forEach((battleGroup) => {
                 let group = {
                     hostUserId: battleItem.hostUserId.toString(),
                     points: parseInt(battleGroup.points),
                     participants: []
                 };
 
-                battleGroup.users.forEach((user: any) => {
+                battleGroup.users.forEach((user) => {
                     group.participants.push(getUserAttributes(user));
                 });
 
@@ -115,7 +115,7 @@ export function simplifyObject(webcastObject: any): any {
     }
 
     if (webcastObject.emotes) {
-        webcastObject.emotes = webcastObject.emotes.map((x: any) => {
+        webcastObject.emotes = webcastObject.emotes.map((x) => {
             return {
                 emoteId: x.emote?.emoteId,
                 emoteImageUrl: x.emote?.image?.imageUrl,
@@ -139,8 +139,8 @@ export function simplifyObject(webcastObject: any): any {
     return Object.assign({}, webcastObject);
 }
 
-function getUserAttributes(webcastUser: any) {
-    let userAttributes: any = {
+function getUserAttributes(webcastUser) {
+    let userAttributes = {
         userId: webcastUser.userId?.toString(),
         secUid: webcastUser.secUid?.toString(),
         uniqueId: webcastUser.uniqueId !== '' ? webcastUser.uniqueId : undefined,
@@ -148,7 +148,7 @@ function getUserAttributes(webcastUser: any) {
         profilePictureUrl: getPreferredPictureFormat(webcastUser.profilePicture?.urls),
         followRole: webcastUser.followInfo?.followStatus,
         userBadges: mapBadges(webcastUser.badges),
-        userSceneTypes: webcastUser.badges?.map((x: any) => x?.badgeSceneType || 0),
+        userSceneTypes: webcastUser.badges?.map((x) => x?.badgeSceneType || 0),
         userDetails: {
             createTime: webcastUser.createTime?.toString(),
             bioDescription: webcastUser.bioDescription,
@@ -169,29 +169,29 @@ function getUserAttributes(webcastUser: any) {
     // badgeSceneType:4 = SUBSCRIBER
     // badgeSceneType:7 = NEWSUBSCRIBER
 
-    userAttributes.isModerator = userAttributes.userBadges.some((x: any) => (x.type && x.type.toLowerCase().includes('moderator')) || x.badgeSceneType === 1);
-    userAttributes.isNewGifter = userAttributes.userBadges.some((x: any) => x.type && x.type.toLowerCase().includes('live_ng_'));
-    userAttributes.isSubscriber = userAttributes.userBadges.some((x: any) => (x.url && x.url.toLowerCase().includes('/sub_')) || x.badgeSceneType === 4 || x.badgeSceneType === 7);
+    userAttributes.isModerator = userAttributes.userBadges.some((x) => (x.type && x.type.toLowerCase().includes('moderator')) || x.badgeSceneType === 1);
+    userAttributes.isNewGifter = userAttributes.userBadges.some((x) => x.type && x.type.toLowerCase().includes('live_ng_'));
+    userAttributes.isSubscriber = userAttributes.userBadges.some((x) => (x.url && x.url.toLowerCase().includes('/sub_')) || x.badgeSceneType === 4 || x.badgeSceneType === 7);
     userAttributes.topGifterRank =
         userAttributes.userBadges
-            .find((x: any) => x.url && x.url.includes('/ranklist_top_gifter_'))
+            .find((x) => x.url && x.url.includes('/ranklist_top_gifter_'))
             ?.url.match(/(?<=ranklist_top_gifter_)(\d+)(?=.png)/g)
             ?.map(Number)[0] ?? null;
 
-    userAttributes.gifterLevel = userAttributes.userBadges.find((x: any) => x.badgeSceneType === 8)?.level || 0; // BadgeSceneType_UserGrade
-    userAttributes.teamMemberLevel = userAttributes.userBadges.find((x: any) => x.badgeSceneType === 10)?.level || 0; // BadgeSceneType_Fans
+    userAttributes.gifterLevel = userAttributes.userBadges.find((x) => x.badgeSceneType === 8)?.level || 0; // BadgeSceneType_UserGrade
+    userAttributes.teamMemberLevel = userAttributes.userBadges.find((x) => x.badgeSceneType === 10)?.level || 0; // BadgeSceneType_Fans
 
     return userAttributes;
 }
 
-function getEventAttributes(event: any) {
+function getEventAttributes(event) {
     if (event.msgId) event.msgId = event.msgId.toString();
     if (event.createTime) event.createTime = event.createTime.toString();
     return event;
 }
 
-function getTopViewerAttributes(topViewers: any) {
-    return topViewers.map((viewer: any) => {
+function getTopViewerAttributes(topViewers) {
+    return topViewers.map((viewer) => {
         return {
             user: viewer.user ? getUserAttributes(viewer.user) : null,
             coinCount: viewer.coinCount ? parseInt(viewer.coinCount) : 0
@@ -199,7 +199,7 @@ function getTopViewerAttributes(topViewers: any) {
     });
 }
 
-function mapBadges(badges: any) {
+function mapBadges(badges) {
     let simplifiedBadges = [];
 
     if (Array.isArray(badges)) {
@@ -207,13 +207,13 @@ function mapBadges(badges: any) {
             let badgeSceneType = innerBadges.badgeSceneType;
 
             if (Array.isArray(innerBadges.badges)) {
-                innerBadges.badges.forEach((badge: any) => {
+                innerBadges.badges.forEach((badge) => {
                     simplifiedBadges.push(Object.assign({ badgeSceneType }, badge));
                 });
             }
 
             if (Array.isArray(innerBadges.imageBadges)) {
-                innerBadges.imageBadges.forEach((badge: any) => {
+                innerBadges.imageBadges.forEach((badge) => {
                     if (badge && badge.image && badge.image.url) {
                         simplifiedBadges.push({
                             type: 'image',
@@ -239,7 +239,7 @@ function mapBadges(badges: any) {
     return simplifiedBadges;
 }
 
-function getPreferredPictureFormat(pictureUrls: any) {
+function getPreferredPictureFormat(pictureUrls) {
     if (!pictureUrls || !Array.isArray(pictureUrls) || !pictureUrls.length) {
         return null;
     }
@@ -252,3 +252,6 @@ function getPreferredPictureFormat(pictureUrls: any) {
     );
 }
 
+module.exports = {
+    simplifyObject
+};

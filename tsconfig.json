@@ -4,6 +4,8 @@
     ],
     "compilerOptions": {
         "allowJs": true,
+        "moduleResolution": "NodeNext",
+        "module": "NodeNext",
         "declaration": true,
         "emitDeclarationOnly": true,
         "outDir": "dist",
@@ -12,6 +14,11 @@
             "node_modules/@types",
             "src/types"
         ],
-        "resolveJsonModule": true
-    }
+        "resolveJsonModule": true,
+        "paths": {
+            "@/*": [
+                "src/*"
+            ]
+        },
+    },
 }

@@ -170,14 +170,14 @@ tiktokLiveConnection.on('connected', state => {
 {
   isConnected: true,
   upgradedToWebsocket: true,
-  roomId: '7137682087200557829',        
+  roomId: '7137682087200557829',
   roomInfo: {
     AnchorABMap: {},
     admin_user_ids: [],
-    anchor_scheduled_time_text: '',     
+    anchor_scheduled_time_text: '',
     anchor_share_text: '',
     anchor_tab_type: 7,
-    answering_question_content: '',     
+    answering_question_content: '',
     app_id: 1233,
     audio_mute: 0,
     auto_cover: 0,
@@ -186,7 +186,7 @@ tiktokLiveConnection.on('connected', state => {
     business_live: 0,
     challenge_info: '',
     client_version: 250701,
-    comment_has_text_emoji_emote: 0,    
+    comment_has_text_emoji_emote: 0,
     comment_name_mode: 0,
     commerce_info: {
       commerce_permission: 0,
@@ -735,7 +735,7 @@ tiktokLiveConnection.on('chat', data => {
 <br>
 
 ### `gift`
-Triggered every time a gift arrives. You will receive additional information via the `extendedGiftInfo` attribute when you enable the [`enableExtendedGiftInfo`](#params-and-options) option. 
+Triggered every time a gift arrives. You will receive additional information via the `extendedGiftInfo` attribute when you enable the [`enableExtendedGiftInfo`](#params-and-options) option.
 
 > **NOTE:** Users have the capability to send gifts in a streak. This increases the `repeatCount` value until the user terminates the streak. During this time new gift events are triggered again and again with an increased `repeatCount` value. It should be noted that after the end of the streak, another gift event is triggered, which signals the end of the streak via `repeatEnd`:`true`. This applies only to gifts with `giftType`:`1`. This means that even if the user sends a `giftType`:`1` gift only once, you will receive the event twice. Once with `repeatEnd`:`false` and once with `repeatEnd`:`true`. Therefore, the event should be handled as follows:
 
@@ -1653,7 +1653,7 @@ tiktokLiveConnection.getRoomInfo().then(roomInfo => {
 ````javascript
 let tiktokLiveConnection = new WebcastPushConnection('@username');
 
-tiktokLiveConnection.getAvailableGifts().then(giftList => {
+tiktokLiveConnection.fetchAvailableGifts().then(giftList => {
     console.log(giftList);
     giftList.forEach(gift => {
         console.log(`id: ${gift.id}, name: ${gift.name}, cost: ${gift.diamond_count}`)
@@ -1666,7 +1666,7 @@ tiktokLiveConnection.getAvailableGifts().then(giftList => {
 ### Send Chat Messages
 > Due to the increased signature requirements by TikTok, sending chat messages is currently not possible.
 
-You can send chat messages via the [`sendMessage()`](#methods) function to automatically respond to chat commands for example. For this you need to provide your Session ID. 
+You can send chat messages via the [`sendMessage()`](#methods) function to automatically respond to chat commands for example. For this you need to provide your Session ID.
 
 To get the Session ID from your account, open TikTok in your web browser and make sure you are logged in, then press F12 to open the developer tools. Switch to the **Application** tab and select **Cookies** on the left side. Then take the value of the cookie with the name **`sessionid`**.
 

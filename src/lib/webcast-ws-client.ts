@@ -1,16 +1,17 @@
+import { client as WebSocket, connection as WebSocketConnection, Message as WebSocketMessage } from 'websocket';
+import * as http from 'node:http';
+import { BinaryWriter } from '@bufbuild/protobuf/wire';
 import {
     DecodedWebcastWebsocketMessage,
     WebcastPushConnectionClientParams,
-    WebcastPushConnectionWebSocketParams
-} from '../../types';
-import { client as WebSocket, connection as WebSocketConnection, Message as WebSocketMessage } from 'websocket';
-import * as http from 'node:http';
-import { deserializeWebSocketMessage } from './proto-utils';
-import { WebcastWebsocketAck } from '../../.proto/tiktokSchema';
-import { BinaryWriter } from '@bufbuild/protobuf/wire';
-import Config from '../web/config';
+    WebcastPushConnectionWebSocketParams,
+    WebcastWsEvent
+} from '@/types';
+import { WebcastWebsocketAck } from '@/types/tiktok-schema';
+import { deserializeWebSocketMessage } from '@/lib/modules/protobuf-utilities';
+import Config from '@/lib/modules/config';
 
-export default class WsClient extends WebSocket {
+export default class WebcastWSClient extends WebSocket {
     protected pingInterval: NodeJS.Timeout | null;
     protected connection: WebSocketConnection | null;
     protected wsParams: WebcastPushConnectionClientParams & WebcastPushConnectionWebSocketParams;
@@ -52,6 +53,14 @@ export default class WsClient extends WebSocket {
         this.connection = null;
     }
 
+    public override emit(eventName: WebcastWsEvent, ...args: any[]): boolean {
+        return super.emit(eventName, ...args);
+    }
+
+    public override on(event: WebcastWsEvent, cb: any): this {
+        return super.on(event as any, cb);
+    }
+
     protected async onMessage(message: WebSocketMessage) {
         if (message.type !== 'binary') {
             return;
@@ -88,6 +97,17 @@ export default class WsClient extends WebSocket {
     protected sendAck(id: number) {
         const ackMessage: BinaryWriter = WebcastWebsocketAck.encode({ type: 'ack', id });
         this.connection.sendBytes(Buffer.from(ackMessage.finish()));
+    }
+
+    public close() {
+        if (this.pingInterval) {
+            clearInterval(this.pingInterval);
+            this.pingInterval = null;
+        }
+        if (this.connection) {
+            this.connection.close();
+            this.connection = null;
+        }
     }
 }
 

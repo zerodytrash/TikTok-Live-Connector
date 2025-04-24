@@ -1,9 +1,9 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { name, version } from '../../../package.json';
-import { IWebcastSignatureProviderConfig } from '../../types';
+import { IWebcastSignatureProviderConfig } from '@/types';
 import { util } from 'protobufjs';
 import CookieJar from './cookie-jar';
-import { SignatureError } from '../../types/errors';
+import { SignatureError } from '@/types/errors';
 import EventEmitter = util.EventEmitter;
 
 

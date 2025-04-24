@@ -1,4 +1,4 @@
-import { InvalidUniqueIdError, UserOfflineError } from '../types/errors';
+import { InvalidUniqueIdError, UserOfflineError } from '@/types/errors';
 
 export function getRoomIdFromMainPageHtml(
     mainPageHtml: string
@@ -7,7 +7,7 @@ export function getRoomIdFromMainPageHtml(
     do {
         // Loop through many "room" excerpts and look for a match
         idx = mainPageHtml.indexOf('roomId', idx + 3);
-        const excerpt = mainPageHtml.substr(idx, 50);
+        const excerpt = mainPageHtml.substring(idx, 50);
         let matchExcerpt = excerpt.match(/roomId":"([0-9]+)"/);
         if (matchExcerpt && matchExcerpt[1]) return matchExcerpt[1];
     } while (idx >= 0);

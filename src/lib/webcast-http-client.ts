@@ -1,21 +1,33 @@
 import axios, { AxiosInstance, AxiosRequestConfig, ResponseType } from 'axios';
-import Config from './config';
-import CookieJar from './cookie-jar';
-import SignatureProvider from './signature-provider';
-import { deserializeMessage } from '../ws/proto-utils';
-import { WebcastMessage } from '../../types';
+import { WebcastMessage, WebcastPushConnectionClientParams } from '@/types';
+import SignatureProvider from '@/lib/modules/signature-provider';
+import CookieJar from '@/lib/modules/cookie-jar';
+import Config from '@/lib/modules/config';
+import { deserializeMessage } from '@/lib/modules/protobuf-utilities';
 
-export default class WebClient {
+export default class WebcastHttpClient {
     public static signatureProvider = new SignatureProvider();
     protected axiosInstance: AxiosInstance;
-    protected cookieJar: CookieJar;
+    public readonly cookieJar: CookieJar;
+
+    public clientParams: WebcastPushConnectionClientParams = {
+        cursor: '',
+        internal_ext: '',
+        room_id: ''
+    };
 
     constructor(
         customHeaders: Record<string, any>,
         axiosOptions: AxiosRequestConfig,
         sessionId: string,
-        public signProviderOptions: any
+        public signProviderOptions: any,
+        clientParams: WebcastPushConnectionClientParams
     ) {
+
+        this.clientParams = {
+            ...Config.DEFAULT_CLIENT_PARAMS,
+            ...clientParams
+        };
 
         // Create the axios instance
         this.axiosInstance = axios.create({
@@ -72,7 +84,7 @@ export default class WebClient {
         let fullUrl = `${host}${path}?${new URLSearchParams(params || {})}`;
 
         if (signRequest) {
-            fullUrl = await WebClient.signatureProvider.signWebcastRequest(
+            fullUrl = await WebcastHttpClient.signatureProvider.signWebcastRequest(
                 fullUrl,
                 this.axiosInstance.defaults.headers,
                 this.cookieJar,

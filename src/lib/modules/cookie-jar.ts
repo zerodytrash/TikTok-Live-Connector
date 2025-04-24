@@ -47,7 +47,7 @@ export default class CookieJar {
                 deleteProperty(target: CookieJar, p: string): boolean {
                     delete target.cookies[p];
                     return true;
-                },
+                }
             }
         );
     }

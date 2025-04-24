@@ -1,5 +1,5 @@
-import * as tikTokSchema from '../../.proto/tiktokSchema';
-import { MessageFns, WebcastWebsocketMessage } from '../../.proto/tiktokSchema';
+import * as tikTokSchema from './tiktok-schema';
+import { MessageFns, WebcastWebsocketMessage } from './tiktok-schema';
 
 export type WebcastPushConnectionOptions = {
     processInitialData: boolean;
@@ -9,13 +9,16 @@ export type WebcastPushConnectionOptions = {
     enableRequestPolling: boolean;
     requestPollingIntervalMs: number;
     sessionId: string | null;
-    clientParams: {};
+    clientParams: WebcastPushConnectionClientParams;
     requestHeaders: {};
     websocketHeaders: {};
     requestOptions: {};
     websocketOptions: {};
     signProviderOptions: {}
 }
+
+export type RoomInfo = Record<string, any> & { status: number }
+export type RoomGiftInfo = any;
 
 export type WebcastPushConnectionClientParams = {
     room_id: string;
@@ -66,10 +69,28 @@ export interface IWebcastSignatureProviderConfig {
     extraParams: Record<string, any>;
 }
 
-
 declare module '../../.proto/tiktokSchema' {
     export interface Message {
         decodedData?: WebcastEventMessage[keyof WebcastEventMessage];
     }
 
 }
+
+export enum ControlEvents {
+    CONNECTED = 'connected',
+    DISCONNECTED = 'disconnected',
+    ERROR = 'error',
+    RAWDATA = 'rawData',
+    DECODEDDATA = 'decodedData',
+    STREAMEND = 'streamEnd',
+    WSCONNECTED = 'websocketConnected'
+}
+
+
+export type WebcastWsEvent =
+    string
+    | 'webcastResponse'
+    | 'messageDecodingFailed'
+    | 'connect'
+    | 'connectFailed'
+    | 'httpResponse';

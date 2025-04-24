@@ -1,14 +1,14 @@
-import * as tikTokSchema from '../../.proto/tiktokSchema';
-import { MessageFns, WebcastResponse, WebcastWebsocketMessage } from '../../.proto/tiktokSchema';
+import * as tikTokSchema from '@/types/tiktok-schema';
+import { MessageFns, WebcastResponse, WebcastWebsocketMessage } from '@/types/tiktok-schema';
 import {
     DecodedWebcastWebsocketMessage,
     IWebcastDeserializeConfig,
     WebcastEventMessage,
     WebcastMessage
-} from '../../types';
+} from '@/types';
 import * as zlib from 'node:zlib';
 import * as util from 'node:util';
-import { InvalidSchemaNameError } from '../../types/errors';
+import { InvalidSchemaNameError } from '@/types/errors';
 
 const unzip = util.promisify(zlib.unzip);
 const webcastEvents: (keyof WebcastMessage)[] = Object.keys(tikTokSchema).filter((message) => message.startsWith('Webcast')) as (keyof WebcastMessage)[];
@@ -51,6 +51,7 @@ export async function deserializeMessage<T extends keyof WebcastMessage>(
             }
 
             const messageType = message.type as keyof WebcastEventMessage;
+            // @ts-ignore
             message.decodedData = await deserializeMessage(messageType, Buffer.from(message.binary));
         }
     }

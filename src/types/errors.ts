@@ -51,9 +51,6 @@ export class AlreadyConnectedError extends ConnectError {
 export class UserOfflineError extends ConnectError {
 }
 
-export class NoWSUpgradeError extends ConnectError {
-}
-
 export class InvalidSchemaNameError extends Error {
 }
 
