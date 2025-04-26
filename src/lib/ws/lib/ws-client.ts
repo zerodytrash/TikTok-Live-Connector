@@ -1,41 +1,46 @@
 import { client as WebSocket, connection as WebSocketConnection, Message as WebSocketMessage } from 'websocket';
 import * as http from 'node:http';
 import { BinaryWriter } from '@bufbuild/protobuf/wire';
-import {
-    DecodedWebcastWebsocketMessage,
-    WebcastPushConnectionClientParams,
-    WebcastPushConnectionWebSocketParams,
-    WebcastWsEvent
-} from '@/types';
+import { DecodedWebcastWebsocketMessage } from '@/types';
 import { WebcastWebsocketAck } from '@/types/tiktok-schema';
-import { deserializeWebSocketMessage } from '@/lib/modules/protobuf-utilities';
-import Config from '@/lib/modules/config';
+import { deserializeWebSocketMessage } from '@/lib/utilities';
+import Config from '@/lib/config';
+import TypedEventEmitter from 'typed-emitter';
+import CookieJar from '@/lib/web/lib/cookie-jar';
 
-export default class WebcastWSClient extends WebSocket {
+
+type EventMap = {
+    connect: (connection: WebSocketConnection) => void;
+    close: () => void;
+    messageDecodingFailed: (error: Error) => void;
+    unknownResponse: (message: WebSocketMessage) => void;
+    webcastResponse: (response: any) => void;
+};
+
+type TypedWebSocket = WebSocket & TypedEventEmitter<EventMap>;
+type WebSocketConstructor = new () => TypedWebSocket;
+
+
+export default class WebcastWsClient extends (WebSocket as WebSocketConstructor) {
     protected pingInterval: NodeJS.Timeout | null;
     protected connection: WebSocketConnection | null;
-    protected wsParams: WebcastPushConnectionClientParams & WebcastPushConnectionWebSocketParams;
     protected wsHeaders: Record<string, string>;
     protected wsUrlWithParams: string;
 
     constructor(
         wsUrl: string,
-        cookieJar: any,
-        clientParams: WebcastPushConnectionClientParams,
-        wsParams: WebcastPushConnectionWebSocketParams,
+        cookieJar: CookieJar,
+        protected readonly wsParams: Record<string, string>,
         customHeaders: Record<string, string>,
         webSocketOptions: http.RequestOptions,
         protected webSocketPingIntervalMs: number = 10000
     ) {
-
         super();
 
         this.pingInterval = null;
         this.connection = null;
-        this.wsParams = { ...clientParams, ...wsParams };
         this.wsUrlWithParams = `${wsUrl}?${new URLSearchParams(this.wsParams)}&version_code=${Config.WEBCAST_VERSION_CODE}`;
         this.wsHeaders = { Cookie: cookieJar.getCookieString(), ...(customHeaders || {}) };
-
         this.on('connect', this.onConnect.bind(this));
         this.connect(this.wsUrlWithParams, '', Config.TIKTOK_URL_WEB, this.wsHeaders, webSocketOptions);
     }
@@ -53,26 +58,28 @@ export default class WebcastWSClient extends WebSocket {
         this.connection = null;
     }
 
-    public override emit(eventName: WebcastWsEvent, ...args: any[]): boolean {
-        return super.emit(eventName, ...args);
-    }
-
-    public override on(event: WebcastWsEvent, cb: any): this {
-        return super.on(event as any, cb);
-    }
-
+    /**
+     * Handle incoming messages
+     * @param message The incoming WebSocket message
+     * @protected
+     */
     protected async onMessage(message: WebSocketMessage) {
+
+        // If the message is not binary, emit an unknown response
         if (message.type !== 'binary') {
-            return;
+            return this.emit('unknownResponse', message);
         }
 
+        //  If the message is binary, decode it
         try {
             let decodedContainer: DecodedWebcastWebsocketMessage = await deserializeWebSocketMessage(message.binaryData);
 
+            // Always send an ACK for the message
             if (decodedContainer.id != null) {
                 this.sendAck(decodedContainer.id);
             }
 
+            // If the message is a WebcastResponse, emit it
             if (decodedContainer.webcastResponse != null) {
                 this.emit('webcastResponse', decodedContainer.webcastResponse);
             }
@@ -94,20 +101,40 @@ export default class WebcastWSClient extends WebSocket {
      * Message Acknowledgement
      * @param id The message id to acknowledge
      */
-    protected sendAck(id: number) {
+    protected sendAck(id: string): void {
         const ackMessage: BinaryWriter = WebcastWebsocketAck.encode({ type: 'ack', id });
         this.connection.sendBytes(Buffer.from(ackMessage.finish()));
     }
 
-    public close() {
+    /**
+     * Close the WebSocket connection
+     */
+    public close(): Promise<void> {
+
+        // Clear interval
         if (this.pingInterval) {
             clearInterval(this.pingInterval);
             this.pingInterval = null;
         }
-        if (this.connection) {
-            this.connection.close();
-            this.connection = null;
-        }
+
+        // Wait for the close
+        return new Promise((resolve) => {
+
+            // Close connection
+            if (this.connection) {
+                this.connection.close();
+                this.connection = null;
+            }
+
+            // Otherwise immediately resolve
+            else {
+                resolve();
+            }
+
+            // Wait for the close, then resolve
+            this.once('close', () => resolve());
+        });
+
     }
 }
 

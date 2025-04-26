@@ -33,6 +33,11 @@ export class SignatureError extends InvalidResponseError {
     }
 }
 
+
+export class MissingRoomIdError extends Error {
+}
+
+
 export class InitialFetchError extends ConnectError {
     constructor(
         message: string,
@@ -54,3 +59,11 @@ export class UserOfflineError extends ConnectError {
 export class InvalidSchemaNameError extends Error {
 }
 
+
+export class UnexpectedSignatureError extends Error {}
+export class SignatureMissingTokensError extends Error {}
+export class PremiumEndpointError extends Error {
+    constructor(message: string, public apiMessage: string, public response: any) {
+        super(message);
+    }
+}

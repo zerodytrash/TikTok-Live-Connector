@@ -53,6 +53,7 @@
   "dependencies": {
     "@types/axios": "^0.14.4",
     "axios": "^0.25.0",
+    "callable-instance": "^2.0.0",
     "protobufjs": "^6.11.2",
     "websocket": "^1.0.34"
   },
@@ -63,6 +64,7 @@
     "@types/websocket": "^1.0.10",
     "prettier": "2.5.1",
     "ts-proto": "^2.6.1",
+    "typed-emitter": "^2.1.0",
     "typescript": "^4.8.2"
   }
 }

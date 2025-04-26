@@ -3,7 +3,7 @@
  * In addition, attributes in "Long" format are converted to strings (e.g. UserIds)
  * This makes it easier to handle the data later, since some libraries have problems to serialize this protobuf specific data.
  */
-function simplifyObject(webcastObject) {
+export function simplifyObject(webcastObject) {
     if (webcastObject.questionDetails) {
         Object.assign(webcastObject, webcastObject.questionDetails);
         delete webcastObject.questionDetails;
@@ -184,13 +184,13 @@ function getUserAttributes(webcastUser) {
     return userAttributes;
 }
 
-function getEventAttributes(event) {
+export function getEventAttributes(event) {
     if (event.msgId) event.msgId = event.msgId.toString();
     if (event.createTime) event.createTime = event.createTime.toString();
     return event;
 }
 
-function getTopViewerAttributes(topViewers) {
+export function getTopViewerAttributes(topViewers) {
     return topViewers.map((viewer) => {
         return {
             user: viewer.user ? getUserAttributes(viewer.user) : null,
@@ -199,7 +199,7 @@ function getTopViewerAttributes(topViewers) {
     });
 }
 
-function mapBadges(badges) {
+export function mapBadges(badges) {
     let simplifiedBadges = [];
 
     if (Array.isArray(badges)) {
@@ -239,7 +239,7 @@ function mapBadges(badges) {
     return simplifiedBadges;
 }
 
-function getPreferredPictureFormat(pictureUrls) {
+export function getPreferredPictureFormat(pictureUrls) {
     if (!pictureUrls || !Array.isArray(pictureUrls) || !pictureUrls.length) {
         return null;
     }
@@ -252,6 +252,3 @@ function getPreferredPictureFormat(pictureUrls) {
     );
 }
 
-module.exports = {
-    simplifyObject
-};

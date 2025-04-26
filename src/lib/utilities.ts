@@ -8,7 +8,8 @@ import {
 } from '@/types';
 import * as zlib from 'node:zlib';
 import * as util from 'node:util';
-import { InvalidSchemaNameError } from '@/types/errors';
+import { InvalidSchemaNameError, InvalidUniqueIdError, UserOfflineError } from '@/types/errors';
+import { DevicePreset } from '@/lib/config';
 
 const unzip = util.promisify(zlib.unzip);
 const webcastEvents: (keyof WebcastMessage)[] = Object.keys(tikTokSchema).filter((message) => message.startsWith('Webcast')) as (keyof WebcastMessage)[];
@@ -31,12 +32,13 @@ async function getWebcastEvents(): Promise<string[]> {
     return (await getTikTokSchemaNames()).filter((message) => message.startsWith('Webcast'));
 }
 
-export async function deserializeMessage<T extends keyof WebcastMessage>(
+export function deserializeMessage<T extends keyof WebcastMessage>(
     protoName: T,
     binaryMessage: Buffer
-): Promise<WebcastMessage[T]> {
+): WebcastMessage[T] {
+
     const messageFn: MessageFns<WebcastMessage[T]> | undefined = tikTokSchema[protoName as string];
-    if (!messageFn) throw new InvalidSchemaNameError(`Invalid schema name not found: ${protoName}`);
+    if (!messageFn) throw new InvalidSchemaNameError(`Invalid schema name: ${protoName}`);
     const webcastResponse = messageFn.decode(binaryMessage);
 
     // Handle WebcastResponse nested messages
@@ -51,8 +53,7 @@ export async function deserializeMessage<T extends keyof WebcastMessage>(
             }
 
             const messageType = message.type as keyof WebcastEventMessage;
-            // @ts-ignore
-            message.decodedData = await deserializeMessage(messageType, Buffer.from(message.binary));
+            message.decodedData = deserializeMessage(messageType, Buffer.from(message.binary));
         }
     }
 
@@ -83,4 +84,54 @@ export async function deserializeWebSocketMessage(binaryMessage: Uint8Array): Pr
         webcastResponse
     };
 
+}
+
+export function getRoomIdFromMainPageHtml(
+    mainPageHtml: string
+): string {
+    let idx = 0;
+    do {
+        // Loop through many "room" excerpts and look for a match
+        idx = mainPageHtml.indexOf('roomId', idx + 3);
+        const excerpt = mainPageHtml.substring(idx, 50);
+        let matchExcerpt = excerpt.match(/roomId":"([0-9]+)"/);
+        if (matchExcerpt && matchExcerpt[1]) return matchExcerpt[1];
+    } while (idx >= 0);
+
+    let matchMeta = mainPageHtml.match(/room_id=([0-9]*)/);
+    if (matchMeta && matchMeta[1]) return matchMeta[1];
+
+    let matchJson = mainPageHtml.match(/"roomId":"([0-9]*)"/);
+    if (matchJson && matchJson[1]) return matchJson[1];
+
+    let validResponse = mainPageHtml.includes('"og:url"');
+    throw new UserOfflineError(validResponse ? 'User might be offline.' : 'Your IP or country might be blocked by TikTok.');
+}
+
+export function validateAndNormalizeUniqueId(uniqueId: string) {
+    if (typeof uniqueId !== 'string') {
+        throw new InvalidUniqueIdError('Missing or invalid value for \'uniqueId\'. Please provide the username from TikTok URL.');
+    }
+
+    // Support full URI
+    uniqueId = uniqueId.replace('https://www.tiktok.com/', '');
+    uniqueId = uniqueId.replace('/live', '');
+    uniqueId = uniqueId.replace('@', '');
+    uniqueId = uniqueId.trim();
+    return uniqueId;
+}
+
+
+export function userAgentToDevicePreset(userAgent: string): DevicePreset {
+    const firstSlash = userAgent.indexOf('/');
+    const browserName = userAgent.substring(0, firstSlash);
+    const browserVersion = userAgent.substring(firstSlash + 1);
+
+    return {
+        user_agent: userAgent,
+        browser_name: encodeURIComponent(browserName),
+        browser_version: encodeURIComponent(browserVersion),
+        browser_platform: userAgent.includes('Macintosh') ? 'MacIntel' : 'Win32',
+        os: userAgent.includes('Macintosh') ? 'mac' : 'windows'
+    };
 }

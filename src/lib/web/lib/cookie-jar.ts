@@ -53,6 +53,23 @@ export default class CookieJar {
     }
 
     /**
+     * Set the session ID
+     * @param sessionId The session ID to set
+     */
+    public set sessionId(sessionId: string) {
+        this['sessionid'] = sessionId;
+        this['sessionid_ss'] = sessionId;
+        this['sid_tt'] = sessionId;
+    }
+
+    /**
+     * Get the session ID
+     */
+    public get sessionId() {
+        return this['sessionid'] || this['sessionid_ss'] || this['sid_tt'];
+    }
+
+    /**
      * Read cookies from response headers
      * @param response The axios response
      */
@@ -122,8 +139,12 @@ export default class CookieJar {
         }
     }
 
+    /**
+     * Get the cookie string
+     */
     public getCookieString(): string {
         let cookieString = '';
+
         for (const cookieName in this.cookies) {
             cookieString += encodeURIComponent(cookieName) + '=' + this.cookies[cookieName] + '; ';
         }

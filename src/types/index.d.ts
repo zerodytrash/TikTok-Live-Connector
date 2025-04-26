@@ -1,5 +1,6 @@
 import * as tikTokSchema from './tiktok-schema';
 import { MessageFns, WebcastWebsocketMessage } from './tiktok-schema';
+import { AxiosRequestConfig } from 'axios';
 
 export type WebcastPushConnectionOptions = {
     processInitialData: boolean;
@@ -9,7 +10,7 @@ export type WebcastPushConnectionOptions = {
     enableRequestPolling: boolean;
     requestPollingIntervalMs: number;
     sessionId: string | null;
-    clientParams: WebcastPushConnectionClientParams;
+    clientParams: Record<string, string>;
     requestHeaders: {};
     websocketHeaders: {};
     requestOptions: {};
@@ -40,7 +41,8 @@ export interface IWebcastConfig extends Record<string, any> {
     TIKTOK_URL_WEB: string;
     TIKTOK_URL_WEBCAST: string;
     TIKTOK_HTTP_ORIGIN: string;
-    DEFAULT_CLIENT_PARAMS: Record<string, any>;
+    DEFAULT_HTTP_CLIENT_PARAMS: Record<string, any>;
+    DEFAULT_WS_CLIENT_PARAMS: Record<string, any>;
     DEFAULT_REQUEST_HEADERS: Record<string, any>;
     WEBCAST_VERSION_CODE: string;
 }
@@ -63,34 +65,43 @@ export type WebcastEventMessage = {
 };
 
 export interface IWebcastSignatureProviderConfig {
-    enabled: boolean;
     signProviderHost: string;
     signProviderFallbackHosts: string[];
     extraParams: Record<string, any>;
 }
 
-declare module '../../.proto/tiktokSchema' {
+declare module '@/types/tiktok-schema' {
     export interface Message {
         decodedData?: WebcastEventMessage[keyof WebcastEventMessage];
     }
-
-}
-
-export enum ControlEvents {
-    CONNECTED = 'connected',
-    DISCONNECTED = 'disconnected',
-    ERROR = 'error',
-    RAWDATA = 'rawData',
-    DECODEDDATA = 'decodedData',
-    STREAMEND = 'streamEnd',
-    WSCONNECTED = 'websocketConnected'
 }
 
 
 export type WebcastWsEvent =
     string
     | 'webcastResponse'
+    | 'unknownResponse'
     | 'messageDecodingFailed'
     | 'connect'
     | 'connectFailed'
     | 'httpResponse';
+
+
+export type WebcastHttpClientRequestParams = Omit<Omit<AxiosRequestConfig, 'url'>, 'baseURL'> & {
+    host: string;
+    path: string;
+    params?: Record<string, string>;
+    signRequest: boolean;
+};
+
+
+export interface SignResponse {
+    code: number;
+    message: string;
+    response?: {
+        signedUrl: string;
+        userAgent: string;
+        browserName: string;
+        browserVersion: string;
+    };
+}

@@ -1,24 +1,24 @@
 {
-    "include": [
-        "src/**/*"
+  "include": [
+    "src/**/*"
+  ],
+  "compilerOptions": {
+    "allowJs": true,
+    "moduleResolution": "NodeNext",
+    "module": "NodeNext",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "declarationMap": true,
+    "typeRoots": [
+      "node_modules/@types",
+      "src/types"
     ],
-    "compilerOptions": {
-        "allowJs": true,
-        "moduleResolution": "NodeNext",
-        "module": "NodeNext",
-        "declaration": true,
-        "emitDeclarationOnly": true,
-        "outDir": "dist",
-        "declarationMap": true,
-        "typeRoots": [
-            "node_modules/@types",
-            "src/types"
-        ],
-        "resolveJsonModule": true,
-        "paths": {
-            "@/*": [
-                "src/*"
-            ]
-        },
-    },
+    "resolveJsonModule": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+  }
 }
