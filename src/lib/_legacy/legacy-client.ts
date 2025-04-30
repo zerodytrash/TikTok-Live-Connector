@@ -2,24 +2,24 @@ import { WebcastControlMessage, WebcastResponse } from '@/types/tiktok-schema';
 import { EventEmitter } from 'node:events';
 import { simplifyObject } from '@/lib/_legacy/data-converter';
 import { WebcastPushConnection } from '@/lib';
-import { ControlEvents, CustomEvents, MessageEvents } from '@/types/events';
+import { ControlEvent, Event } from '@/types/events';
 
 export * from './data-converter';
 
 export class LegacyWebcastPushConnection extends (WebcastPushConnection as new (...args: any[]) => EventEmitter & WebcastPushConnection) {
 
-    protected processWebcastResponse(webcastResponse: WebcastResponse) {
+    protected async processWebcastResponse(webcastResponse: WebcastResponse): Promise<void> {
 
         webcastResponse.messages.forEach((message) => {
-            this.emit(ControlEvents.RAWDATA, message.type, message.binary);
+            this.emit(ControlEvent.RAW_DATA, message.type, message.binary);
         });
+
 
         // Process and emit decoded data depending on the message type
         webcastResponse.messages
-            .filter((x) => x.decodedData)
             .forEach((message) => {
-                let simplifiedObj = simplifyObject(message.decodedData);
-                this.emit(ControlEvents.DECODEDDATA, message.type, simplifiedObj, message.binary);
+                let simplifiedObj = simplifyObject(message.decodedData || {});
+                this.emit(ControlEvent.DECODEDDATA, message.type, simplifiedObj, message.binary);
 
                 switch (message.type) {
                     case 'WebcastControlMessage':
@@ -28,58 +28,58 @@ export class LegacyWebcastPushConnection extends (WebcastPushConnection as new (
                         // 4 = Stream terminated by platform moderator (ban)
                         const action = (message.decodedData as WebcastControlMessage).action;
                         if ([3, 4].includes(action)) {
-                            this.emit(ControlEvents.STREAMEND, { action });
+                            this.emit(ControlEvent.STREAM_END, { action });
                             this.disconnect();
                         }
                         break;
                     case 'WebcastRoomUserSeqMessage':
-                        this.emit(MessageEvents.ROOMUSER, simplifiedObj);
+                        this.emit(Event.ROOM_USER, simplifiedObj);
                         break;
                     case 'WebcastChatMessage':
-                        this.emit(MessageEvents.CHAT, simplifiedObj);
+                        this.emit(Event.CHAT, simplifiedObj);
                         break;
                     case 'WebcastMemberMessage':
-                        this.emit(MessageEvents.MEMBER, simplifiedObj);
+                        this.emit(Event.MEMBER, simplifiedObj);
                         break;
                     case 'WebcastGiftMessage':
                         // Add extended gift info if option enabled
                         if (Array.isArray(this.availableGifts) && simplifiedObj.giftId) {
                             simplifiedObj.extendedGiftInfo = this.availableGifts.find((x) => x.id === simplifiedObj.giftId);
                         }
-                        this.emit(MessageEvents.GIFT, simplifiedObj);
+                        this.emit(Event.GIFT, simplifiedObj);
                         break;
                     case 'WebcastSocialMessage':
-                        this.emit(MessageEvents.SOCIAL, simplifiedObj);
+                        this.emit(Event.SOCIAL, simplifiedObj);
                         if (simplifiedObj.displayType?.includes('follow')) {
-                            this.emit(CustomEvents.FOLLOW, simplifiedObj);
+                            this.emit(Event.FOLLOW, simplifiedObj);
                         }
                         if (simplifiedObj.displayType?.includes('share')) {
-                            this.emit(CustomEvents.SHARE, simplifiedObj);
+                            this.emit(Event.SHARE, simplifiedObj);
                         }
                         break;
                     case 'WebcastLikeMessage':
-                        this.emit(MessageEvents.LIKE, simplifiedObj);
+                        this.emit(Event.LIKE, simplifiedObj);
                         break;
                     case 'WebcastQuestionNewMessage':
-                        this.emit(MessageEvents.QUESTIONNEW, simplifiedObj);
+                        this.emit(Event.QUESTION_NEW, simplifiedObj);
                         break;
                     case 'WebcastLinkMicBattle':
-                        this.emit(MessageEvents.LINKMICBATTLE, simplifiedObj);
+                        this.emit(Event.LINK_MIC_BATTLE, simplifiedObj);
                         break;
                     case 'WebcastLinkMicArmies':
-                        this.emit(MessageEvents.LINKMICARMIES, simplifiedObj);
+                        this.emit(Event.LINK_MIC_ARMIES, simplifiedObj);
                         break;
                     case 'WebcastLiveIntroMessage':
-                        this.emit(MessageEvents.LIVEINTRO, simplifiedObj);
+                        this.emit(Event.LIVE_INTRO, simplifiedObj);
                         break;
                     case 'WebcastEmoteChatMessage':
-                        this.emit(MessageEvents.EMOTE, simplifiedObj);
+                        this.emit(Event.EMOTE, simplifiedObj);
                         break;
                     case 'WebcastEnvelopeMessage':
-                        this.emit(MessageEvents.ENVELOPE, simplifiedObj);
+                        this.emit(Event.ENVELOPE, simplifiedObj);
                         break;
                     case 'WebcastSubNotifyMessage':
-                        this.emit(MessageEvents.SUBSCRIBE, simplifiedObj);
+                        this.emit(Event.SUBSCRIBE, simplifiedObj);
                         break;
                 }
             });

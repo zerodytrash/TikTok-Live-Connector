@@ -7,7 +7,7 @@ export type FetchRoomIdFromHtmlRouteResponse = string;
 export class FetchRoomIdFromHtml extends Route<FetchRoomIdFromHtmlRouteParams, FetchRoomIdFromHtmlRouteResponse> {
 
     async call({ uniqueId }): Promise<string> {
-        const html = await this.httpClient.getHtmlFromTikTokWebsite(`@${uniqueId}/live`);
+        const html = await this.httpClient.getHtmlFromTikTokWebsite(`/@${uniqueId}/live`);
         const extractedRoomId: string = getRoomIdFromMainPageHtml(html);
         this.httpClient.roomId = extractedRoomId;
         return extractedRoomId;

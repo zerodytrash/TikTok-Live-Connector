@@ -9,7 +9,7 @@ export class FetchRoomIdFromApi extends Route<FetchRoomIdFromApiRouteParams, Fet
     async call({ uniqueId }): Promise<string> {
 
         // Fetch object from TikTok API
-        const roomData: Record<string, any> = await this.httpClient.getJsonObjectFromTikTokApi('api-live/user/room/', {
+        const roomData: Record<string, any> = await this.httpClient.getJsonObjectFromTikTokApi('/api-live/user/room/', {
             ...this.httpClient.clientParams,
             uniqueId: uniqueId,
             sourceType: '54'

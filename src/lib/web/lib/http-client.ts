@@ -1,14 +1,15 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import { deserializeMessage } from '@/lib/utilities';
 import CookieJar from '@/lib/web/lib/cookie-jar';
-import { WebcastHttpClientRequestParams, WebcastMessage, WebcastPushConnectionClientParams } from '@/types';
+import { WebcastHttpClientConfig, WebcastHttpClientRequestParams, WebcastMessage } from '@/types';
 import Config from '@/lib/config';
-import TikTokSigner from '@/lib/web/lib/tiktok-signer';
+import TikTokApiSdk from '@/lib/web/lib/tiktok-signer';
+
 
 export default class WebcastHttpClient {
 
     // HTTP Request Client
-    protected axiosInstance: AxiosInstance;
+    public readonly axiosInstance: AxiosInstance;
 
     // External Cookie Jar
     public readonly cookieJar: CookieJar;
@@ -17,30 +18,33 @@ export default class WebcastHttpClient {
     public clientParams: Record<string, string>;
 
     constructor(
-        customHeaders: Record<string, string>,
-        axiosOptions: AxiosRequestConfig,
-        clientParams: Record<string, string>,
-        public readonly webSigner: TikTokSigner = new TikTokSigner()
+        public readonly configuration: WebcastHttpClientConfig = {
+            customHeaders: {},
+            axiosOptions: {},
+            clientParams: {},
+            authenticateWs: false
+        },
+        public readonly tiktokApi: TikTokApiSdk = new TikTokApiSdk()
     ) {
 
         this.axiosInstance = axios.create({
             timeout: parseInt(process.env.TIKTOK_CLIENT_TIMEOUT || '10000'),
-            headers: { ...Config.DEFAULT_REQUEST_HEADERS, ...customHeaders },
-            ...axiosOptions
+            headers: { ...Config.DEFAULT_REQUEST_HEADERS, ...this.configuration.customHeaders },
+            ...this.configuration.axiosOptions
         });
 
         this.clientParams = {
             ...Config.DEFAULT_HTTP_CLIENT_PARAMS,
-            ...clientParams
+            ...this.configuration.clientParams
         };
 
         // Create the cookie jar
         this.cookieJar = new CookieJar(this.axiosInstance);
 
         // Process the cookie header
-        if (!!customHeaders?.Cookie) {
-            const cookieHeader = customHeaders.Cookie;
-            delete customHeaders['Cookie'];
+        if (!!this.configuration.customHeaders?.Cookie) {
+            const cookieHeader = this.configuration.customHeaders.Cookie;
+            delete this.configuration.customHeaders['Cookie'];
             cookieHeader.split('; ').forEach((v: string) => this.cookieJar.processSetCookieHeader(v));
         }
 
@@ -70,15 +74,12 @@ export default class WebcastHttpClient {
         }: WebcastHttpClientRequestParams
     ) {
         // Build the initial URL
-        let url: string = `${host}${path}?${new URLSearchParams(params || {})}`;
+        let secure = host.startsWith('127.0.0.1') || host.startsWith('localhost') || host.startsWith('::1');
+        let url: string = `http${secure ? 's' : ''}://${host}/${path}?${new URLSearchParams(params || {})}`;
 
         // Sign the request. Assumption is if it doesn't throw, it worked.
         if (signRequest) {
-            const signResponse = await this.webSigner.webcastSign(
-                url,
-                method
-            );
-
+            const signResponse = await this.tiktokApi.webcastSign(url, 'GET');
             url = signResponse.response.signedUrl;
             headers['User-Agent'] = signResponse.response.userAgent;
         }
@@ -114,17 +115,20 @@ export default class WebcastHttpClient {
      * Get HTML from TikTok website
      *
      * @param path Path to the HTML page
+     * @param options Additional request options
      */
     public async getHtmlFromTikTokWebsite(
-        path: string
+        path: string,
+        options: Partial<WebcastHttpClientRequestParams> = {}
     ): Promise<string> {
 
         const fetchResponse = await this.request(
             {
-                host: Config.TIKTOK_URL_WEB,
+                host: Config.TIKTOK_HOST_WEB,
                 path: path,
                 responseType: 'text',
-                signRequest: false
+                signRequest: false,
+                ...options
             }
         );
 
@@ -138,19 +142,23 @@ export default class WebcastHttpClient {
      * @param params Query parameters to be sent with the request
      * @param schemaName Schema name for deserialization
      * @param signRequest Whether to sign the request or not
+     * @param options Additional request options
      */
     public async getDeserializedObjectFromWebcastApi<T extends keyof WebcastMessage>(
         path: string,
         params: Record<string, any>,
         schemaName: T,
-        signRequest: boolean = false
+        signRequest: boolean = false,
+        options: Partial<WebcastHttpClientRequestParams> = {}
     ) {
         const fetchResponse = await this.request(
             {
-                host: Config.TIKTOK_URL_WEBCAST,
-                path: path,
+                host: Config.TIKTOK_HOST_WEBCAST,
+                path: '/webcast' + path,
                 params: params,
-                signRequest: signRequest
+                signRequest: signRequest,
+                responseType: 'arraybuffer',
+                ...options
             }
         );
 
@@ -167,8 +175,8 @@ export default class WebcastHttpClient {
 
         const fetchResponse = await this.request(
             {
-                host: Config.TIKTOK_URL_WEBCAST,
-                path: path,
+                host: Config.TIKTOK_HOST_WEBCAST,
+                path: '/webcast' + path,
                 data: data,
                 params: params,
                 responseType: 'json',
@@ -199,8 +207,8 @@ export default class WebcastHttpClient {
 
         const fetchResponse = await this.request(
             {
-                host: Config.TIKTOK_URL_WEBCAST,
-                path: path,
+                host: Config.TIKTOK_HOST_WEBCAST,
+                path: '/webcast' + path,
                 params: params,
                 responseType: 'json',
                 signRequest: signRequest,
@@ -228,7 +236,7 @@ export default class WebcastHttpClient {
 
         const fetchResponse = await this.request(
             {
-                host: Config.TIKTOK_URL_WEB,
+                host: Config.TIKTOK_HOST_WEB,
                 path: path,
                 params: params,
                 responseType: 'json',
@@ -239,5 +247,6 @@ export default class WebcastHttpClient {
 
         return fetchResponse.data;
     }
+
 }
 

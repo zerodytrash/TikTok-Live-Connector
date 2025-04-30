@@ -8,14 +8,14 @@ import {
 
 import TypedEventEmitter from 'typed-emitter';
 import { EventEmitter } from 'node:events';
-import { WebcastResponse } from '@/types/tiktok-schema';
+import { WebcastControlMessage, WebcastResponse } from '@/types/tiktok-schema';
 import WebcastWsClient from '@/lib/ws/lib/ws-client';
 import Config from '@/lib/config';
 import { RoomGiftInfo, RoomInfo, WebcastPushConnectionOptions } from '@/types';
 import { validateAndNormalizeUniqueId } from '@/lib/utilities';
 import { RoomInfoResponse, WebcastWebClient } from '@/lib/web';
 import TikTokSigner from '@/lib/web/lib/tiktok-signer';
-import { ConnectState, ControlEvents, EventMap, WebcastPushConnectionState } from '@/types/events';
+import { ConnectState, ControlEvent, Event, EventMap, WebcastPushConnectionState } from '@/types/events';
 
 
 export class WebcastPushConnection extends (EventEmitter as new () => TypedEventEmitter<EventMap>) {
@@ -28,13 +28,15 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
     protected _roomInfo: RoomInfo | null = null;
     protected _availableGifts: Record<any, any> | null = null;
     protected _connectState: ConnectState = ConnectState.DISCONNECTED;
+    public readonly options: WebcastPushConnectionOptions;
 
     /**
      * Create a new WebcastPushConnection instance
      * @param {string} uniqueId TikTok username (from URL)
      * @param {object} [options] Connection options
+     * @param {boolean} [options[].authenticateWs=false] Authenticate the WebSocket connection using the session ID from the "sessionid" cookie
      * @param {boolean} [options[].processInitialData=true] Process the initital data which includes messages of the last minutes
-     * @param {boolean} [options[].fetchRoomInfoOnConnect=true] Fetch the room info (room status, streamer info, etc.) on connect (will be returned when calling connect())
+     * @param {boolean} [options[].fetchRoomInfoOnConnect=false] Fetch the room info (room status, streamer info, etc.) on connect (will be returned when calling connect())
      * @param {boolean} [options[].enableExtendedGiftInfo=false] Enable this option to get extended information on 'gift' events like gift name and cost
      * @param {boolean} [options[].enableWebsocketUpgrade=true] Use WebSocket instead of request polling if TikTok offers it
      * @param {boolean} [options[].enableRequestPolling=true] Use request polling if no WebSocket upgrade is offered. If `false` an exception will be thrown if TikTok does not offer a WebSocket upgrade.
@@ -50,17 +52,41 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
      */
     constructor(
         public readonly uniqueId: string,
-        private readonly options?: WebcastPushConnectionOptions,
+        options?: Partial<WebcastPushConnectionOptions>,
         public readonly signer?: TikTokSigner
     ) {
         super();
 
+        // Assign the options
+        this.options = {
+            preferredAgentIds: [],
+            connectWithUniqueId: false,
+            processInitialData: true,
+            fetchRoomInfoOnConnect: false,
+            enableExtendedGiftInfo: false,
+            enableWebsocketUpgrade: true,
+            enableRequestPolling: true,
+            requestPollingIntervalMs: 1000,
+            sessionId: null,
+            clientParams: {},
+            requestHeaders: {},
+            websocketHeaders: {},
+            requestOptions: {},
+            websocketOptions: {},
+            signProviderOptions: {},
+            authenticateWs: false,
+            ...options
+        };
+
         this.uniqueId = validateAndNormalizeUniqueId(uniqueId);
 
         this.webClient = new WebcastWebClient(
-            this.options?.requestHeaders || {},
-            this.options?.requestOptions || {},
-            this.options?.clientParams || {},
+            {
+                customHeaders: this.options?.requestHeaders || {},
+                axiosOptions: this.options?.requestOptions,
+                clientParams: this.options?.clientParams || {},
+                authenticateWs: this.options?.authenticateWs || false
+            },
             signer
         );
 
@@ -143,7 +169,7 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
                     this._connectState = ConnectState.CONNECTING;
                     await this._connect(roomId);
                     this._connectState = ConnectState.CONNECTED;
-                    this.emit(ControlEvents.CONNECTED, this.getState());
+                    this.emit(ControlEvent.CONNECTED, this.getState());
                 } catch (err) {
                     this._connectState = ConnectState.DISCONNECTED;
                     this.handleError(err, 'Error while connecting');
@@ -161,7 +187,10 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
     protected async _connect(roomId?: string): Promise<void> {
 
         // First we set the Room ID
-        this.clientParams.room_id = roomId || this.clientParams.room_id || await this.fetchRoomId();
+        if (!this.options.connectWithUniqueId || this.options.fetchRoomInfoOnConnect || this.options.enableExtendedGiftInfo) {
+            this.clientParams.room_id = roomId || this.clientParams.room_id || await this.fetchRoomId();
+        }
+
         // <Optional> Fetch Room Info
         if (this.options?.fetchRoomInfoOnConnect) {
             this._roomInfo = await this.fetchRoomInfo();
@@ -177,9 +206,16 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
             this._availableGifts = await this.fetchAvailableGifts();
         }
 
+
         // <Required> Fetch initial room info
-        // TODO switch to fetch, not sign
-        let webcastResponse: WebcastResponse = await this.webClient.getDeserializedObjectFromWebcastApi('im/fetch/', this.clientParams, 'WebcastResponse', true);
+        const webcastResponse: WebcastResponse = await this.webClient.fetchSignedWebSocket(
+            {
+                roomId: (roomId || !this.options.connectWithUniqueId) ? this.clientParams.room_id : undefined,
+                uniqueId: this.options.connectWithUniqueId ? this.uniqueId : undefined,
+                preferredAgentIds: this.options.preferredAgentIds,
+                sessionId: this.options.authenticateWs && this.options.sessionId
+            }
+        );
 
         // <Optional> Process the initial data
         if (this.options?.processInitialData) {
@@ -199,7 +235,7 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
         const wsParams: Record<string, any> = { compress: 'gzip' };
         webcastResponse.wsParams.forEach((wsParam) => wsParams[wsParam.name] = wsParam.value);
         this.wsClient = await this.setupWebsocket(webcastResponse.wsUrl, wsParams);
-        this.emit(ControlEvents.WSCONNECTED, this.wsClient);
+        this.emit(ControlEvent.WSCONNECTED, this.wsClient);
 
     }
 
@@ -214,7 +250,7 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
 
         await this.wsClient?.close();
         this.setDisconnected();
-        this.emit(ControlEvents.DISCONNECTED);
+        this.emit(ControlEvent.DISCONNECTED);
     }
 
     /**
@@ -251,14 +287,14 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
 
         // Method 1
         try {
-            await this.webClient.roomIdFromHtml({ uniqueId: this.uniqueId });
+            await this.webClient.fetchRoomIdFromHtml({ uniqueId: this.uniqueId });
         } catch (ex) {
-            console.error('Failed to retrieve roomId from main page, falling back to API source...', ex);
+            console.error('Failed to retrieve roomId from main page, falling back to API source...');
         }
 
         // Method 2 (Fallback)
         try {
-            await this.webClient.roomIdFromApi({ uniqueId: this.uniqueId });
+            await this.webClient.fetchRoomIdFromApi({ uniqueId: this.uniqueId });
         } catch (err) {
             throw new ExtractRoomIdError(`Failed to retrieve room_id from page source. ${err.message}`);
         }
@@ -273,7 +309,7 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
      */
     public async fetchRoomInfo(): Promise<RoomInfoResponse> {
         if (!this.webClient.roomId) await this.fetchRoomId();
-        this._roomInfo = await this.webClient.roomInfo();
+        this._roomInfo = await this.webClient.fetchRoomInfo();
         return this._roomInfo;
     }
 
@@ -283,7 +319,7 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
      */
     public async fetchAvailableGifts(): Promise<RoomGiftInfo> {
         try {
-            let response = await this.webClient.getJsonObjectFromWebcastApi('gift/list/', this.clientParams);
+            let response = await this.webClient.getJsonObjectFromWebcastApi('/gift/list/', this.clientParams);
             return response.data.gifts;
         } catch (err) {
             throw new InvalidResponseError(`Failed to fetch available gifts. ${err.message}`, err);
@@ -324,10 +360,91 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
         });
     }
 
-    protected processWebcastResponse(webcastResponse: WebcastResponse) {
-        console.log('Received...', webcastResponse);
-        // Emit raw (protobuf encoded) data for a use case specific processing
+    protected async processWebcastResponse(webcastResponse: WebcastResponse): Promise<void> {
+
+        // Emit Raw Data
+        webcastResponse.messages.forEach((
+            message) => this.emit(ControlEvent.RAW_DATA, message.type, message.binary)
+        );
+
+        // Process and emit decoded data depending on the message type
+        for (let message of webcastResponse.messages) {
+            const messageData = message.decodedData || {} as any;
+
+            // Emit a decoded data event
+            this.emit(
+                ControlEvent.DECODEDDATA,
+                message.type, message.decodedData || {},
+                message.binary
+            );
+
+            switch (message.type) {
+                case 'WebcastControlMessage':
+                    // Known control actions:
+                    // 3 = Stream terminated by user
+                    // 4 = Stream terminated by platform moderator (ban)
+                    const action = (message.decodedData as WebcastControlMessage).action;
+                    if ([3, 4].includes(action)) {
+                        this.emit(ControlEvent.STREAM_END, { action });
+                        await this.disconnect();
+                    }
+                    break;
+                case 'WebcastRoomUserSeqMessage':
+                    this.emit(Event.ROOM_USER, messageData);
+                    break;
+                case 'WebcastChatMessage':
+                    this.emit(Event.CHAT, messageData);
+                    break;
+                case 'WebcastMemberMessage':
+                    this.emit(Event.MEMBER, messageData);
+                    break;
+                case 'WebcastGiftMessage':
+                    // Add extended gift info if option enabled
+                    if (Array.isArray(this.availableGifts) && messageData.giftId) {
+                        messageData.extendedGiftInfo = this.availableGifts.find((x) => x.id === messageData.giftId);
+                    }
+                    this.emit(Event.GIFT, messageData);
+                    break;
+                case 'WebcastSocialMessage':
+                    this.emit(Event.SOCIAL, messageData);
+                    if (messageData.displayType?.includes('follow')) {
+                        this.emit(Event.FOLLOW, messageData);
+                    }
+                    if (messageData.displayType?.includes('share')) {
+                        this.emit(Event.SHARE, messageData);
+                    }
+                    break;
+                case 'WebcastLikeMessage':
+                    this.emit(Event.LIKE, messageData);
+                    break;
+                case 'WebcastQuestionNewMessage':
+                    this.emit(Event.QUESTION_NEW, messageData);
+                    break;
+                case 'WebcastLinkMicBattle':
+                    this.emit(Event.LINK_MIC_BATTLE, messageData);
+                    break;
+                case 'WebcastLinkMicArmies':
+                    this.emit(Event.LINK_MIC_ARMIES, messageData);
+                    break;
+                case 'WebcastLiveIntroMessage':
+                    this.emit(Event.LIVE_INTRO, messageData);
+                    break;
+                case 'WebcastEmoteChatMessage':
+                    this.emit(Event.EMOTE, messageData);
+                    break;
+                case 'WebcastEnvelopeMessage':
+                    this.emit(Event.ENVELOPE, messageData);
+                    break;
+                case 'WebcastSubNotifyMessage':
+                    this.emit(Event.SUBSCRIBE, messageData);
+                    break;
+            }
+
+        }
+
+
     }
+
 
     /**
      * Handle the error event
@@ -337,11 +454,11 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
      * @protected
      */
     protected handleError(exception: Error, info: string): void {
-        if (this.listenerCount(ControlEvents.ERROR) < 1) {
+        if (this.listenerCount(ControlEvent.ERROR) < 1) {
             return;
         }
 
-        this.emit(ControlEvents.ERROR, { info, exception });
+        this.emit(ControlEvent.ERROR, { info, exception });
     }
 
 }

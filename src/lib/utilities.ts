@@ -39,11 +39,11 @@ export function deserializeMessage<T extends keyof WebcastMessage>(
 
     const messageFn: MessageFns<WebcastMessage[T]> | undefined = tikTokSchema[protoName as string];
     if (!messageFn) throw new InvalidSchemaNameError(`Invalid schema name: ${protoName}`);
-    const webcastResponse = messageFn.decode(binaryMessage);
+    const webcastResponse: WebcastMessage[T] = messageFn.decode(binaryMessage);
 
     // Handle WebcastResponse nested messages
     if (protoName === 'WebcastResponse') {
-        for (const message of ((webcastResponse as WebcastResponse).messages || [])) {
+        for (const message of (webcastResponse as WebcastResponse).messages || []) {
             if (WebcastDeserializeConfig.skipMessageTypes.includes(message.type)) {
                 continue;
             }
@@ -65,7 +65,7 @@ export async function deserializeWebSocketMessage(binaryMessage: Uint8Array): Pr
     // Websocket messages are in a container which contains additional data
     // Message type 'msg' represents a normal WebcastResponse
     const rawWebcastWebSocketMessage = WebcastWebsocketMessage.decode(binaryMessage);
-    let webcastResponse: any | undefined = undefined;
+    let webcastResponse: WebcastResponse | undefined = undefined;
 
     if (rawWebcastWebSocketMessage.type === 'msg') {
         let binary: Uint8Array = rawWebcastWebSocketMessage.binary;
@@ -76,7 +76,7 @@ export async function deserializeWebSocketMessage(binaryMessage: Uint8Array): Pr
             rawWebcastWebSocketMessage.binary = await unzip(binary);
         }
 
-        webcastResponse = WebcastResponse.decode(rawWebcastWebSocketMessage.binary);
+        webcastResponse = deserializeMessage('WebcastResponse', Buffer.from(rawWebcastWebSocketMessage.binary));
     }
 
     return {

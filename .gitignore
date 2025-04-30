@@ -132,3 +132,5 @@ dist
 
 # JetBrains IDEs
 .idea
+
+pnpm-lock.yaml

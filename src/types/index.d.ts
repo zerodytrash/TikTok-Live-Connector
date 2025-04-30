@@ -1,6 +1,7 @@
 import * as tikTokSchema from './tiktok-schema';
 import { MessageFns, WebcastWebsocketMessage } from './tiktok-schema';
 import { AxiosRequestConfig } from 'axios';
+import TikTokSigner from '@/lib/web/lib/tiktok-signer';
 
 export type WebcastPushConnectionOptions = {
     processInitialData: boolean;
@@ -16,6 +17,9 @@ export type WebcastPushConnectionOptions = {
     requestOptions: {};
     websocketOptions: {};
     signProviderOptions: {}
+    authenticateWs: boolean;
+    preferredAgentIds: string[];
+    connectWithUniqueId: boolean;
 }
 
 export type RoomInfo = Record<string, any> & { status: number }
@@ -25,6 +29,15 @@ export type WebcastPushConnectionClientParams = {
     room_id: string;
     cursor: string;
     internal_ext: string;
+}
+
+
+export type WebcastHttpClientConfig = {
+    customHeaders: Record<string, string>;
+    axiosOptions: AxiosRequestConfig;
+    clientParams: Record<string, string>;
+    authenticateWs?: boolean;
+    webSigner?: TikTokSigner;
 }
 
 export interface WebcastPushConnectionWebSocketParams extends Record<string, any> {
@@ -38,12 +51,14 @@ export type DecodedWebcastWebsocketMessage = WebcastWebsocketMessage & {
 
 
 export interface IWebcastConfig extends Record<string, any> {
-    TIKTOK_URL_WEB: string;
-    TIKTOK_URL_WEBCAST: string;
+    TIKTOK_HOST_WEB: string;
+    TIKTOK_HOST_WEBCAST: string;
     TIKTOK_HTTP_ORIGIN: string;
     DEFAULT_HTTP_CLIENT_PARAMS: Record<string, any>;
     DEFAULT_WS_CLIENT_PARAMS: Record<string, any>;
-    DEFAULT_REQUEST_HEADERS: Record<string, any>;
+    DEFAULT_REQUEST_HEADERS: Record<string, any> & {
+        'User-Agent': string;
+    };
     WEBCAST_VERSION_CODE: string;
 }
 
@@ -63,12 +78,6 @@ export type WebcastMessage = {
 export type WebcastEventMessage = {
     [K in keyof WebcastMessage as K extends `Webcast${string}` ? K : never]: WebcastMessage[K];
 };
-
-export interface IWebcastSignatureProviderConfig {
-    signProviderHost: string;
-    signProviderFallbackHosts: string[];
-    extraParams: Record<string, any>;
-}
 
 declare module '@/types/tiktok-schema' {
     export interface Message {

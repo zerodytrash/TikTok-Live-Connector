@@ -1,2 +1,5 @@
-export * from './types';
-export * from './lib';
+export * from '@/lib';
+export * from '@/types/events';
+export * from '@/types/tiktok-schema';
+export * from '@/types/errors';
+export * from '@/types/route';

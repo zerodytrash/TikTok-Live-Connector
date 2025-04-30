@@ -1,39 +1,45 @@
 import {
-    WebcastChatMessage, WebcastEmoteChatMessage, WebcastEnvelopeMessage,
-    WebcastGiftMessage, WebcastLikeMessage, WebcastLinkMicArmies, WebcastLinkMicBattle, WebcastLiveIntroMessage,
-    WebcastMemberMessage, WebcastQuestionNewMessage,
-    WebcastRoomUserSeqMessage, WebcastSocialMessage, WebcastSubNotifyMessage
+    WebcastChatMessage,
+    WebcastEmoteChatMessage,
+    WebcastEnvelopeMessage,
+    WebcastGiftMessage,
+    WebcastLikeMessage,
+    WebcastLinkMicArmies,
+    WebcastLinkMicBattle,
+    WebcastLiveIntroMessage,
+    WebcastMemberMessage,
+    WebcastQuestionNewMessage,
+    WebcastRoomUserSeqMessage,
+    WebcastSocialMessage,
+    WebcastSubNotifyMessage
 } from '@/types/tiktok-schema';
 import { RoomGiftInfo, RoomInfo } from '@/types/index';
 
-export enum ControlEvents {
+export enum ControlEvent {
     CONNECTED = 'connected',
     DISCONNECTED = 'disconnected',
     ERROR = 'error',
-    RAWDATA = 'rawData',
+    RAW_DATA = 'rawData',
     DECODEDDATA = 'decodedData',
-    STREAMEND = 'streamEnd',
+    STREAM_END = 'streamEnd',
     WSCONNECTED = 'websocketConnected'
 }
 
 
-export enum MessageEvents {
+export enum Event {
     CHAT = 'chat',
     MEMBER = 'member',
     GIFT = 'gift',
-    ROOMUSER = 'roomUser',
+    ROOM_USER = 'roomUser',
     SOCIAL = 'social',
     LIKE = 'like',
-    QUESTIONNEW = 'questionNew',
-    LINKMICBATTLE = 'linkMicBattle',
-    LINKMICARMIES = 'linkMicArmies',
-    LIVEINTRO = 'liveIntro',
+    QUESTION_NEW = 'questionNew',
+    LINK_MIC_BATTLE = 'linkMicBattle',
+    LINK_MIC_ARMIES = 'linkMicArmies',
+    LIVE_INTRO = 'liveIntro',
     EMOTE = 'emote',
     ENVELOPE = 'envelope',
-    SUBSCRIBE = 'subscribe'
-}
-
-export enum CustomEvents {
+    SUBSCRIBE = 'subscribe',
     FOLLOW = 'follow',
     SHARE = 'share'
 }
@@ -49,32 +55,32 @@ export type EventHandler<T> = (event: T) => void | Promise<void>;
 
 export type EventMap = {
     // Message Events
-    [MessageEvents.CHAT]: EventHandler<WebcastChatMessage>
-    [MessageEvents.MEMBER]: EventHandler<WebcastMemberMessage>
-    [MessageEvents.GIFT]: EventHandler<WebcastGiftMessage>,
-    [MessageEvents.ROOMUSER]: EventHandler<WebcastRoomUserSeqMessage>,
-    [MessageEvents.SOCIAL]: EventHandler<WebcastSocialMessage>,
-    [MessageEvents.LIKE]: EventHandler<WebcastLikeMessage>,
-    [MessageEvents.QUESTIONNEW]: EventHandler<WebcastQuestionNewMessage>,
-    [MessageEvents.LINKMICBATTLE]: EventHandler<WebcastLinkMicBattle>,
-    [MessageEvents.LINKMICARMIES]: EventHandler<WebcastLinkMicArmies>,
-    [MessageEvents.LIVEINTRO]: EventHandler<WebcastLiveIntroMessage>,
-    [MessageEvents.EMOTE]: EventHandler<WebcastEmoteChatMessage>,
-    [MessageEvents.ENVELOPE]: EventHandler<WebcastEnvelopeMessage>,
-    [MessageEvents.SUBSCRIBE]: EventHandler<WebcastSubNotifyMessage>,
+    [Event.CHAT]: EventHandler<WebcastChatMessage>
+    [Event.MEMBER]: EventHandler<WebcastMemberMessage>
+    [Event.GIFT]: EventHandler<WebcastGiftMessage>,
+    [Event.ROOM_USER]: EventHandler<WebcastRoomUserSeqMessage>,
+    [Event.SOCIAL]: EventHandler<WebcastSocialMessage>,
+    [Event.LIKE]: EventHandler<WebcastLikeMessage>,
+    [Event.QUESTION_NEW]: EventHandler<WebcastQuestionNewMessage>,
+    [Event.LINK_MIC_BATTLE]: EventHandler<WebcastLinkMicBattle>,
+    [Event.LINK_MIC_ARMIES]: EventHandler<WebcastLinkMicArmies>,
+    [Event.LIVE_INTRO]: EventHandler<WebcastLiveIntroMessage>,
+    [Event.EMOTE]: EventHandler<WebcastEmoteChatMessage>,
+    [Event.ENVELOPE]: EventHandler<WebcastEnvelopeMessage>,
+    [Event.SUBSCRIBE]: EventHandler<WebcastSubNotifyMessage>,
 
     // Custom Events
-    [CustomEvents.FOLLOW]: EventHandler<WebcastSocialMessage>,
-    [CustomEvents.SHARE]: EventHandler<WebcastSocialMessage>,
+    [Event.FOLLOW]: EventHandler<WebcastSocialMessage>,
+    [Event.SHARE]: EventHandler<WebcastSocialMessage>,
 
     // Control Events
-    [ControlEvents.CONNECTED]: EventHandler<WebcastPushConnectionState>,
-    [ControlEvents.DISCONNECTED]: EventHandler<void>,
-    [ControlEvents.ERROR]: EventHandler<any>,
-    [ControlEvents.RAWDATA]: (type: string, data: Uint8Array) => void | Promise<void>;
-    [ControlEvents.DECODEDDATA]: (type: string, event: any, data: Uint8Array) => void | Promise<void>;
-    [ControlEvents.STREAMEND]: EventHandler<any>,
-    [ControlEvents.WSCONNECTED]: EventHandler<any>
+    [ControlEvent.CONNECTED]: EventHandler<WebcastPushConnectionState>,
+    [ControlEvent.DISCONNECTED]: EventHandler<void>,
+    [ControlEvent.ERROR]: EventHandler<any>,
+    [ControlEvent.RAW_DATA]: (type: string, data: Uint8Array) => void | Promise<void>;
+    [ControlEvent.DECODEDDATA]: (type: string, event: any, data: Uint8Array) => void | Promise<void>;
+    [ControlEvent.STREAM_END]: EventHandler<any>,
+    [ControlEvent.WSCONNECTED]: EventHandler<any>
 
 };
 

@@ -1,8 +1,20 @@
-import { WebcastPushConnection } from './src/lib/client';
+import { Event, SignConfig, WebcastPushConnection } from './src/';
+import { configDotenv } from 'dotenv';
 
-const client = new WebcastPushConnection('tv_asahi_news');
+configDotenv();
+
+SignConfig.apiKey = 'NWYzOTJiYTQ5ZGMwOTRlMjI0NDBlOTY5NzM3NjQzMGFiNTQ3MGI3YmUwYjJlOTYwZTRhYjc3';
+
+const client = new WebcastPushConnection('tv_asahi_news', {
+    authenticateWs: false,
+    sessionId: 'gotem'
+});
 
 
 client.connect().then(() => {
     console.log('Connected babes!');
+});
+
+client.on(Event.MEMBER, (data) => {
+    console.log('member', data);
 });

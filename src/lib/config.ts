@@ -2,6 +2,8 @@ import { IWebcastConfig } from '@/types';
 
 
 import { userAgentToDevicePreset } from '@/lib/utilities';
+import { ClientConfiguration } from '@eulerstream/euler-api-sdk';
+import pkg from '../../package.json';
 
 export type LocationPreset = {
     lang: string,
@@ -173,8 +175,8 @@ export const Screen: ScreenPreset = (process.env.RANDOMIZE_TIKTOK_SCREEN?.toLowe
 
 
 const Config: IWebcastConfig = {
-    TIKTOK_URL_WEB: 'https://www.tiktok.com/',
-    TIKTOK_URL_WEBCAST: 'https://webcast.tiktok.com/webcast/',
+    TIKTOK_HOST_WEB: 'www.tiktok.com',
+    TIKTOK_HOST_WEBCAST: 'webcast.tiktok.com',
     TIKTOK_HTTP_ORIGIN: 'https://www.tiktok.com',
     DEFAULT_HTTP_CLIENT_PARAMS: {
         'aid': 1988,
@@ -246,6 +248,15 @@ const Config: IWebcastConfig = {
     },
 
     WEBCAST_VERSION_CODE: '180800'
+};
+
+export const SignConfig: Partial<ClientConfiguration> = {
+    basePath: process.env.SIGN_API_URL || 'https://tiktok.eulerstream.com',
+    apiKey: process.env.SIGN_API_KEY,
+    baseOptions: {
+        headers: { 'User-Agent': `${pkg.name}/${pkg.version} ${process.platform}` },
+        validateStatus: () => true
+    },
 };
 
 export default Config;

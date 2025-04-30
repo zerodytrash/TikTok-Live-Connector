@@ -1,38 +1,17 @@
-import axios, { AxiosInstance } from 'axios';
 import { URL } from 'url';
-import { name, version } from '../../../../package.json';
-import { PremiumEndpointError, SignatureMissingTokensError, UnexpectedSignatureError } from '@/types/errors';
-import { SignResponse } from '@/types';
+import { PremiumEndpointError, SignatureMissingTokensError } from '@/types/errors';
+import EulerStreamApiClient, { ClientConfiguration, SignWebcastUrl200Response } from '@eulerstream/euler-api-sdk';
+import { ISignTikTokUrlBodyMethodEnum } from '@eulerstream/euler-api-sdk/dist/sdk/api';
+import { SignConfig } from '@/lib';
+import Config from '@/lib/config';
 
 /**
  * TikTok Signer class
  */
-export default class TikTokSigner {
-    public signApiKey?: string;
-    public readonly signApiBases: string[];
-    public readonly axiosInstance: AxiosInstance;
+export default class TikTokApiSdk extends EulerStreamApiClient {
 
-    constructor(
-        signApiKey?: string,
-        signApiBase?: string,
-        fallbackHosts: string[] = []
-    ) {
-        this.signApiKey = signApiKey || process.env.SIGN_API_KEY;
-        const primaryBase = signApiBase || process.env.SIGN_API_URL!;
-        this.signApiBases = [primaryBase, ...fallbackHosts];
-
-        const headers: Record<string, string> = {
-            'User-Agent': `TikTokLive.ts/1.0.0`
-        };
-
-        if (this.signApiKey) {
-            headers['X-Api-Key'] = this.signApiKey;
-        }
-
-        this.axiosInstance = axios.create({
-            timeout: 5000,
-            headers: { 'User-Agent': `${name}/${version} ${process.platform}` }
-        });
+    constructor(config: Partial<ClientConfiguration> = {}) {
+        super({ ...SignConfig, ...config });
     }
 
     /**
@@ -41,7 +20,7 @@ export default class TikTokSigner {
      * @param url The URL to sign
      * @param method The HTTP method to use (GET, POST, etc.)
      */
-    public async webcastSign(url: string | URL, method: string): Promise<SignResponse> {
+    public async webcastSign(url: string | URL, method: ISignTikTokUrlBodyMethodEnum): Promise<SignWebcastUrl200Response> {
         const mustRemoveParams = ['X-Bogus', 'X-Gnarly', 'msToken'];
         let cleanUrl = typeof url === 'string' ? url : url.toString();
 
@@ -50,50 +29,35 @@ export default class TikTokSigner {
             cleanUrl = cleanUrl.replace(/[&?]$/, '');
         }
 
-        let lastError: any = null;
-
-        for (const base of this.signApiBases) {
-            try {
-                const response = await this.axiosInstance.post<SignResponse>(
-                    `${base}/webcast/sign_url/`,
-                    {
-                        url: cleanUrl,
-                        method,
-                        userAgent: this.axiosInstance.defaults.headers['User-Agent'] || ''
-                    }
-                );
-
-                const signResponse = response.data;
-
-                if (signResponse.code === 403) {
-                    throw new PremiumEndpointError(
-                        'You do not have permission from the signature provider to sign this URL.',
-                        signResponse.message,
-                        response
-                    );
-                }
-
-                if (!signResponse.response || !signResponse.response.signedUrl.includes('msToken')) {
-                    throw new SignatureMissingTokensError(
-                        'Failed to sign a request due to missing tokens in response!'
-                    );
-                }
-
-                return signResponse;
-            } catch (error: any) {
-                lastError = error;
+        // Sign the URL
+        const response = await this.webcast.signWebcastUrl(
+            {
+                url: cleanUrl,
+                method: method,
+                userAgent: Config.DEFAULT_REQUEST_HEADERS['User-Agent']
             }
-        }
+        );
 
-        if (lastError) {
-            if (lastError instanceof PremiumEndpointError || lastError instanceof SignatureMissingTokensError) {
-                throw lastError;
-            }
-            throw new UnexpectedSignatureError(
-                `Failed to sign a request: ${lastError.message || lastError}`
+        if (response.status === 403) {
+            throw new PremiumEndpointError(
+                'You do not have permission from the signature provider to sign this URL.',
+                response.data.message,
+                JSON.stringify(response.data)
             );
         }
 
-        throw new UnexpectedSignatureError('Failed to sign a request: Unknown error');
+        if (!response.data || Object.keys(response.data.response.tokens || {}).length < 1) {
+            throw new SignatureMissingTokensError(
+                'Failed to sign a request due to missing tokens in response!'
+            );
+        }
+
+        if (response.status !== 200) {
+            throw new SignatureMissingTokensError(
+                `Failed to sign a request: ${response?.data?.message || 'Unknown error'}`
+            );
+        }
+
+        return response.data;
     }
 }

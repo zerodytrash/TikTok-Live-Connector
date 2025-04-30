@@ -19,14 +19,13 @@ export class SendRoomChatRoute extends Route<SendRoomChatRouteParams, SendRoomCh
         // Fetch room info
         try {
             return await this.httpClient.postJsonObjectToWebcastApi(
-                'room/chat/',
+                '/room/chat/',
                 { ...this.httpClient.clientParams, roomId: roomId, content: content },
                 undefined
             );
         } catch (err) {
             throw new InvalidResponseError(`Failed to fetch room info. ${err.message}`, err);
         }
-
     }
 
 }
