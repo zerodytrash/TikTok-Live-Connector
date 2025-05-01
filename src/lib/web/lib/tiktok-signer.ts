@@ -1,5 +1,5 @@
 import { URL } from 'url';
-import { PremiumEndpointError, SignatureMissingTokensError } from '@/types/errors';
+import { PremiumFeatureError, SignatureMissingTokensError } from '@/types/errors';
 import EulerStreamApiClient, { ClientConfiguration, SignWebcastUrl200Response } from '@eulerstream/euler-api-sdk';
 import { ISignTikTokUrlBodyMethodEnum } from '@eulerstream/euler-api-sdk/dist/sdk/api';
 import { SignConfig } from '@/lib';
@@ -39,7 +39,7 @@ export default class TikTokApiSdk extends EulerStreamApiClient {
         );
 
         if (response.status === 403) {
-            throw new PremiumEndpointError(
+            throw new PremiumFeatureError(
                 'You do not have permission from the signature provider to sign this URL.',
                 response.data.message,
                 JSON.stringify(response.data)

@@ -4,6 +4,7 @@ import {
     AuthenticatedWebSocketConnectionError,
     ErrorReason,
     FetchSignedWebSocketIdentityParameterError,
+    PremiumFeatureError,
     SignAPIError,
     SignatureRateLimitError
 } from '@/types/errors';
@@ -85,23 +86,39 @@ export class FetchSignedWebSocketFromEulerRoute extends Route<FetchSignedWebSock
             throw new SignatureRateLimitError(message, `${label}Too many connections started, try again later.`, response);
         }
 
-        const logId = response.headers['X-Log-Id'];
-        const agentId = response.headers['X-Agent-ID'];
+        if (response.status === 402) {
+            // Convert arraybuffer to JSON
+            const data = JSON.parse(Buffer.from(response.data).toString('utf-8')) as any;
+            const message = process.env.SIGN_SERVER_MESSAGE_DISABLED ? null : data?.message;
+            throw new PremiumFeatureError(message, 'Error fetching the signed TikTok WebSocket');
+        }
+
+        const logId: number | undefined = response.headers['X-Log-Id'] && parseInt(response.headers['X-Log-Id']);
+        const agentId: string | undefined = response.headers['X-Agent-ID'];
 
         if (response.status !== 200) {
             let payload: string;
             try {
-                payload = JSON.stringify(response.data);
+                payload = Buffer.from(response.data).toString('utf-8');
             } catch {
                 payload = `"${response.statusText}"`;
             }
 
             throw new SignAPIError(
                 ErrorReason.SIGN_NOT_200,
-                logId ? parseInt(logId) : undefined,
+                logId,
                 agentId,
                 `Unexpected sign server status ${response.status}. Payload:\n${payload}`,
                 JSON.stringify(response.data)
+            );
+        }
+
+        if (!response.headers['x-set-tt-cookie']) {
+            throw new SignAPIError(
+                ErrorReason.EMPTY_COOKIES,
+                logId,
+                agentId,
+                'No cookies received from sign server.'
             );
         }
 

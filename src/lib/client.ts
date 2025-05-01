@@ -203,7 +203,6 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
 
         // First we set the Room ID
         if (!this.options.connectWithUniqueId || this.options.fetchRoomInfoOnConnect || this.options.enableExtendedGiftInfo) {
-            console.log('~!!', !this.options.connectWithUniqueId, this.options.fetchRoomInfoOnConnect, this.options.enableExtendedGiftInfo);
             this.clientParams.room_id = roomId || this.clientParams.room_id || await this.fetchRoomId();
         }
 

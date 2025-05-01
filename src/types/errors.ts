@@ -56,13 +56,13 @@ export class TikTokLiveError extends Error {
 }
 
 export enum ErrorReason {
-    RATE_LIMIT = 1,
-    CONNECT_ERROR,
-    EMPTY_PAYLOAD,
-    SIGN_NOT_200,
-    EMPTY_COOKIES,
-    PREMIUM_ENDPOINT,
-    AUTHENTICATED_WS
+    RATE_LIMIT = "Rate Limited",
+    CONNECT_ERROR = "Connect Error",
+    EMPTY_PAYLOAD = "Empty Payload",
+    SIGN_NOT_200 = "Sign Error",
+    EMPTY_COOKIES = "Empty Cookies",
+    PREMIUM_FEATURE = "Premium Feature",
+    AUTHENTICATED_WS = "Authenticated WS"
 }
 
 export class FetchSignedWebSocketIdentityParameterError extends Error {
@@ -70,8 +70,8 @@ export class FetchSignedWebSocketIdentityParameterError extends Error {
 
 export class SignAPIError extends TikTokLiveError {
     public reason: ErrorReason;
-    private readonly _logId?: number;
-    private readonly _agentId?: string;
+    public readonly logId?: number;
+    public readonly agentId?: string;
 
     constructor(
         reason: ErrorReason,
@@ -81,16 +81,8 @@ export class SignAPIError extends TikTokLiveError {
     ) {
         super([`[${ErrorReason[reason]}]`, ...args].join(' '));
         this.reason = reason;
-        this._logId = logId;
-        this._agentId = agentId;
-    }
-
-    public get log_id(): number | undefined {
-        return this._logId;
-    }
-
-    public get agent_id(): string | undefined {
-        return this._agentId;
+        this.logId = logId;
+        this.agentId = agentId;
     }
 
     public static formatSignServerMessage(message: string): string {
@@ -110,8 +102,8 @@ export class SignAPIError extends TikTokLiveError {
 }
 
 export class SignatureRateLimitError extends SignAPIError {
-    private readonly _retryAfter: number;
-    private readonly _resetTime?: number;
+    public readonly retryAfter: number;
+    public readonly resetTime?: number;
 
     constructor(apiMessage: string | undefined, formatStr: string, response: AxiosResponse) {
         const retryAfter = SignatureRateLimitError.calculateRetryAfter(response);
@@ -129,8 +121,8 @@ export class SignatureRateLimitError extends SignAPIError {
 
         super(ErrorReason.RATE_LIMIT, logId, agentId, ...args);
 
-        this._retryAfter = retryAfter;
-        this._resetTime = resetTime;
+        this.retryAfter = retryAfter;
+        this.resetTime = resetTime;
     }
 
     private static parseHeaderNumber(value: string | undefined): number | undefined {
@@ -138,21 +130,15 @@ export class SignatureRateLimitError extends SignAPIError {
     }
 
     private static calculateRetryAfter(response: AxiosResponse): number {
-        return parseInt(response.headers['RateLimit-Remaining'] || '0');
+        const retryAfter = parseInt(response.headers['retry-after'] || '0');
+        return retryAfter * 1000;
     }
 
     private static calculateResetTime(response: AxiosResponse): number | undefined {
-        const value = response.headers['RateLimit-Reset'];
-        return value ? parseInt(value) : undefined;
+        const value = response.headers['x-ratelimit-reset'];
+        return value ? parseInt(value) * 1000 : undefined;
     }
 
-    public get retry_after(): number {
-        return this._retryAfter;
-    }
-
-    public get reset_time(): number | undefined {
-        return this._resetTime;
-    }
 }
 
 export class UnexpectedSignatureError extends SignAPIError {
@@ -167,10 +153,10 @@ export class SignatureMissingTokensError extends SignAPIError {
     }
 }
 
-export class PremiumEndpointError extends SignAPIError {
+export class PremiumFeatureError extends SignAPIError {
     constructor(apiMessage: string, ...args: string[]) {
         args.push(SignAPIError.formatSignServerMessage(apiMessage));
-        super(ErrorReason.PREMIUM_ENDPOINT, undefined, undefined, ...args);
+        super(ErrorReason.PREMIUM_FEATURE, undefined, undefined, ...args);
     }
 }
 
