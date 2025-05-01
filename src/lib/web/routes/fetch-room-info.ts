@@ -1,8 +1,7 @@
 import { Route } from '@/types/route';
 import { InvalidResponseError, MissingRoomIdError } from '@/types/errors';
-import { AxiosRequestConfig } from 'axios';
 
-export type RoomInfoRouteParams = ({ roomId?: string; } & AxiosRequestConfig) | void;
+export type RoomInfoRouteParams = { roomId?: string; } | void;
 export type RoomInfoResponse = any;
 
 export class FetchRoomInfoRoute extends Route<RoomInfoRouteParams, RoomInfoResponse> {
@@ -10,7 +9,7 @@ export class FetchRoomInfoRoute extends Route<RoomInfoRouteParams, RoomInfoRespo
     async call({ roomId }) {
 
         // Assign Room ID
-        roomId ||= this.httpClient.roomId;
+        roomId ||= this.webClient.roomId;
 
         // Must have a Room ID to fetch
         if (roomId == null) {
@@ -19,9 +18,9 @@ export class FetchRoomInfoRoute extends Route<RoomInfoRouteParams, RoomInfoRespo
 
         // Fetch room info
         try {
-            return await this.httpClient.getJsonObjectFromWebcastApi(
+            return await this.webClient.getJsonObjectFromWebcastApi(
                 '/room/info/',
-                { ...this.httpClient.clientParams, roomId: roomId },
+                { ...this.webClient.clientParams, roomId: roomId },
                 false
             );
         } catch (err) {

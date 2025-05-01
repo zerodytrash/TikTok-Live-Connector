@@ -1,5 +1,5 @@
 import { Route } from '@/types/route';
-import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
 import {
     AuthenticatedWebSocketConnectionError,
     ErrorReason,
@@ -8,19 +8,14 @@ import {
     SignatureRateLimitError
 } from '@/types/errors';
 import Config from '@/lib/config';
-import { deserializeMessage, deserializeWebSocketMessage } from '@/lib';
-import { DecodedWebcastWebsocketMessage } from '@/types';
+import { deserializeMessage } from '@/lib';
 import { WebcastResponse } from '@/types/tiktok-schema';
-
-export type FetchSignedWebSocketRouteParams = {
-    roomId?: string;
-    uniqueId?: string;
-    preferredAgentIds?: string[];
-    sessionId?: string;
-} & AxiosRequestConfig;
+import { FetchSignedWebSocketParams } from '@/types';
 
 
-export class FetchSignedWebSocketRoute extends Route<FetchSignedWebSocketRouteParams, WebcastResponse> {
+export type FetchSignedWebSocketFromEulerRouteParams = FetchSignedWebSocketParams;
+
+export class FetchSignedWebSocketFromEulerRoute extends Route<FetchSignedWebSocketFromEulerRouteParams, WebcastResponse> {
 
     async call(
         {
@@ -28,7 +23,7 @@ export class FetchSignedWebSocketRoute extends Route<FetchSignedWebSocketRoutePa
             uniqueId,
             preferredAgentIds,
             sessionId
-        }: FetchSignedWebSocketRouteParams
+        }: FetchSignedWebSocketFromEulerRouteParams
     ): Promise<WebcastResponse> {
 
         if (!roomId && !uniqueId) {
@@ -44,11 +39,11 @@ export class FetchSignedWebSocketRoute extends Route<FetchSignedWebSocketRoutePa
         }
 
         const preferredAgentIdsParam = preferredAgentIds?.join(',') ?? null;
-        const resolvedSessionId = sessionId || this.httpClient.cookieJar.sessionId;
+        const resolvedSessionId = sessionId || this.webClient.cookieJar.sessionId;
 
-        if (this.httpClient.configuration.authenticateWs && resolvedSessionId) {
+        if (this.webClient.configuration.authenticateWs && resolvedSessionId) {
             const envHost = process.env.WHITELIST_AUTHENTICATED_SESSION_ID_HOST;
-            const expectedHost = new URL(this.httpClient.tiktokApi.configuration.basePath).host;
+            const expectedHost = new URL(this.webClient.tiktokApi.configuration.basePath).host;
 
             if (!envHost) {
                 throw new AuthenticatedWebSocketConnectionError(
@@ -68,11 +63,11 @@ export class FetchSignedWebSocketRoute extends Route<FetchSignedWebSocketRoutePa
 
         let response: AxiosResponse<ArrayBuffer>;
         try {
-            response = await this.httpClient.tiktokApi.webcast.fetchWebcastURL(
+            response = await this.webClient.tiktokApi.webcast.fetchWebcastURL(
                 'ttlive-node',
                 roomId,
                 uniqueId,
-                this.httpClient.clientParams?.cursor,
+                this.webClient.clientParams?.cursor,
                 sessionId,
                 Config.DEFAULT_REQUEST_HEADERS['User-Agent'],
                 preferredAgentIdsParam,
@@ -96,7 +91,7 @@ export class FetchSignedWebSocketRoute extends Route<FetchSignedWebSocketRoutePa
         if (response.status !== 200) {
             let payload: string;
             try {
-                payload = JSON.stringify(response.data, null, 2);
+                payload = JSON.stringify(response.data);
             } catch {
                 payload = `"${response.statusText}"`;
             }
@@ -110,8 +105,8 @@ export class FetchSignedWebSocketRoute extends Route<FetchSignedWebSocketRoutePa
             );
         }
 
-        this.httpClient.cookieJar.processSetCookieHeader(response.headers['x-set-tt-cookie'] || '');
-        this.httpClient.roomId = response.headers['X-Room-Id'] || this.httpClient.roomId;
+        this.webClient.cookieJar.processSetCookieHeader(response.headers['x-set-tt-cookie'] || '');
+        this.webClient.roomId = response.headers['x-room-id'] || this.webClient.roomId;
         return deserializeMessage('WebcastResponse', Buffer.from(response.data));
     }
 

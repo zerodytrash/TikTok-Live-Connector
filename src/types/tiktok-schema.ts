@@ -9,6 +9,57 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "TikTok";
 
+export enum ControlAction {
+  CONTROL_ACTION_FALLBACK_UNKNOWN = 0,
+  CONTROL_ACTION_STREAM_PAUSED = 1,
+  CONTROL_ACTION_STREAM_UNPAUSED = 2,
+  CONTROL_ACTION_STREAM_ENDED = 3,
+  CONTROL_ACTION_STREAM_SUSPENDED = 4,
+  UNRECOGNIZED = -1,
+}
+
+export function controlActionFromJSON(object: any): ControlAction {
+  switch (object) {
+    case 0:
+    case "CONTROL_ACTION_FALLBACK_UNKNOWN":
+      return ControlAction.CONTROL_ACTION_FALLBACK_UNKNOWN;
+    case 1:
+    case "CONTROL_ACTION_STREAM_PAUSED":
+      return ControlAction.CONTROL_ACTION_STREAM_PAUSED;
+    case 2:
+    case "CONTROL_ACTION_STREAM_UNPAUSED":
+      return ControlAction.CONTROL_ACTION_STREAM_UNPAUSED;
+    case 3:
+    case "CONTROL_ACTION_STREAM_ENDED":
+      return ControlAction.CONTROL_ACTION_STREAM_ENDED;
+    case 4:
+    case "CONTROL_ACTION_STREAM_SUSPENDED":
+      return ControlAction.CONTROL_ACTION_STREAM_SUSPENDED;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return ControlAction.UNRECOGNIZED;
+  }
+}
+
+export function controlActionToJSON(object: ControlAction): string {
+  switch (object) {
+    case ControlAction.CONTROL_ACTION_FALLBACK_UNKNOWN:
+      return "CONTROL_ACTION_FALLBACK_UNKNOWN";
+    case ControlAction.CONTROL_ACTION_STREAM_PAUSED:
+      return "CONTROL_ACTION_STREAM_PAUSED";
+    case ControlAction.CONTROL_ACTION_STREAM_UNPAUSED:
+      return "CONTROL_ACTION_STREAM_UNPAUSED";
+    case ControlAction.CONTROL_ACTION_STREAM_ENDED:
+      return "CONTROL_ACTION_STREAM_ENDED";
+    case ControlAction.CONTROL_ACTION_STREAM_SUSPENDED:
+      return "CONTROL_ACTION_STREAM_SUSPENDED";
+    case ControlAction.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 /** Data structure from im/fetch/ response */
 export interface WebcastResponse {
   messages: Message[];
@@ -36,7 +87,7 @@ export interface WebsocketParam {
 
 /** Message types depending on Message.tyoe */
 export interface WebcastControlMessage {
-  action: number;
+  action: ControlAction;
 }
 
 /** Statistics like viewer count */
@@ -717,7 +768,7 @@ export const WebcastControlMessage: MessageFns<WebcastControlMessage> = {
             break;
           }
 
-          message.action = reader.int32();
+          message.action = reader.int32() as any;
           continue;
         }
       }
@@ -730,13 +781,13 @@ export const WebcastControlMessage: MessageFns<WebcastControlMessage> = {
   },
 
   fromJSON(object: any): WebcastControlMessage {
-    return { action: isSet(object.action) ? globalThis.Number(object.action) : 0 };
+    return { action: isSet(object.action) ? controlActionFromJSON(object.action) : 0 };
   },
 
   toJSON(message: WebcastControlMessage): unknown {
     const obj: any = {};
     if (message.action !== 0) {
-      obj.action = Math.round(message.action);
+      obj.action = controlActionToJSON(message.action);
     }
     return obj;
   },

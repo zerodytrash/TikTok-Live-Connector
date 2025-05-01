@@ -9,11 +9,18 @@ class ConnectError extends Error {
 export class InvalidUniqueIdError extends Error {
 }
 
-export class InvalidSessionIdError extends Error {
+export class ExtractRoomIdError extends Error {
+    constructor(public readonly errors: Error[], ...args: any[]) {
+        super();
+    }
 }
 
-export class ExtractRoomIdError extends Error {
+export class FetchIsLiveError extends Error {
+    constructor(public readonly errors: Error[], ...args: any[]) {
+        super();
+    }
 }
+
 
 export class InvalidResponseError extends Error {
     constructor(
@@ -95,7 +102,7 @@ export class SignAPIError extends TikTokLiveError {
 
         const footer = '+' + '-'.repeat(msgLen + 2) + '+';
         const header = '+' + '-'.repeat(headerLen) + ' ' + headerText + ' ' + '-'.repeat(headerLen + paddingLen) + '+';
-        const prefix = "|" + " ".repeat(header.length - 2) + "|"
+        const prefix = '|' + ' '.repeat(header.length - 2) + '|';
         const body = '| ' + message + ' |';
 
         return `\n\t${prefix}\n\t${header}\n\t${body}\n\t${footer}\n`;

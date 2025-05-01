@@ -8,7 +8,7 @@ import {
 } from '@/types';
 import * as zlib from 'node:zlib';
 import * as util from 'node:util';
-import { InvalidSchemaNameError, InvalidUniqueIdError, UserOfflineError } from '@/types/errors';
+import { InvalidSchemaNameError, InvalidUniqueIdError } from '@/types/errors';
 import { DevicePreset } from '@/lib/config';
 
 const unzip = util.promisify(zlib.unzip);
@@ -84,28 +84,6 @@ export async function deserializeWebSocketMessage(binaryMessage: Uint8Array): Pr
         webcastResponse
     };
 
-}
-
-export function getRoomIdFromMainPageHtml(
-    mainPageHtml: string
-): string {
-    let idx = 0;
-    do {
-        // Loop through many "room" excerpts and look for a match
-        idx = mainPageHtml.indexOf('roomId', idx + 3);
-        const excerpt = mainPageHtml.substring(idx, 50);
-        let matchExcerpt = excerpt.match(/roomId":"([0-9]+)"/);
-        if (matchExcerpt && matchExcerpt[1]) return matchExcerpt[1];
-    } while (idx >= 0);
-
-    let matchMeta = mainPageHtml.match(/room_id=([0-9]*)/);
-    if (matchMeta && matchMeta[1]) return matchMeta[1];
-
-    let matchJson = mainPageHtml.match(/"roomId":"([0-9]*)"/);
-    if (matchJson && matchJson[1]) return matchJson[1];
-
-    let validResponse = mainPageHtml.includes('"og:url"');
-    throw new UserOfflineError(validResponse ? 'User might be offline.' : 'Your IP or country might be blocked by TikTok.');
 }
 
 export function validateAndNormalizeUniqueId(uniqueId: string) {

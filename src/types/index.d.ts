@@ -1,5 +1,5 @@
 import * as tikTokSchema from './tiktok-schema';
-import { MessageFns, WebcastWebsocketMessage } from './tiktok-schema';
+import { MessageFns, WebcastResponse, WebcastWebsocketMessage } from './tiktok-schema';
 import { AxiosRequestConfig } from 'axios';
 import TikTokSigner from '@/lib/web/lib/tiktok-signer';
 
@@ -20,15 +20,21 @@ export type WebcastPushConnectionOptions = {
     authenticateWs: boolean;
     preferredAgentIds: string[];
     connectWithUniqueId: boolean;
+    logFetchFallbackErrors: boolean;
+
+    // Override the default websocket provider
+    signedWebSocketProvider?: (props: FetchSignedWebSocketParams) => Promise<WebcastResponse>
 }
+
 
 export type RoomInfo = Record<string, any> & { status: number }
 export type RoomGiftInfo = any;
 
-export type WebcastPushConnectionClientParams = {
-    room_id: string;
-    cursor: string;
-    internal_ext: string;
+export type FetchSignedWebSocketParams = {
+    roomId?: string;
+    uniqueId?: string;
+    preferredAgentIds?: string[];
+    sessionId?: string;
 }
 
 
@@ -104,13 +110,3 @@ export type WebcastHttpClientRequestParams = Omit<Omit<AxiosRequestConfig, 'url'
 };
 
 
-export interface SignResponse {
-    code: number;
-    message: string;
-    response?: {
-        signedUrl: string;
-        userAgent: string;
-        browserName: string;
-        browserVersion: string;
-    };
-}

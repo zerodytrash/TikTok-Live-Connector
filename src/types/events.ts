@@ -1,5 +1,6 @@
 import {
     WebcastChatMessage,
+    WebcastControlMessage,
     WebcastEmoteChatMessage,
     WebcastEnvelopeMessage,
     WebcastGiftMessage,
@@ -13,7 +14,7 @@ import {
     WebcastSocialMessage,
     WebcastSubNotifyMessage
 } from '@/types/tiktok-schema';
-import { RoomGiftInfo, RoomInfo } from '@/types/index';
+import { RoomGiftInfo, RoomInfo, WebcastMessage } from '@/types/index';
 
 export enum ControlEvent {
     CONNECTED = 'connected',
@@ -21,7 +22,6 @@ export enum ControlEvent {
     ERROR = 'error',
     RAW_DATA = 'rawData',
     DECODEDDATA = 'decodedData',
-    STREAM_END = 'streamEnd',
     WSCONNECTED = 'websocketConnected'
 }
 
@@ -41,7 +41,8 @@ export enum Event {
     ENVELOPE = 'envelope',
     SUBSCRIBE = 'subscribe',
     FOLLOW = 'follow',
-    SHARE = 'share'
+    SHARE = 'share',
+    STREAM_END = 'streamEnd',
 }
 
 export enum ConnectState {
@@ -68,6 +69,7 @@ export type EventMap = {
     [Event.EMOTE]: EventHandler<WebcastEmoteChatMessage>,
     [Event.ENVELOPE]: EventHandler<WebcastEnvelopeMessage>,
     [Event.SUBSCRIBE]: EventHandler<WebcastSubNotifyMessage>,
+    [Event.STREAM_END]: EventHandler<WebcastControlMessage>,
 
     // Custom Events
     [Event.FOLLOW]: EventHandler<WebcastSocialMessage>,
@@ -79,9 +81,23 @@ export type EventMap = {
     [ControlEvent.ERROR]: EventHandler<any>,
     [ControlEvent.RAW_DATA]: (type: string, data: Uint8Array) => void | Promise<void>;
     [ControlEvent.DECODEDDATA]: (type: string, event: any, data: Uint8Array) => void | Promise<void>;
-    [ControlEvent.STREAM_END]: EventHandler<any>,
     [ControlEvent.WSCONNECTED]: EventHandler<any>
 
+};
+
+export const WebcastEventMap: Partial<Record<keyof WebcastMessage, string>> = {
+    'WebcastChatMessage': Event.CHAT,
+    'WebcastMemberMessage': Event.MEMBER,
+    'WebcastRoomUserSeqMessage': Event.ROOM_USER,
+    'WebcastSocialMessage': Event.SOCIAL,
+    'WebcastLikeMessage': Event.LIKE,
+    'WebcastQuestionNewMessage': Event.QUESTION_NEW,
+    'WebcastLinkMicBattle': Event.LINK_MIC_BATTLE,
+    'WebcastLinkMicArmies': Event.LINK_MIC_ARMIES,
+    'WebcastLiveIntroMessage': Event.LIVE_INTRO,
+    'WebcastEmoteChatMessage': Event.EMOTE,
+    'WebcastEnvelopeMessage': Event.ENVELOPE,
+    'WebcastSubNotifyMessage': Event.SUBSCRIBE
 };
 
 

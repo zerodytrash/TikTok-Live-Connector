@@ -2,20 +2,28 @@ import {
     AlreadyConnectedError,
     AlreadyConnectingError,
     ExtractRoomIdError,
+    FetchIsLiveError,
     InvalidResponseError,
     UserOfflineError
 } from '@/types/errors';
 
 import TypedEventEmitter from 'typed-emitter';
 import { EventEmitter } from 'node:events';
-import { WebcastControlMessage, WebcastResponse } from '@/types/tiktok-schema';
+import { ControlAction, WebcastControlMessage, WebcastResponse } from '@/types/tiktok-schema';
 import WebcastWsClient from '@/lib/ws/lib/ws-client';
 import Config from '@/lib/config';
 import { RoomGiftInfo, RoomInfo, WebcastPushConnectionOptions } from '@/types';
 import { validateAndNormalizeUniqueId } from '@/lib/utilities';
 import { RoomInfoResponse, WebcastWebClient } from '@/lib/web';
 import TikTokSigner from '@/lib/web/lib/tiktok-signer';
-import { ConnectState, ControlEvent, Event, EventMap, WebcastPushConnectionState } from '@/types/events';
+import {
+    ConnectState,
+    ControlEvent,
+    Event,
+    EventMap,
+    WebcastEventMap,
+    WebcastPushConnectionState
+} from '@/types/events';
 
 
 export class WebcastPushConnection extends (EventEmitter as new () => TypedEventEmitter<EventMap>) {
@@ -48,6 +56,10 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
      * @param {object} [options[].requestOptions={}] Custom request options for axios. Here you can specify an `httpsAgent` to use a proxy and a `timeout` value for example.
      * @param {object} [options[].websocketOptions={}] Custom request options for websocket.client. Here you can specify an `agent` to use a proxy and a `timeout` value for example.
      * @param {object} [options[].signProviderOptions={}] Custom request options for the TikTok signing server. Here you can specify a `host`, `params`, and `headers`.
+     * @param {string[]} [options[].preferredAgentIds=[]] Preferred agent IDs to use for the WebSocket connection. If not specified, the default agent IDs will be used.
+     * @param {boolean} [options[].connectWithUniqueId=false] Connect to the live stream using the unique ID instead of the room ID. If `true`, the room ID will be fetched from the TikTok API.
+     * @param {boolean} [options[].logFetchFallbackErrors=false] Log errors when falling back to the API or Euler source
+     * @param {function} [options[].signedWebSocketProvider] Custom function to fetch the signed WebSocket URL. If not specified, the default function will be used.
      * @param {TikTokSigner} [signer] TikTok Signer instance. If not provided, a new instance will be created using the provided options
      */
     constructor(
@@ -56,6 +68,9 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
         public readonly signer?: TikTokSigner
     ) {
         super();
+
+        this.uniqueId = validateAndNormalizeUniqueId(uniqueId);
+
 
         // Assign the options
         this.options = {
@@ -75,10 +90,10 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
             websocketOptions: {},
             signProviderOptions: {},
             authenticateWs: false,
+            signedWebSocketProvider: undefined,
+            logFetchFallbackErrors: false,
             ...options
         };
-
-        this.uniqueId = validateAndNormalizeUniqueId(uniqueId);
 
         this.webClient = new WebcastWebClient(
             {
@@ -188,6 +203,7 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
 
         // First we set the Room ID
         if (!this.options.connectWithUniqueId || this.options.fetchRoomInfoOnConnect || this.options.enableExtendedGiftInfo) {
+            console.log('~!!', !this.options.connectWithUniqueId, this.options.fetchRoomInfoOnConnect, this.options.enableExtendedGiftInfo);
             this.clientParams.room_id = roomId || this.clientParams.room_id || await this.fetchRoomId();
         }
 
@@ -206,9 +222,8 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
             this._availableGifts = await this.fetchAvailableGifts();
         }
 
-
-        // <Required> Fetch initial room info
-        const webcastResponse: WebcastResponse = await this.webClient.fetchSignedWebSocket(
+        // <Required> Fetch initial room info. Let the user specify their own backend for signing, if they don't want to use Euler
+        const webcastResponse: WebcastResponse = await (this.options.signedWebSocketProvider || this.webClient.fetchSignedWebSocketFromEuler)(
             {
                 roomId: (roomId || !this.options.connectWithUniqueId) ? this.clientParams.room_id : undefined,
                 uniqueId: this.options.connectWithUniqueId ? this.uniqueId : undefined,
@@ -219,7 +234,7 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
 
         // <Optional> Process the initial data
         if (this.options?.processInitialData) {
-            this.processWebcastResponse(webcastResponse);
+            await this.processWebcastResponse(webcastResponse);
         }
 
         // If we didn't receive a cursor
@@ -266,7 +281,6 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
         };
     }
 
-
     /**
      * Sends a chat message into the current live room using the provided session cookie
      * @param content Message Content
@@ -283,23 +297,97 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
      *
      * @protected
      */
-    protected async fetchRoomId(): Promise<string> {
+    public async fetchRoomId(): Promise<string> {
+        let errors: any[] = [];
 
         // Method 1
         try {
-            await this.webClient.fetchRoomIdFromHtml({ uniqueId: this.uniqueId });
+            const roomInfo = await this.webClient.fetchRoomInfoFromHtml({ uniqueId: this.uniqueId });
+            const roomId = roomInfo.liveRoomUserInfo.liveRoom.roomId;
+            if (!roomId) throw new Error('Failed to extract roomId from HTML.');
         } catch (ex) {
-            console.error('Failed to retrieve roomId from main page, falling back to API source...');
+            this.options.logFetchFallbackErrors && console.error('Failed to retrieve roomId from main page, falling back to API source...');
+            errors.push(ex);
         }
 
-        // Method 2 (Fallback)
+        // Method 2 (API Fallback)
         try {
-            await this.webClient.fetchRoomIdFromApi({ uniqueId: this.uniqueId });
+            const roomData = await this.webClient.fetchRoomInfoFromApiLive({ uniqueId: this.uniqueId });
+            this.webClient.roomId = roomData.data.user.roomId;
         } catch (err) {
-            throw new ExtractRoomIdError(`Failed to retrieve room_id from page source. ${err.message}`);
+            this.options.logFetchFallbackErrors && console.error('Failed to retrieve roomId from API source, falling back to Euler source...');
+            errors.push(err);
+        }
+
+        // Method 3 (Euler Fallback)
+        try {
+            await this.webClient.fetchRoomIdFromEuler({ uniqueId: this.uniqueId });
+        } catch (err) {
+            errors.push(err);
+            throw new ExtractRoomIdError(errors, `Failed to retrieve room_id from all sources. ${err.message}`);
         }
 
         return this.roomId;
+
+    }
+
+    public async fetchIsLive(): Promise<boolean> {
+        const errors: any[] = [];
+        const isOnline = (status: number) => status !== 4;
+
+        // Method 1 (HTML)
+        try {
+            const roomInfo = await this.webClient.fetchRoomInfoFromHtml({ uniqueId: this.uniqueId });
+            if (roomInfo?.liveRoomUserInfo?.liveRoom?.status === undefined) throw new Error('Failed to extract status from HTML.');
+            return isOnline(roomInfo?.liveRoomUserInfo?.liveRoom?.status);
+        } catch (ex) {
+            this.options.logFetchFallbackErrors && console.error('Failed to retrieve room info from main page, falling back to API source...', ex);
+            errors.push(ex);
+        }
+
+        // Method 2 (API)
+        try {
+            const roomData = await this.webClient.fetchRoomInfoFromApiLive({ uniqueId: this.uniqueId });
+            if (roomData?.data?.liveRoom?.status === undefined) throw new Error('Failed to extract status from API.');
+            return isOnline(roomData?.data?.liveRoom?.status);
+        } catch (err) {
+            this.options.logFetchFallbackErrors && console.error('Failed to retrieve room info from API source, falling back to Euler source...', err);
+            errors.push(err);
+        }
+
+        // Method 3 (Euler)
+        try {
+            const roomData = await this.webClient.fetchRoomIdFromEuler({ uniqueId: this.uniqueId });
+            if (roomData.code !== 200) throw new Error('Failed to extract status from Euler.');
+            return roomData.is_live;
+        } catch (err) {
+            this.options.logFetchFallbackErrors && console.error('Failed to retrieve room info from Euler source...', err);
+            errors.push(err);
+            throw new FetchIsLiveError(errors, `Failed to retrieve room_id from all sources. ${err.message}`);
+        }
+
+    }
+
+    /**
+     * Wait until the streamer is live
+     * @param seconds Number of seconds to wait before checking if the streamer is live again
+     */
+    public async waitUntilLive(seconds: number = 60): Promise<void> {
+        seconds = Math.max(30, seconds);
+
+        return new Promise(async (resolve) => {
+            const fetchIsLive = async () => {
+                const isLive = await this.fetchIsLive();
+
+                if (isLive) {
+                    clearInterval(interval);
+                    resolve();
+                }
+            };
+
+            const interval = setInterval(async () => fetchIsLive(), seconds * 1000);
+            await fetchIsLive();
+        });
 
     }
 
@@ -378,25 +466,21 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
                 message.binary
             );
 
+            // Attempt to get it from the map
+            const basicEvent = WebcastEventMap[message.type];
+            if (basicEvent) {
+                this.emit(basicEvent, messageData);
+                return;
+            }
+
+            // Handle custom events
             switch (message.type) {
                 case 'WebcastControlMessage':
-                    // Known control actions:
-                    // 3 = Stream terminated by user
-                    // 4 = Stream terminated by platform moderator (ban)
-                    const action = (message.decodedData as WebcastControlMessage).action;
-                    if ([3, 4].includes(action)) {
-                        this.emit(ControlEvent.STREAM_END, { action });
+                    const controlMessage = messageData as WebcastControlMessage;
+                    if (controlMessage.action === ControlAction.CONTROL_ACTION_STREAM_SUSPENDED || controlMessage.action === ControlAction.CONTROL_ACTION_STREAM_ENDED) {
+                        this.emit(Event.STREAM_END, { action: controlMessage.action });
                         await this.disconnect();
                     }
-                    break;
-                case 'WebcastRoomUserSeqMessage':
-                    this.emit(Event.ROOM_USER, messageData);
-                    break;
-                case 'WebcastChatMessage':
-                    this.emit(Event.CHAT, messageData);
-                    break;
-                case 'WebcastMemberMessage':
-                    this.emit(Event.MEMBER, messageData);
                     break;
                 case 'WebcastGiftMessage':
                     // Add extended gift info if option enabled
@@ -414,37 +498,12 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
                         this.emit(Event.SHARE, messageData);
                     }
                     break;
-                case 'WebcastLikeMessage':
-                    this.emit(Event.LIKE, messageData);
-                    break;
-                case 'WebcastQuestionNewMessage':
-                    this.emit(Event.QUESTION_NEW, messageData);
-                    break;
-                case 'WebcastLinkMicBattle':
-                    this.emit(Event.LINK_MIC_BATTLE, messageData);
-                    break;
-                case 'WebcastLinkMicArmies':
-                    this.emit(Event.LINK_MIC_ARMIES, messageData);
-                    break;
-                case 'WebcastLiveIntroMessage':
-                    this.emit(Event.LIVE_INTRO, messageData);
-                    break;
-                case 'WebcastEmoteChatMessage':
-                    this.emit(Event.EMOTE, messageData);
-                    break;
-                case 'WebcastEnvelopeMessage':
-                    this.emit(Event.ENVELOPE, messageData);
-                    break;
-                case 'WebcastSubNotifyMessage':
-                    this.emit(Event.SUBSCRIBE, messageData);
-                    break;
             }
 
         }
 
 
     }
-
 
     /**
      * Handle the error event

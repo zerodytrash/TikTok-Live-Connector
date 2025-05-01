@@ -4,8 +4,10 @@ import { simplifyObject } from '@/lib/_legacy/data-converter';
 import { WebcastPushConnection } from '@/lib';
 import { ControlEvent, Event } from '@/types/events';
 
-export * from './data-converter';
-
+/**
+ * Emits events in the same way as the original WebcastPushConnection class for backwards compatibility.
+ * Specifically, uses the data-converter.js
+ */
 export class LegacyWebcastPushConnection extends (WebcastPushConnection as new (...args: any[]) => EventEmitter & WebcastPushConnection) {
 
     protected async processWebcastResponse(webcastResponse: WebcastResponse): Promise<void> {
@@ -13,7 +15,6 @@ export class LegacyWebcastPushConnection extends (WebcastPushConnection as new (
         webcastResponse.messages.forEach((message) => {
             this.emit(ControlEvent.RAW_DATA, message.type, message.binary);
         });
-
 
         // Process and emit decoded data depending on the message type
         webcastResponse.messages

@@ -4,6 +4,7 @@ import CookieJar from '@/lib/web/lib/cookie-jar';
 import { WebcastHttpClientConfig, WebcastHttpClientRequestParams, WebcastMessage } from '@/types';
 import Config from '@/lib/config';
 import TikTokApiSdk from '@/lib/web/lib/tiktok-signer';
+import { ISignTikTokUrlBodyMethodEnum } from '@eulerstream/euler-api-sdk/dist/sdk/api';
 
 
 export default class WebcastHttpClient {
@@ -51,6 +52,21 @@ export default class WebcastHttpClient {
     }
 
     /**
+     * Set the Room ID for the client
+     * @param roomId The client's Room ID
+     */
+    public set roomId(roomId: string) {
+        this.clientParams.room_id = roomId;
+    }
+
+    /**
+     * Get the Room ID for the client
+     */
+    public get roomId() {
+        return this.clientParams.room_id || '';
+    }
+
+    /**
      * Build the URL for the request
      *
      * @param host The host for the request
@@ -79,7 +95,12 @@ export default class WebcastHttpClient {
 
         // Sign the request. Assumption is if it doesn't throw, it worked.
         if (signRequest) {
-            const signResponse = await this.tiktokApi.webcastSign(url, 'GET');
+            const signMethod = Object.values(ISignTikTokUrlBodyMethodEnum).includes(method.toUpperCase() as ISignTikTokUrlBodyMethodEnum);
+            if (!signMethod) {
+                throw new Error(`Invalid method for signing: ${method}. Must be one of ${Object.values(ISignTikTokUrlBodyMethodEnum).join(', ')}`);
+            }
+
+            const signResponse = await this.tiktokApi.webcastSign(url, method.toUpperCase() as ISignTikTokUrlBodyMethodEnum);
             url = signResponse.response.signedUrl;
             headers['User-Agent'] = signResponse.response.userAgent;
         }
@@ -94,21 +115,6 @@ export default class WebcastHttpClient {
             }
         );
 
-    }
-
-    /**
-     * Set the Room ID for the client
-     * @param roomId The client's Room ID
-     */
-    public set roomId(roomId: string) {
-        this.clientParams.room_id = roomId;
-    }
-
-    /**
-     * Get the Room ID for the client
-     */
-    public get roomId() {
-        return this.clientParams.room_id || '';
     }
 
     /**
