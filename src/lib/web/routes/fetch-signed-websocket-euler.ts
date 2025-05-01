@@ -11,7 +11,7 @@ import {
 import Config from '@/lib/config';
 import { deserializeMessage } from '@/lib';
 import { WebcastResponse } from '@/types/tiktok-schema';
-import { FetchSignedWebSocketParams } from '@/types';
+import { FetchSignedWebSocketParams } from '@/types/client';
 
 
 export type FetchSignedWebSocketFromEulerRouteParams = FetchSignedWebSocketParams;
@@ -57,8 +57,6 @@ export class FetchSignedWebSocketFromEulerRoute extends Route<FetchSignedWebSock
                     `The env var WHITELIST_AUTHENTICATED_SESSION_ID_HOST "${envHost}" does not match sign server host "${expectedHost}".`
                 );
             }
-
-            console.debug(`Using sessionId "${resolvedSessionId}" for authenticated websocket connection.`);
 
         }
 

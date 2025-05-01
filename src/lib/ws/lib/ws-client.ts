@@ -1,7 +1,7 @@
 import { client as WebSocket, connection as WebSocketConnection, Message as WebSocketMessage } from 'websocket';
 import * as http from 'node:http';
 import { BinaryWriter } from '@bufbuild/protobuf/wire';
-import { DecodedWebcastWebsocketMessage } from '@/types';
+import { DecodedWebcastWebsocketMessage } from '@/types/client';
 import { WebcastWebsocketAck } from '@/types/tiktok-schema';
 import { deserializeWebSocketMessage } from '@/lib/utilities';
 import Config from '@/lib/config';

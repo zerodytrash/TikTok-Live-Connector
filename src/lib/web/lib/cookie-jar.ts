@@ -1,4 +1,5 @@
 import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import Config from '@/lib/config';
 
 /**
  * Custom cookie jar for axios
@@ -15,7 +16,7 @@ export default class CookieJar {
      */
     constructor(
         public readonly axiosInstance: AxiosInstance,
-        public readonly cookies: Record<string, string> = {}
+        public readonly cookies: Record<string, string> = Config.DEFAULT_HTTP_CLIENT_COOKIES
     ) {
         // Intercept responses to store cookies
         this.axiosInstance.interceptors.response.use((response) => {
@@ -37,11 +38,15 @@ export default class CookieJar {
                     if (p in target) {
                         return target[p];
                     } else {
-
+                        return target.cookies[p];
                     }
                 },
                 set(target: CookieJar, p: string, value: any): boolean {
-                    target.cookies[p] = value;
+                    if (p in target) {
+                        target[p] = value;
+                    } else {
+                        target.cookies[p] = value;
+                    }
                     return true;
                 },
                 deleteProperty(target: CookieJar, p: string): boolean {
@@ -57,16 +62,16 @@ export default class CookieJar {
      * @param sessionId The session ID to set
      */
     public set sessionId(sessionId: string) {
-        this['sessionid'] = sessionId;
-        this['sessionid_ss'] = sessionId;
-        this['sid_tt'] = sessionId;
+        this.cookies['sessionid'] = sessionId;
+        this.cookies['sessionid_ss'] = sessionId;
+        this.cookies['sid_tt'] = sessionId;
     }
 
     /**
      * Get the session ID
      */
     public get sessionId() {
-        return this['sessionid'] || this['sessionid_ss'] || this['sid_tt'];
+        return this.cookies['sessionid'] || this.cookies['sessionid_ss'] || this.cookies['sid_tt'];
     }
 
     /**
@@ -143,13 +148,13 @@ export default class CookieJar {
      * Get the cookie string
      */
     public getCookieString(): string {
-        let cookieString = '';
+        let cookieParams = []
 
         for (const cookieName in this.cookies) {
-            cookieString += encodeURIComponent(cookieName) + '=' + this.cookies[cookieName] + '; ';
+            cookieParams.push(encodeURIComponent(cookieName) + '=' + this.cookies[cookieName])
         }
 
-        return cookieString;
+        return cookieParams.join('; ');
     }
 
 }

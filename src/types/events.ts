@@ -14,7 +14,7 @@ import {
     WebcastSocialMessage,
     WebcastSubNotifyMessage
 } from '@/types/tiktok-schema';
-import { RoomGiftInfo, RoomInfo, WebcastMessage } from '@/types/index';
+import { RoomGiftInfo, RoomInfo, WebcastMessage } from '@/types/client';
 
 export enum ControlEvent {
     CONNECTED = 'connected',
@@ -26,7 +26,7 @@ export enum ControlEvent {
 }
 
 
-export enum Event {
+export enum WebcastEvent {
     CHAT = 'chat',
     MEMBER = 'member',
     GIFT = 'gift',
@@ -56,24 +56,24 @@ export type EventHandler<T> = (event: T) => void | Promise<void>;
 
 export type EventMap = {
     // Message Events
-    [Event.CHAT]: EventHandler<WebcastChatMessage>
-    [Event.MEMBER]: EventHandler<WebcastMemberMessage>
-    [Event.GIFT]: EventHandler<WebcastGiftMessage>,
-    [Event.ROOM_USER]: EventHandler<WebcastRoomUserSeqMessage>,
-    [Event.SOCIAL]: EventHandler<WebcastSocialMessage>,
-    [Event.LIKE]: EventHandler<WebcastLikeMessage>,
-    [Event.QUESTION_NEW]: EventHandler<WebcastQuestionNewMessage>,
-    [Event.LINK_MIC_BATTLE]: EventHandler<WebcastLinkMicBattle>,
-    [Event.LINK_MIC_ARMIES]: EventHandler<WebcastLinkMicArmies>,
-    [Event.LIVE_INTRO]: EventHandler<WebcastLiveIntroMessage>,
-    [Event.EMOTE]: EventHandler<WebcastEmoteChatMessage>,
-    [Event.ENVELOPE]: EventHandler<WebcastEnvelopeMessage>,
-    [Event.SUBSCRIBE]: EventHandler<WebcastSubNotifyMessage>,
-    [Event.STREAM_END]: EventHandler<WebcastControlMessage>,
+    [WebcastEvent.CHAT]: EventHandler<WebcastChatMessage>
+    [WebcastEvent.MEMBER]: EventHandler<WebcastMemberMessage>
+    [WebcastEvent.GIFT]: EventHandler<WebcastGiftMessage>,
+    [WebcastEvent.ROOM_USER]: EventHandler<WebcastRoomUserSeqMessage>,
+    [WebcastEvent.SOCIAL]: EventHandler<WebcastSocialMessage>,
+    [WebcastEvent.LIKE]: EventHandler<WebcastLikeMessage>,
+    [WebcastEvent.QUESTION_NEW]: EventHandler<WebcastQuestionNewMessage>,
+    [WebcastEvent.LINK_MIC_BATTLE]: EventHandler<WebcastLinkMicBattle>,
+    [WebcastEvent.LINK_MIC_ARMIES]: EventHandler<WebcastLinkMicArmies>,
+    [WebcastEvent.LIVE_INTRO]: EventHandler<WebcastLiveIntroMessage>,
+    [WebcastEvent.EMOTE]: EventHandler<WebcastEmoteChatMessage>,
+    [WebcastEvent.ENVELOPE]: EventHandler<WebcastEnvelopeMessage>,
+    [WebcastEvent.SUBSCRIBE]: EventHandler<WebcastSubNotifyMessage>,
+    [WebcastEvent.STREAM_END]: EventHandler<WebcastControlMessage>,
 
     // Custom Events
-    [Event.FOLLOW]: EventHandler<WebcastSocialMessage>,
-    [Event.SHARE]: EventHandler<WebcastSocialMessage>,
+    [WebcastEvent.FOLLOW]: EventHandler<WebcastSocialMessage>,
+    [WebcastEvent.SHARE]: EventHandler<WebcastSocialMessage>,
 
     // Control Events
     [ControlEvent.CONNECTED]: EventHandler<WebcastPushConnectionState>,
@@ -86,18 +86,18 @@ export type EventMap = {
 };
 
 export const WebcastEventMap: Partial<Record<keyof WebcastMessage, string>> = {
-    'WebcastChatMessage': Event.CHAT,
-    'WebcastMemberMessage': Event.MEMBER,
-    'WebcastRoomUserSeqMessage': Event.ROOM_USER,
-    'WebcastSocialMessage': Event.SOCIAL,
-    'WebcastLikeMessage': Event.LIKE,
-    'WebcastQuestionNewMessage': Event.QUESTION_NEW,
-    'WebcastLinkMicBattle': Event.LINK_MIC_BATTLE,
-    'WebcastLinkMicArmies': Event.LINK_MIC_ARMIES,
-    'WebcastLiveIntroMessage': Event.LIVE_INTRO,
-    'WebcastEmoteChatMessage': Event.EMOTE,
-    'WebcastEnvelopeMessage': Event.ENVELOPE,
-    'WebcastSubNotifyMessage': Event.SUBSCRIBE
+    'WebcastChatMessage': WebcastEvent.CHAT,
+    'WebcastMemberMessage': WebcastEvent.MEMBER,
+    'WebcastRoomUserSeqMessage': WebcastEvent.ROOM_USER,
+    'WebcastSocialMessage': WebcastEvent.SOCIAL,
+    'WebcastLikeMessage': WebcastEvent.LIKE,
+    'WebcastQuestionNewMessage': WebcastEvent.QUESTION_NEW,
+    'WebcastLinkMicBattle': WebcastEvent.LINK_MIC_BATTLE,
+    'WebcastLinkMicArmies': WebcastEvent.LINK_MIC_ARMIES,
+    'WebcastLiveIntroMessage': WebcastEvent.LIVE_INTRO,
+    'WebcastEmoteChatMessage': WebcastEvent.EMOTE,
+    'WebcastEnvelopeMessage': WebcastEvent.ENVELOPE,
+    'WebcastSubNotifyMessage': WebcastEvent.SUBSCRIBE
 };
 
 

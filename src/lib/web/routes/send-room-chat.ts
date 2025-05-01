@@ -7,9 +7,10 @@ export type SendRoomChatRouteResponse = any;
 export class SendRoomChatRoute extends Route<SendRoomChatRouteParams, SendRoomChatRouteResponse> {
 
     async call({ roomId, content }) {
+        const { room_id: rId,  cursor, internal_ext, ...rest } = this.webClient.clientParams;
 
         // Assign Room ID
-        roomId ||= this.webClient.roomId;
+        roomId ||= rId;
 
         // Must have a Room ID to fetch
         if (roomId == null) {
@@ -19,13 +20,13 @@ export class SendRoomChatRoute extends Route<SendRoomChatRouteParams, SendRoomCh
         // Fetch room info
         try {
             return await this.webClient.postJsonObjectToWebcastApi(
-                '/room/chat/',
-                { ...this.webClient.clientParams, roomId: roomId, content: content },
+                'room/chat/',
+                { ...rest, room_id: roomId, content: content },
                 undefined,
                 true
             );
         } catch (err) {
-            throw new InvalidResponseError(`Failed to fetch room info. ${err.message}`, err);
+            throw new InvalidResponseError(`Failed to fetch room info. ${err.message}`);
         }
     }
 

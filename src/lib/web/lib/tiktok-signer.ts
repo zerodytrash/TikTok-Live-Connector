@@ -19,8 +19,9 @@ export default class TikTokApiSdk extends EulerStreamApiClient {
      *
      * @param url The URL to sign
      * @param method The HTTP method to use (GET, POST, etc.)
+     * @param userAgent The user agent to sign with
      */
-    public async webcastSign(url: string | URL, method: ISignTikTokUrlBodyMethodEnum): Promise<SignWebcastUrl200Response> {
+    public async webcastSign(url: string | URL, method: ISignTikTokUrlBodyMethodEnum, userAgent: string): Promise<SignWebcastUrl200Response> {
         const mustRemoveParams = ['X-Bogus', 'X-Gnarly', 'msToken'];
         let cleanUrl = typeof url === 'string' ? url : url.toString();
 
@@ -28,13 +29,12 @@ export default class TikTokApiSdk extends EulerStreamApiClient {
             cleanUrl = cleanUrl.replace(new RegExp(`([&?])${param}=[^&]*`, 'g'), '$1');
             cleanUrl = cleanUrl.replace(/[&?]$/, '');
         }
-
         // Sign the URL
         const response = await this.webcast.signWebcastUrl(
             {
                 url: cleanUrl,
                 method: method,
-                userAgent: Config.DEFAULT_REQUEST_HEADERS['User-Agent']
+                userAgent: userAgent
             }
         );
 

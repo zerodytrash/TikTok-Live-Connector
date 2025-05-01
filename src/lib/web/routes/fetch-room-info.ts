@@ -19,7 +19,7 @@ export class FetchRoomInfoRoute extends Route<RoomInfoRouteParams, RoomInfoRespo
         // Fetch room info
         try {
             return await this.webClient.getJsonObjectFromWebcastApi(
-                '/room/info/',
+                'room/info/',
                 { ...this.webClient.clientParams, roomId: roomId },
                 false
             );

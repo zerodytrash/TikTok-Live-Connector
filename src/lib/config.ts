@@ -1,7 +1,7 @@
-import { IWebcastConfig } from '@/types';
+import { IWebcastConfig } from '@/types/client';
 
 
-import { userAgentToDevicePreset } from '@/lib/utilities';
+import { generateDeviceId, userAgentToDevicePreset } from '@/lib/utilities';
 import { ClientConfiguration } from '@eulerstream/euler-api-sdk';
 import { VERSION } from '@/version';
 
@@ -178,6 +178,9 @@ const Config: IWebcastConfig = {
     TIKTOK_HOST_WEB: 'www.tiktok.com',
     TIKTOK_HOST_WEBCAST: 'webcast.tiktok.com',
     TIKTOK_HTTP_ORIGIN: 'https://www.tiktok.com',
+    DEFAULT_HTTP_CLIENT_COOKIES: {
+        'tt-target-idc': 'useast1a'
+    },
     DEFAULT_HTTP_CLIENT_PARAMS: {
         'aid': 1988,
         'app_language': Location['lang'],
@@ -191,7 +194,7 @@ const Config: IWebcastConfig = {
         'device_platform': 'web_pc',
         'focus_state': 'true',
         'from_page': 'user',
-        'history_len': '0',
+        'history_len': '10',
         'is_fullscreen': 'false',
         'is_page_visible': 'true',
         'screen_height': Screen['screen_height'],
@@ -204,8 +207,9 @@ const Config: IWebcastConfig = {
         'os': Device['os'],
         'priority_region': Location['country'],
         'region': Location['country'],
-        'user_is_login': 'false',
-        'webcast_language': Location['lang']
+        'user_is_login': 'true',
+        'webcast_language': Location['lang'],
+        'device_id': generateDeviceId(),
     },
     DEFAULT_WS_CLIENT_PARAMS: {
         'aid': 1988,
@@ -244,7 +248,11 @@ const Config: IWebcastConfig = {
         'Referer': 'https://www.tiktok.com/',
         'Origin': 'https://www.tiktok.com',
         'Accept-Language': 'en-US,en;q=0.9',
-        'Accept-Encoding': 'gzip, deflate'
+        'Accept-Encoding': 'gzip, deflate',
+        "Sec-Fetch-Site": 'same-site',
+        "Sec-Fetch-Mode": 'cors',
+        "Sec-Fetch-Dest": 'empty',
+        "Sec-Fetch-Ua-Mobile": '?0',
     },
 
     WEBCAST_VERSION_CODE: '180800'

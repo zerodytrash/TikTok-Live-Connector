@@ -16,7 +16,7 @@ export class FetchRoomInfoFromApiLiveRoute extends Route<FetchRoomInfoFromApiRou
     async call({ uniqueId }): Promise<FetchRoomInfoFromApiRouteResponse> {
 
         // Fetch object from TikTok API
-        const roomData = await this.webClient.getJsonObjectFromTikTokApi<FetchRoomInfoFromApiRouteResponse>('/api-live/user/room/', {
+        const roomData = await this.webClient.getJsonObjectFromTikTokApi<FetchRoomInfoFromApiRouteResponse>('api-live/user/room/', {
             ...this.webClient.clientParams,
             uniqueId: uniqueId,
             sourceType: '54'

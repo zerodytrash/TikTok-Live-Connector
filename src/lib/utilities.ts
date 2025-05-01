@@ -5,7 +5,7 @@ import {
     IWebcastDeserializeConfig,
     WebcastEventMessage,
     WebcastMessage
-} from '@/types';
+} from '@/types/client';
 import * as zlib from 'node:zlib';
 import * as util from 'node:util';
 import { InvalidSchemaNameError, InvalidUniqueIdError } from '@/types/errors';
@@ -112,4 +112,12 @@ export function userAgentToDevicePreset(userAgent: string): DevicePreset {
         browser_platform: userAgent.includes('Macintosh') ? 'MacIntel' : 'Win32',
         os: userAgent.includes('Macintosh') ? 'mac' : 'windows'
     };
+}
+
+export function generateDeviceId() {
+    let digits = '';
+    for (let i = 0; i < 19; i++) {
+        digits += Math.floor(Math.random() * 10);
+    }
+    return digits;
 }

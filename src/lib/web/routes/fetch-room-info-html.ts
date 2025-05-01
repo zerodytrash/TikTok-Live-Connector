@@ -12,7 +12,7 @@ const SIGI_PATTERN = /<script id="SIGI_STATE" type="application\/json">(.*?)<\/s
 export class FetchRoomInfoFromHtmlRoute extends Route<FetchRoomInfoFromHtmlRouteParams, FetchRoomInfoFromHtmlRouteResponse> {
 
     async call({ uniqueId }): Promise<FetchRoomInfoFromHtmlRouteResponse> {
-        const html = await this.webClient.getHtmlFromTikTokWebsite(`/@${uniqueId}/live`);
+        const html = await this.webClient.getHtmlFromTikTokWebsite(`@${uniqueId}/live`);
 
         const match = html.match(SIGI_PATTERN);
         if (!match || match.length < 2) {

@@ -12,14 +12,14 @@ import { EventEmitter } from 'node:events';
 import { ControlAction, WebcastControlMessage, WebcastResponse } from '@/types/tiktok-schema';
 import WebcastWsClient from '@/lib/ws/lib/ws-client';
 import Config from '@/lib/config';
-import { RoomGiftInfo, RoomInfo, WebcastPushConnectionOptions } from '@/types';
+import { RoomGiftInfo, RoomInfo, WebcastPushConnectionOptions } from '@/types/client';
 import { validateAndNormalizeUniqueId } from '@/lib/utilities';
 import { RoomInfoResponse, WebcastWebClient } from '@/lib/web';
 import TikTokSigner from '@/lib/web/lib/tiktok-signer';
 import {
     ConnectState,
     ControlEvent,
-    Event,
+    WebcastEvent,
     EventMap,
     WebcastEventMap,
     WebcastPushConnectionState
@@ -119,7 +119,7 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
 
         // Reset the client parameters
         this.clientParams.cursor = '';
-        this.clientParams.roomId = '';
+        this.clientParams.room_id = '';
         this.clientParams.internal_ext = '';
     }
 
@@ -278,12 +278,10 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
     /**
      * Sends a chat message into the current live room using the provided session cookie
      * @param content Message Content
-     * @param  sessionId The "sessionid" cookie value from your TikTok Website if not provided via the constructor options
      * @returns Promise that will be resolved when the chat message has been submitted to the API
      */
-    async sendMessage(content: string, sessionId?: string) {
-        this.webClient.cookieJar.sessionId = sessionId || this.webClient.cookieJar.sessionId;
-        this.webClient.sendRoomChat({ content });
+    async sendMessage(content: string) {
+        return this.webClient.sendRoomChat({ content });
     }
 
     /**
@@ -401,7 +399,7 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
      */
     public async fetchAvailableGifts(): Promise<RoomGiftInfo> {
         try {
-            let response = await this.webClient.getJsonObjectFromWebcastApi('/gift/list/', this.clientParams);
+            let response = await this.webClient.getJsonObjectFromWebcastApi('gift/list/', this.clientParams);
             return response.data.gifts;
         } catch (err) {
             throw new InvalidResponseError(`Failed to fetch available gifts. ${err.message}`, err);
@@ -476,7 +474,7 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
                 case 'WebcastControlMessage':
                     const controlMessage = messageData as WebcastControlMessage;
                     if (controlMessage.action === ControlAction.CONTROL_ACTION_STREAM_SUSPENDED || controlMessage.action === ControlAction.CONTROL_ACTION_STREAM_ENDED) {
-                        this.emit(Event.STREAM_END, { action: controlMessage.action });
+                        this.emit(WebcastEvent.STREAM_END, { action: controlMessage.action });
                         await this.disconnect();
                     }
                     break;
@@ -485,15 +483,15 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
                     if (Array.isArray(this.availableGifts) && messageData.giftId) {
                         messageData.extendedGiftInfo = this.availableGifts.find((x) => x.id === messageData.giftId);
                     }
-                    this.emit(Event.GIFT, messageData);
+                    this.emit(WebcastEvent.GIFT, messageData);
                     break;
                 case 'WebcastSocialMessage':
-                    this.emit(Event.SOCIAL, messageData);
+                    this.emit(WebcastEvent.SOCIAL, messageData);
                     if (messageData.displayType?.includes('follow')) {
-                        this.emit(Event.FOLLOW, messageData);
+                        this.emit(WebcastEvent.FOLLOW, messageData);
                     }
                     if (messageData.displayType?.includes('share')) {
-                        this.emit(Event.SHARE, messageData);
+                        this.emit(WebcastEvent.SHARE, messageData);
                     }
                     break;
             }

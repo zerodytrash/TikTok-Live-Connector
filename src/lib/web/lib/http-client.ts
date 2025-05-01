@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import { deserializeMessage } from '@/lib/utilities';
 import CookieJar from '@/lib/web/lib/cookie-jar';
-import { WebcastHttpClientConfig, WebcastHttpClientRequestParams, WebcastMessage } from '@/types';
+import { WebcastHttpClientConfig, WebcastHttpClientRequestParams, WebcastMessage } from '@/types/client';
 import Config from '@/lib/config';
 import TikTokApiSdk from '@/lib/web/lib/tiktok-signer';
 import { ISignTikTokUrlBodyMethodEnum } from '@eulerstream/euler-api-sdk/dist/sdk/api';
@@ -78,7 +78,7 @@ export default class WebcastHttpClient {
      * @param extraOptions Additional axios request options
      * @protected
      */
-    protected async request(
+    public async request(
         {
             host,
             path,
@@ -89,8 +89,9 @@ export default class WebcastHttpClient {
             ...extraOptions
         }: WebcastHttpClientRequestParams
     ) {
+
         // Build the initial URL
-        let secure = host.startsWith('127.0.0.1') || host.startsWith('localhost') || host.startsWith('::1');
+        let secure = !(host.startsWith('127.0.0.1') || host.startsWith('localhost') || host.startsWith('::1'));
         let url: string = `http${secure ? 's' : ''}://${host}/${path}?${new URLSearchParams(params || {})}`;
 
         // Sign the request. Assumption is if it doesn't throw, it worked.
@@ -100,16 +101,24 @@ export default class WebcastHttpClient {
                 throw new Error(`Invalid method for signing: ${method}. Must be one of ${Object.values(ISignTikTokUrlBodyMethodEnum).join(', ')}`);
             }
 
-            const signResponse = await this.tiktokApi.webcastSign(url, method.toUpperCase() as ISignTikTokUrlBodyMethodEnum);
+            const signResponse = await this.tiktokApi.webcastSign(
+                url,
+                method.toUpperCase() as ISignTikTokUrlBodyMethodEnum,
+                this.axiosInstance.defaults.headers['User-Agent'] as string
+            );
+
             url = signResponse.response.signedUrl;
+
+            headers ||= {};
             headers['User-Agent'] = signResponse.response.userAgent;
         }
+
 
         // Execute the request
         return this.axiosInstance.request(
             {
                 url: url,
-                headers: headers,
+                headers: headers ?? undefined,
                 method: method,
                 ...extraOptions
             }
@@ -160,7 +169,7 @@ export default class WebcastHttpClient {
         const fetchResponse = await this.request(
             {
                 host: Config.TIKTOK_HOST_WEBCAST,
-                path: '/webcast' + path,
+                path: 'webcast/' + path,
                 params: params,
                 signRequest: signRequest,
                 responseType: 'arraybuffer',
@@ -179,10 +188,13 @@ export default class WebcastHttpClient {
         options: Partial<WebcastHttpClientRequestParams> = {}
     ): Promise<T> {
 
+        options.headers ||= {};
+        options.headers['Content-Type'] = 'application/json; charset=UTF-8';
+
         const fetchResponse = await this.request(
             {
                 host: Config.TIKTOK_HOST_WEBCAST,
-                path: '/webcast' + path,
+                path: 'webcast/' + path,
                 data: data,
                 params: params,
                 responseType: 'json',
@@ -211,13 +223,18 @@ export default class WebcastHttpClient {
         options: Partial<WebcastHttpClientRequestParams> = {}
     ): Promise<T> {
 
+        options.headers = {};
+
         const fetchResponse = await this.request(
             {
                 host: Config.TIKTOK_HOST_WEBCAST,
-                path: '/webcast' + path,
+                path: 'webcast/' + path,
                 params: params,
                 responseType: 'json',
                 signRequest: signRequest,
+                headers: {
+                    ...options.headers
+                },
                 ...options
             }
         );
