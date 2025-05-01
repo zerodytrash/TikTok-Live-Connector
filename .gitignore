@@ -133,5 +133,6 @@ dist
 # JetBrains IDEs
 .idea
 test.ts
+publish.ts
 
 pnpm-lock.yaml
