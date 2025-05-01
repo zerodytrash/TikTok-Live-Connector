@@ -1,4 +1,4 @@
-import { Event, SignConfig, WebcastPushConnection } from './src';
+import { Event, WebcastPushConnection } from './src';
 import { configDotenv } from 'dotenv';
 
 configDotenv();

@@ -3,7 +3,7 @@ import { IWebcastConfig } from '@/types';
 
 import { userAgentToDevicePreset } from '@/lib/utilities';
 import { ClientConfiguration } from '@eulerstream/euler-api-sdk';
-import pkg from '../../package.json';
+import { VERSION } from '@/version';
 
 export type LocationPreset = {
     lang: string,
@@ -254,7 +254,7 @@ export const SignConfig: Partial<ClientConfiguration> = {
     basePath: process.env.SIGN_API_URL || 'https://tiktok.eulerstream.com',
     apiKey: process.env.SIGN_API_KEY,
     baseOptions: {
-        headers: { 'User-Agent': `${pkg.name}/${pkg.version} ${process.platform}` },
+        headers: { 'User-Agent': `tiktok-live-connector/${VERSION} ${process.platform}` },
         validateStatus: () => true
     },
 };
