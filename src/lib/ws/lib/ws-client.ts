@@ -56,6 +56,7 @@ export default class WebcastWsClient extends (WebSocket as WebSocketConstructor)
         clearInterval(this.pingInterval);
         this.pingInterval = null;
         this.connection = null;
+        this.emit('close');
     }
 
     /**
@@ -111,28 +112,18 @@ export default class WebcastWsClient extends (WebSocket as WebSocketConstructor)
      */
     public close(): Promise<void> {
 
-        // Clear interval
-        if (this.pingInterval) {
-            clearInterval(this.pingInterval);
-            this.pingInterval = null;
-        }
-
-        // Wait for the close
         return new Promise((resolve) => {
+            this.once("close", () => resolve());
 
-            // Close connection
+            // If connected, disconnect
             if (this.connection) {
-                this.connection.close();
-                this.connection = null;
+                this.connection.close(1000);
             }
-
             // Otherwise immediately resolve
             else {
                 resolve();
             }
 
-            // Wait for the close, then resolve
-            this.once('close', () => resolve());
         });
 
     }

@@ -250,7 +250,7 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
         const wsParams: Record<string, any> = { compress: 'gzip' };
         webcastResponse.wsParams.forEach((wsParam) => wsParams[wsParam.name] = wsParam.value);
         this.wsClient = await this.setupWebsocket(webcastResponse.wsUrl, wsParams);
-        this.emit(ControlEvent.WSCONNECTED, this.wsClient);
+        this.emit(ControlEvent.WEBSOCKET_CONNECTED, this.wsClient);
 
     }
 
@@ -258,14 +258,9 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
      * Disconnects the connection to the live stream
      */
     async disconnect(): Promise<void> {
-
-        if (!this.isConnected) {
-            return;
+        if (this.isConnected) {
+            await this.wsClient?.close();
         }
-
-        await this.wsClient?.close();
-        this.setDisconnected();
-        this.emit(ControlEvent.DISCONNECTED);
     }
 
     /**
@@ -436,15 +431,19 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
 
             // Handle the connection
             wsClient.on('connect', (ws) => {
+                clearTimeout(connectTimeout);
                 ws.on('error', (e: any) => this.handleError(e, 'WebSocket Error'));
-                ws.on('close', () => this.disconnect());
+                ws.on('close', () => {
+                    this.setDisconnected();
+                    this.emit(ControlEvent.DISCONNECTED);
+                });
                 resolve(wsClient);
             });
 
             wsClient.on('connectFailed', (err: any) => reject(`Websocket connection failed, ${err}`));
             wsClient.on('webcastResponse', (msg: WebcastResponse) => this.processWebcastResponse(msg));
             wsClient.on('messageDecodingFailed', (err: any) => this.handleError(err, 'Websocket message decoding failed'));
-            setTimeout(() => reject('Websocket not responding'), 20_000);
+            const connectTimeout = setTimeout(() => reject('Websocket not responding'), 20_000);
         });
     }
 
@@ -461,7 +460,7 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
 
             // Emit a decoded data event
             this.emit(
-                ControlEvent.DECODEDDATA,
+                ControlEvent.DECODED_DATA,
                 message.type, message.decodedData || {},
                 message.binary
             );

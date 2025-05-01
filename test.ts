@@ -1,4 +1,4 @@
-import { SignConfig, WebcastPushConnection } from './src/';
+import { Event, SignConfig, WebcastPushConnection } from './src';
 import { configDotenv } from 'dotenv';
 
 configDotenv();
@@ -17,6 +17,12 @@ const client = new WebcastPushConnection('tv_asahi_news', {
 client.waitUntilLive().then(async () => {
     await client.connect();
     console.log('Connected!');
+    await client.disconnect();
+    console.log('Disconnected!');
+});
+
+client.on(Event.MEMBER, (event) => {
+    console.log('A user joined:', event.user.uniqueId);
 });
 
 

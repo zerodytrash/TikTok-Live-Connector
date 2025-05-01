@@ -20,7 +20,7 @@ export class LegacyWebcastPushConnection extends (WebcastPushConnection as new (
         webcastResponse.messages
             .forEach((message) => {
                 let simplifiedObj = simplifyObject(message.decodedData || {});
-                this.emit(ControlEvent.DECODEDDATA, message.type, simplifiedObj, message.binary);
+                this.emit(ControlEvent.DECODED_DATA, message.type, simplifiedObj, message.binary);
 
                 switch (message.type) {
                     case 'WebcastControlMessage':
@@ -29,7 +29,7 @@ export class LegacyWebcastPushConnection extends (WebcastPushConnection as new (
                         // 4 = Stream terminated by platform moderator (ban)
                         const action = (message.decodedData as WebcastControlMessage).action;
                         if ([3, 4].includes(action)) {
-                            this.emit(ControlEvent.STREAM_END, { action });
+                            this.emit(Event.STREAM_END, { action });
                             this.disconnect();
                         }
                         break;

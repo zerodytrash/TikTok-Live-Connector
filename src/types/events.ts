@@ -21,8 +21,8 @@ export enum ControlEvent {
     DISCONNECTED = 'disconnected',
     ERROR = 'error',
     RAW_DATA = 'rawData',
-    DECODEDDATA = 'decodedData',
-    WSCONNECTED = 'websocketConnected'
+    DECODED_DATA = 'decodedData',
+    WEBSOCKET_CONNECTED = 'websocketConnected'
 }
 
 
@@ -80,8 +80,8 @@ export type EventMap = {
     [ControlEvent.DISCONNECTED]: EventHandler<void>,
     [ControlEvent.ERROR]: EventHandler<any>,
     [ControlEvent.RAW_DATA]: (type: string, data: Uint8Array) => void | Promise<void>;
-    [ControlEvent.DECODEDDATA]: (type: string, event: any, data: Uint8Array) => void | Promise<void>;
-    [ControlEvent.WSCONNECTED]: EventHandler<any>
+    [ControlEvent.DECODED_DATA]: (type: string, event: any, data: Uint8Array) => void | Promise<void>;
+    [ControlEvent.WEBSOCKET_CONNECTED]: EventHandler<any>
 
 };
 
