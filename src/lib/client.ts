@@ -168,8 +168,9 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
     /**
      * Connects to the live stream of the specified streamer
      * @param roomId Room ID to connect to. If not specified, the room ID will be retrieved from the TikTok API
+     * @returns The current connection state
      */
-    async connect(roomId?: string): Promise<void> {
+    async connect(roomId?: string): Promise<WebcastPushConnectionState> {
 
         switch (this._connectState) {
             case ConnectState.CONNECTED:
@@ -185,6 +186,7 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
                     await this._connect(roomId);
                     this._connectState = ConnectState.CONNECTED;
                     this.emit(ControlEvent.CONNECTED, this.getState());
+                    return this.getState();
                 } catch (err) {
                     this._connectState = ConnectState.DISCONNECTED;
                     this.handleError(err, 'Error while connecting');
