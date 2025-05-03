@@ -12,7 +12,7 @@ export * from './routes';
 export * from './lib';
 
 // Export a wrapper that brings it all together
-export class WebcastWebClient extends WebcastHttpClient {
+export class TikTokWebClient extends WebcastHttpClient {
 
     // TikTok-based routes
     public readonly fetchRoomInfo: FetchRoomInfoRoute;

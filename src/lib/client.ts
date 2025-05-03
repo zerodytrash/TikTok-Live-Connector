@@ -10,11 +10,11 @@ import {
 import TypedEventEmitter from 'typed-emitter';
 import { EventEmitter } from 'node:events';
 import { ControlAction, WebcastControlMessage, WebcastResponse } from '@/types/tiktok-schema';
-import WebcastWsClient from '@/lib/ws/lib/ws-client';
+import TikTokWsClient from '@/lib/ws/lib/ws-client';
 import Config from '@/lib/config';
 import { RoomGiftInfo, RoomInfo, TikTokLiveConnectionOptions } from '@/types/client';
 import { validateAndNormalizeUniqueId } from '@/lib/utilities';
-import { RoomInfoResponse, WebcastWebClient } from '@/lib/web';
+import { RoomInfoResponse, TikTokWebClient } from '@/lib/web';
 import { EulerSigner } from '@/lib/web/lib/tiktok-signer';
 import {
     ConnectState,
@@ -29,8 +29,8 @@ import {
 export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventEmitter<EventMap>) {
 
     // Public properties
-    public webClient: WebcastWebClient;
-    public wsClient: WebcastWsClient | null = null;
+    public webClient: TikTokWebClient;
+    public wsClient: TikTokWsClient | null = null;
 
     // Protected properties
     protected _roomInfo: RoomInfo | null = null;
@@ -91,7 +91,7 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
             ...options
         };
 
-        this.webClient = new WebcastWebClient(
+        this.webClient = new TikTokWebClient(
             {
                 customHeaders: this.options?.requestHeaders || {},
                 axiosOptions: this.options?.requestOptions,
@@ -416,11 +416,11 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
      * @returns Promise that will be resolved when the WebSocket connection is established
      * @protected
      */
-    protected async setupWebsocket(wsUrl: string, wsParams: Record<string, string>): Promise<WebcastWsClient> {
-        return new Promise<WebcastWsClient>((resolve, reject) => {
+    protected async setupWebsocket(wsUrl: string, wsParams: Record<string, string>): Promise<TikTokWsClient> {
+        return new Promise<TikTokWsClient>((resolve, reject) => {
 
             // Instantiate the client
-            const wsClient = new WebcastWsClient(
+            const wsClient = new TikTokWsClient(
                 wsUrl,
                 this.webClient.cookieJar,
                 { ...this.clientParams, ...Config.DEFAULT_WS_CLIENT_PARAMS, ...wsParams },

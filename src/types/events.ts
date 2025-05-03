@@ -16,7 +16,7 @@ import {
     WebcastSubNotifyMessage
 } from '@/types/tiktok-schema';
 import { RoomGiftInfo, RoomInfo, WebcastMessage } from '@/types/client';
-import WebcastWsClient from '@/lib/ws/lib/ws-client';
+import TikTokWsClient from '@/lib/ws/lib/ws-client';
 
 export enum ControlEvent {
     CONNECTED = 'connected',
@@ -83,7 +83,7 @@ export type EventMap = {
     [ControlEvent.ERROR]: EventHandler<any>,
     [ControlEvent.RAW_DATA]: (type: string, data: Uint8Array) => void | Promise<void>;
     [ControlEvent.DECODED_DATA]: (type: string, event: any, binary: Uint8Array) => void | Promise<void>;
-    [ControlEvent.WEBSOCKET_CONNECTED]: EventHandler<WebcastWsClient>
+    [ControlEvent.WEBSOCKET_CONNECTED]: EventHandler<TikTokWsClient>
 
 };
 

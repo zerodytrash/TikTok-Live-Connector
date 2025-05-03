@@ -21,7 +21,7 @@ type TypedWebSocket = WebSocket & TypedEventEmitter<EventMap>;
 type WebSocketConstructor = new () => TypedWebSocket;
 
 
-export default class WebcastWsClient extends (WebSocket as WebSocketConstructor) {
+export default class TikTokWsClient extends (WebSocket as WebSocketConstructor) {
     public connection: WebSocketConnection | null;
     protected pingInterval: NodeJS.Timeout | null;
     protected wsHeaders: Record<string, string>;

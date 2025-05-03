@@ -146,14 +146,14 @@ const tikTokLiveConnection = new TikTokLiveConnection(tiktokUsername, {
 
 | Property Name                          | Description                                                                                                                               |
 |----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| webClient: `WebcastWebClient`          | An API wrapper for TikTok with routes for scraping the TikTok site & internal APIs. This is used to fetch the initial data and room info. |
-| wsClient: `WebcastWsClient \| null`    | The WebSocket client object. This manages the lifecycle of the WebSocket connection to TikTok, and is where all events originate from.    |
+| webClient: `TikTokWebClient`           | An API wrapper for TikTok with routes for scraping the TikTok site & internal APIs. This is used to fetch the initial data and room info. |
+| wsClient: `TikTokWsClient \| null`     | The WebSocket client object. This manages the lifecycle of the WebSocket connection to TikTok, and is where all events originate from.    |
 | options: `TikTokLiveConnectionOptions` | Options described in [Params and Options](#params-and-options)                                                                            |
 | roomInfo: `RoomInfoResponse`           | The room info object. This contains all information about the current room.                                                               |
 | availableGifts: `RoomGiftInfo`         | The list of available gifts. This is only filled if `enableExtendedGiftInfo` is set to `true`.                                            |
 | isConnecting: `boolean`                | Indicates whether the connection is currently being established.                                                                          |
 | isConnected: `boolean`                 | Indicates whether the connection is currently established.                                                                                |
-| clientParams: `Record<string, string>` | Base URI parameters that are sent with every request of `WebcastWebClient`.<br/>                                                          |
+| clientParams: `Record<string, string>` | Base URI parameters that are sent with every request of `TikTokWebClient`.<br/>                                                           |
 | roomId: `string`                       | The current room id. This is only available after a successful connection.                                                                |
 | state: `TikTokLiveConnectionState`     | The current state of the connection. Includes info such as connection status, Room Id, room info, etc.                                    |
 
@@ -173,7 +173,7 @@ SignConfig.baseOptions.headers['X-Custom-Header'] = 'Custom-Header-Value'
 
 ## Accessing TikTok LIVE Routes
 
-The `WebcastWebClient` object is used to access TikTok's internal API routes. This object is available via
+The `TikTokWebClient` object is used to access TikTok's internal API routes. This object is available via
 the `webClient` property of the `TikTokLiveConnection` object.
 
 The following routes come bundled with the web client:
@@ -202,7 +202,7 @@ connection.webClient.fetchRoomInfoFromHtml({ uniqueId: uniqueId })
 
 ## Accessing 3rd-Party Routes
 
-The `WebcastWebClient` comes bundled with an instance of `EulerSigner`, a 3rd-party library that provides the WebSocket
+The `TikTokWebClient` comes bundled with an instance of `EulerSigner`, a 3rd-party library that provides the WebSocket
 connection URL used to
 connect to TikTok LIVE.
 
@@ -240,10 +240,10 @@ give the user your API key. Instead, you can create a JWT for the user to connec
 First, generate the JWT and return it to your user:
 
 ```ts
-import { SignConfig, WebcastWebClient } from './src';
+import { SignConfig, TikTokWebClient } from './src';
 
 SignConfig.apiKey = 'your_api_key_here';
-const connection = new WebcastWebClient();
+const connection = new TikTokWebClient();
 
 connection.webSigner.authentication.createJWT(
     122, // Your account ID
@@ -816,7 +816,7 @@ connection.on(ControlEvent.DECODED_DATA, (event: string, decodedData: any, binar
 Will be triggered as soon as a WebSocket connection is established. The WebSocket client object is passed.
 
 ```ts
-connection.on(ControlEvent.WEBSOCKET_CONNECTED, (client: WebcastWsClient) => {
+connection.on(ControlEvent.WEBSOCKET_CONNECTED, (client: TikTokWsClient) => {
     console.log('WebSocket Client:', websocketClient.connection);
 });
 ```
