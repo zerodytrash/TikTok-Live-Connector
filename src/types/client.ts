@@ -3,7 +3,7 @@ import { MessageFns, WebcastResponse, WebcastWebsocketMessage } from './tiktok-s
 import { AxiosRequestConfig } from 'axios';
 import TikTokSigner from '@/lib/web/lib/tiktok-signer';
 
-export type WebcastPushConnectionOptions = {
+export type TikTokLiveConnectionOptions = {
     processInitialData: boolean;
     fetchRoomInfoOnConnect: boolean;
     enableExtendedGiftInfo: boolean;
@@ -46,7 +46,7 @@ export type WebcastHttpClientConfig = {
     webSigner?: TikTokSigner;
 }
 
-export interface WebcastPushConnectionWebSocketParams extends Record<string, any> {
+export interface TikTokLiveConnectionWebSocketParams extends Record<string, any> {
     compress?: string;
 }
 

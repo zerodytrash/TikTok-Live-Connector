@@ -12,7 +12,7 @@ import { EventEmitter } from 'node:events';
 import { ControlAction, WebcastControlMessage, WebcastResponse } from '@/types/tiktok-schema';
 import WebcastWsClient from '@/lib/ws/lib/ws-client';
 import Config from '@/lib/config';
-import { RoomGiftInfo, RoomInfo, WebcastPushConnectionOptions } from '@/types/client';
+import { RoomGiftInfo, RoomInfo, TikTokLiveConnectionOptions } from '@/types/client';
 import { validateAndNormalizeUniqueId } from '@/lib/utilities';
 import { RoomInfoResponse, WebcastWebClient } from '@/lib/web';
 import TikTokSigner from '@/lib/web/lib/tiktok-signer';
@@ -22,11 +22,11 @@ import {
     WebcastEvent,
     EventMap,
     WebcastEventMap,
-    WebcastPushConnectionState
+    TikTokLiveConnectionState
 } from '@/types/events';
 
 
-export class WebcastPushConnection extends (EventEmitter as new () => TypedEventEmitter<EventMap>) {
+export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventEmitter<EventMap>) {
 
     // Public properties
     public webClient: WebcastWebClient;
@@ -36,10 +36,10 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
     protected _roomInfo: RoomInfo | null = null;
     protected _availableGifts: Record<any, any> | null = null;
     protected _connectState: ConnectState = ConnectState.DISCONNECTED;
-    public readonly options: WebcastPushConnectionOptions;
+    public readonly options: TikTokLiveConnectionOptions;
 
     /**
-     * Create a new WebcastPushConnection instance
+     * Create a new TikTokLiveConnection instance
      * @param {string} uniqueId TikTok username (from URL)
      * @param {object} [options] Connection options
      * @param {boolean} [options[].authenticateWs=false] Authenticate the WebSocket connection using the session ID from the "sessionid" cookie
@@ -64,7 +64,7 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
      */
     constructor(
         public readonly uniqueId: string,
-        options?: Partial<WebcastPushConnectionOptions>,
+        options?: Partial<TikTokLiveConnectionOptions>,
         public readonly signer?: TikTokSigner
     ) {
         super();
@@ -168,8 +168,9 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
     /**
      * Connects to the live stream of the specified streamer
      * @param roomId Room ID to connect to. If not specified, the room ID will be retrieved from the TikTok API
+     * @returns The current connection state
      */
-    async connect(roomId?: string): Promise<void> {
+    async connect(roomId?: string): Promise<TikTokLiveConnectionState> {
 
         switch (this._connectState) {
             case ConnectState.CONNECTED:
@@ -185,6 +186,7 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
                     await this._connect(roomId);
                     this._connectState = ConnectState.CONNECTED;
                     this.emit(ControlEvent.CONNECTED, this.getState());
+                    return this.getState();
                 } catch (err) {
                     this._connectState = ConnectState.DISCONNECTED;
                     this.handleError(err, 'Error while connecting');
@@ -266,7 +268,7 @@ export class WebcastPushConnection extends (EventEmitter as new () => TypedEvent
      * Get the current connection state including the cached room info and all available gifts
      * (if `enableExtendedGiftInfo` option enabled)
      */
-    public getState(): WebcastPushConnectionState {
+    public getState(): TikTokLiveConnectionState {
         return {
             isConnected: this.isConnected,
             roomId: this.roomId,

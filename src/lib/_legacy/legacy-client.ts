@@ -1,14 +1,14 @@
 import { WebcastControlMessage, WebcastResponse } from '@/types/tiktok-schema';
 import { EventEmitter } from 'node:events';
 import { simplifyObject } from '@/lib/_legacy/data-converter';
-import { WebcastPushConnection } from '@/lib';
+import { TikTokLiveConnection } from '@/lib';
 import { ControlEvent, WebcastEvent } from '@/types/events';
 
 /**
- * Emits events in the same way as the original WebcastPushConnection class for backwards compatibility.
- * Specifically, uses the data-converter.js
+ * The legacy WebcastPushConnection class for backwards compatibility.
+ * @deprecated Use TikTokLiveConnection instead.
  */
-export class LegacyWebcastPushConnection extends (WebcastPushConnection as new (...args: any[]) => EventEmitter & WebcastPushConnection) {
+export class WebcastPushConnection extends (TikTokLiveConnection as new (...args: any[]) => EventEmitter & TikTokLiveConnection) {
 
     protected async processWebcastResponse(webcastResponse: WebcastResponse): Promise<void> {
 

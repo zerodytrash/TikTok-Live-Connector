@@ -76,7 +76,7 @@ export type EventMap = {
     [WebcastEvent.SHARE]: EventHandler<WebcastSocialMessage>,
 
     // Control Events
-    [ControlEvent.CONNECTED]: EventHandler<WebcastPushConnectionState>,
+    [ControlEvent.CONNECTED]: EventHandler<TikTokLiveConnectionState>,
     [ControlEvent.DISCONNECTED]: EventHandler<void>,
     [ControlEvent.ERROR]: EventHandler<any>,
     [ControlEvent.RAW_DATA]: (type: string, data: Uint8Array) => void | Promise<void>;
@@ -101,7 +101,7 @@ export const WebcastEventMap: Partial<Record<keyof WebcastMessage, string>> = {
 };
 
 
-export type WebcastPushConnectionState = {
+export type TikTokLiveConnectionState = {
     isConnected: boolean,
     roomId: string,
     roomInfo: RoomInfo | null,
