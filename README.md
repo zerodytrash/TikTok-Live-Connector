@@ -188,10 +188,11 @@ The following routes come bundled with the web client:
 ### Example Usage:
 
 All routes are callable classes that accepts a singular object with the required parameters, and return a promise
-that resolves with the route data.
+that resolves with the route data. For instance, here is how you can fetch Room Info from the page HTML:
 
 ```ts
 const connection = new TikTokLiveConnection('officialgeilegisela');
+
 connection.webClient.fetchRoomInfoFromHtml({ uniqueId: uniqueId })
     .then((response: FetchRoomInfoFromHtmlRouteResponse) => {
         console.log('Room Info:', response.data);
