@@ -2000,8 +2000,8 @@ npm i proxy-agent
 You can specify if you want to use a proxy for https requests, websockets or both:
 
 ````ts
-const { TikTokLiveConnection } = require('tiktok-live-connector');
-const ProxyAgent = require('proxy-agent');
+import { TikTokLiveConnection } from 'tiktok-live-connector';
+import ProxyAgent from 'proxy-agent';
 
 let tiktokLiveConnection = new TikTokLiveConnection('@username', {
     requestOptions: {
