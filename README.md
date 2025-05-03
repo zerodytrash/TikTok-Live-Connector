@@ -9,9 +9,9 @@ as [Members Joining](#member), [Gifts](#gift), [Subscriptions](#subscribe), [Vie
 and [Battles](#linkmicbattle) can be tracked.
 
 ![Connections](https://tiktok.eulerstream.com/analytics/pips/1?client=ttlive-node)
-![Downloads](https://img.shields.io/npm/dw/tiktok-live-connector)
+![Downloads](https://img.shields.io/npm/dw/tiktok-live-connector?style=flat&color=0274b5&alt=1)
 ![Stars](https://img.shields.io/github/stars/zerodytrash/tiktok-live-connector?style=flat&color=0274b5&alt=1)
-![Issues](https://img.shields.io/github/issues/zerodytrash/tiktok-live-connector)
+![Issues](https://img.shields.io/github/issues/zerodytrash/tiktok-live-connector?style=flat&color=0274b5&alt=1)
 
 > [!NOTE]
 > This is not an official API. It is a reverse engineering project. You are responsible for your usage of this library.
