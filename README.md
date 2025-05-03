@@ -199,7 +199,6 @@ connection.webClient.fetchRoomInfoFromHtml({ uniqueId: uniqueId })
     });
 ```
 
-
 ## Accessing 3rd-Party Routes
 
 The `WebcastWebClient` comes bundled with an instance of `EulerSigner`, a 3rd-party library that provides the WebSocket
@@ -1931,9 +1930,9 @@ connection.on(WebcastEvent.SHARE, (data) => {
 ### Retrieve Room Info
 
 ````ts
-let tiktokLiveConnection = new WebcastPushConnection('@username');
+const connection = new TikTokLiveConnection('@username');
 
-tiktokLiveConnection.getRoomInfo().then(roomInfo => {
+connection.fetchRoomInfo().then((roomInfo: RoomInfoResponse) => {
     console.log(roomInfo);
     console.log(`Stream started timestamp: ${roomInfo.create_time}, Streamer bio: ${roomInfo.owner.bio_description}`);
     console.log(`HLS URL: ${roomInfo.stream_url.hls_pull_url}`); // Can be played or recorded with e.g. VLC
@@ -1945,9 +1944,9 @@ tiktokLiveConnection.getRoomInfo().then(roomInfo => {
 ### Retrieve Available Gifts
 
 ````ts
-let tiktokLiveConnection = new WebcastPushConnection('@username');
+const connection = new TikTokLiveConnection('@username');
 
-tiktokLiveConnection.fetchAvailableGifts().then(giftList => {
+connection.fetchAvailableGifts().then((giftList: RoomGiftInfo) => {
     console.log(giftList);
     giftList.forEach(gift => {
         console.log(`id: ${gift.id}, name: ${gift.name}, cost: ${gift.diamond_count}`)
@@ -1968,8 +1967,9 @@ To get the Session ID from your account, open TikTok in your web browser and mak
 to open the developer tools. Switch to the **Application** tab and select **Cookies** on the left side. Then take the
 value of the cookie with the name **`sessionid`**.
 
-<b>WARNING: Use of this function is at your own risk. Spamming messages can lead to the suspension of your TikTok
-account. Be careful!</b>
+> [!WARNING]
+> Use of this function is at your own risk. Spamming messages can lead to the suspension of your TikTok
+> account. Be careful!
 
 ````ts
 let tiktokLiveConnection = new WebcastPushConnection('@username', {
