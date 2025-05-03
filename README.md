@@ -14,7 +14,7 @@ and [Battles](#linkmicbattle) can be tracked.
 ![Issues](https://img.shields.io/github/issues/zerodytrash/tiktok-live-connector)
 
 > [!NOTE]
-> This is not an official API. It's a reverse engineering project.
+> This is not an official API. It is a reverse engineering project. You are responsible for your usage of this library.
 
 > [!TIP]
 > An example project is available at https://tiktok-chat-reader.zerody.one/ - [View Source](https://github.com/zerodytrash/TikTok-Chat-Reader)
