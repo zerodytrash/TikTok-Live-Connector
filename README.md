@@ -55,7 +55,7 @@ and [Battles](#linkmicbattle) can be tracked.
 
 1. Install the package via NPM
 
-```
+```bash
 npm i tiktok-live-connector
 ```
 
