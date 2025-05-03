@@ -28,13 +28,13 @@ and [Battles](#linkmicbattle) can be tracked.
 ### Do you prefer other programming languages?
 
 - **Python** rewrite: [TikTokLive](https://github.com/isaackogan/TikTokLive)
-  by [@isaackogan](https://github.com/isaackogan)
+  by [@isaackogan](https://github.com/isaackogan) and [@eulerstream](https://github.com/eulerstream/)
 - **Java** rewrite: [TikTokLiveJava](https://github.com/jwdeveloper/TikTokLiveJava)
-  by [@jwdeveloper](https://github.com/jwdeveloper)
+  by [@jwdeveloper](https://github.com/jwdeveloper) and [@kohlerpop1](https://github.com/kohlerpop1)
+- **Go** rewrite: [GoTikTokLive](https://github.com/steampoweredtaco/gotiktoklive)
+  by [@steampoweredtaco](https://github.com/steampoweredtaco) and [@davincible](https://github.com/davincible)
 - **C#** rewrite: [TikTokLiveSharp](https://github.com/frankvHoof93/TikTokLiveSharp)
   by [@frankvHoof93](https://github.com/frankvHoof93)
-- **Go** rewrite: [GoTikTokLive](https://github.com/Davincible/gotiktoklive)
-  by [@Davincible](https://github.com/Davincible)
 
 ### Table of Contents
 
