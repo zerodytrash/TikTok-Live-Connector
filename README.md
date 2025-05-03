@@ -1984,11 +1984,10 @@ let connection = new TikTokLiveConnection('@username', {
 // Connect as per usual
 ````
 
-## Contributing
+## Contributors
 
-Your improvements are welcome! Feel free to open
-an <a href="https://github.com/zerodytrash/TikTok-Live-Connector/issues">issue</a>
-or <a href="https://github.com/zerodytrash/TikTok-Live-Connector/pulls">pull request</a>.
+* **Zerody** - *Initial Reverse-Engineering and Protobuf-Decoding* - [Zerody](https://github.com/zerodytrash/)
+* **Isaac Kogan** - *TypeScript Rewrite, Sign-Server Maintainer* - [isaackogan](https://github.com/isaackogan)
 
 ## License
 
