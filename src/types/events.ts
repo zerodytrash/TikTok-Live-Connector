@@ -1,4 +1,5 @@
 import {
+    ControlAction,
     WebcastChatMessage,
     WebcastControlMessage,
     WebcastEmoteChatMessage,
@@ -15,6 +16,7 @@ import {
     WebcastSubNotifyMessage
 } from '@/types/tiktok-schema';
 import { RoomGiftInfo, RoomInfo, WebcastMessage } from '@/types/client';
+import WebcastWsClient from '@/lib/ws/lib/ws-client';
 
 export enum ControlEvent {
     CONNECTED = 'connected',
@@ -69,7 +71,7 @@ export type EventMap = {
     [WebcastEvent.EMOTE]: EventHandler<WebcastEmoteChatMessage>,
     [WebcastEvent.ENVELOPE]: EventHandler<WebcastEnvelopeMessage>,
     [WebcastEvent.SUBSCRIBE]: EventHandler<WebcastSubNotifyMessage>,
-    [WebcastEvent.STREAM_END]: EventHandler<WebcastControlMessage>,
+    [WebcastEvent.STREAM_END]: (event: {action: ControlAction}) => void | Promise<void>,
 
     // Custom Events
     [WebcastEvent.FOLLOW]: EventHandler<WebcastSocialMessage>,
@@ -80,8 +82,8 @@ export type EventMap = {
     [ControlEvent.DISCONNECTED]: EventHandler<void>,
     [ControlEvent.ERROR]: EventHandler<any>,
     [ControlEvent.RAW_DATA]: (type: string, data: Uint8Array) => void | Promise<void>;
-    [ControlEvent.DECODED_DATA]: (type: string, event: any, data: Uint8Array) => void | Promise<void>;
-    [ControlEvent.WEBSOCKET_CONNECTED]: EventHandler<any>
+    [ControlEvent.DECODED_DATA]: (type: string, event: any, binary: Uint8Array) => void | Promise<void>;
+    [ControlEvent.WEBSOCKET_CONNECTED]: EventHandler<WebcastWsClient>
 
 };
 

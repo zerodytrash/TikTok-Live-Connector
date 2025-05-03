@@ -7,7 +7,7 @@ export type FetchRoomIdFromEulerRouteParams = { uniqueId: string, options?: Axio
 export class FetchRoomIdFromEulerRoute extends Route<FetchRoomIdFromEulerRouteParams, IWebcastRoomIdRouteResponse> {
 
     async call({ uniqueId, options }): Promise<IWebcastRoomIdRouteResponse> {
-        const fetchResponse = await this.webClient.tiktokApi.webcast.retrieveRoomId(uniqueId, options);
+        const fetchResponse = await this.webClient.webSigner.webcast.retrieveRoomId(uniqueId, options);
         return fetchResponse.data;
     }
 

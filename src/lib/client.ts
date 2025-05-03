@@ -15,7 +15,7 @@ import Config from '@/lib/config';
 import { RoomGiftInfo, RoomInfo, TikTokLiveConnectionOptions } from '@/types/client';
 import { validateAndNormalizeUniqueId } from '@/lib/utilities';
 import { RoomInfoResponse, WebcastWebClient } from '@/lib/web';
-import TikTokSigner from '@/lib/web/lib/tiktok-signer';
+import { EulerSigner } from '@/lib/web/lib/tiktok-signer';
 import {
     ConnectState,
     ControlEvent,
@@ -54,17 +54,16 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
      * @param {object} [options[].websocketHeaders={}] Custom request headers for websocket.client
      * @param {object} [options[].requestOptions={}] Custom request options for axios. Here you can specify an `httpsAgent` to use a proxy and a `timeout` value for example.
      * @param {object} [options[].websocketOptions={}] Custom request options for websocket.client. Here you can specify an `agent` to use a proxy and a `timeout` value for example.
-     * @param {object} [options[].signProviderOptions={}] Custom request options for the TikTok signing server. Here you can specify a `host`, `params`, and `headers`.
      * @param {string[]} [options[].preferredAgentIds=[]] Preferred agent IDs to use for the WebSocket connection. If not specified, the default agent IDs will be used.
      * @param {boolean} [options[].connectWithUniqueId=false] Connect to the live stream using the unique ID instead of the room ID. If `true`, the room ID will be fetched from the TikTok API.
      * @param {boolean} [options[].logFetchFallbackErrors=false] Log errors when falling back to the API or Euler source
      * @param {function} [options[].signedWebSocketProvider] Custom function to fetch the signed WebSocket URL. If not specified, the default function will be used.
-     * @param {TikTokSigner} [signer] TikTok Signer instance. If not provided, a new instance will be created using the provided options
+     * @param {EulerSigner} [signer] TikTok Signer instance. If not provided, a new instance will be created using the provided options
      */
     constructor(
         public readonly uniqueId: string,
         options?: Partial<TikTokLiveConnectionOptions>,
-        public readonly signer?: TikTokSigner
+        public readonly signer?: EulerSigner
     ) {
         super();
 
@@ -461,7 +460,8 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
             // Emit a decoded data event
             this.emit(
                 ControlEvent.DECODED_DATA,
-                message.type, message.decodedData || {},
+                message.type,
+                message.decodedData || {},
                 message.binary
             );
 

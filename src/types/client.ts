@@ -1,7 +1,6 @@
 import * as tikTokSchema from './tiktok-schema';
 import { MessageFns, WebcastResponse, WebcastWebsocketMessage } from './tiktok-schema';
 import { AxiosRequestConfig } from 'axios';
-import TikTokSigner from '@/lib/web/lib/tiktok-signer';
 
 export type TikTokLiveConnectionOptions = {
     processInitialData: boolean;
@@ -41,7 +40,6 @@ export type WebcastHttpClientConfig = {
     axiosOptions: AxiosRequestConfig;
     clientParams: Record<string, string>;
     authenticateWs?: boolean;
-    webSigner?: TikTokSigner;
 }
 
 export interface TikTokLiveConnectionWebSocketParams extends Record<string, any> {

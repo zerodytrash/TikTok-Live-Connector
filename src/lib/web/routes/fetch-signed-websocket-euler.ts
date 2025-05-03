@@ -44,7 +44,7 @@ export class FetchSignedWebSocketFromEulerRoute extends Route<FetchSignedWebSock
 
         if (this.webClient.configuration.authenticateWs && resolvedSessionId) {
             const envHost = process.env.WHITELIST_AUTHENTICATED_SESSION_ID_HOST;
-            const expectedHost = new URL(this.webClient.tiktokApi.configuration.basePath).host;
+            const expectedHost = new URL(this.webClient.webSigner.configuration.basePath).host;
 
             if (!envHost) {
                 throw new AuthenticatedWebSocketConnectionError(
@@ -62,7 +62,7 @@ export class FetchSignedWebSocketFromEulerRoute extends Route<FetchSignedWebSock
 
         let response: AxiosResponse<ArrayBuffer>;
         try {
-            response = await this.webClient.tiktokApi.webcast.fetchWebcastURL(
+            response = await this.webClient.webSigner.webcast.fetchWebcastURL(
                 'ttlive-node',
                 roomId,
                 uniqueId,

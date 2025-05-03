@@ -7,7 +7,7 @@ export type FetchRoomInfoFromEulerRouteParams = { uniqueId: string, options?: Ax
 export class FetchRoomInfoFromEulerRoute extends Route<FetchRoomInfoFromEulerRouteParams, IWebcastRoomInfoRouteResponse> {
 
     async call({ uniqueId, options }): Promise<IWebcastRoomInfoRouteResponse> {
-        const fetchResponse = await this.webClient.tiktokApi.webcast.retrieveRoomInfo(uniqueId, options);
+        const fetchResponse = await this.webClient.webSigner.webcast.retrieveRoomInfo(uniqueId, options);
         return fetchResponse.data;
     }
 

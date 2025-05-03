@@ -3,12 +3,12 @@ import { PremiumFeatureError, SignatureMissingTokensError } from '@/types/errors
 import EulerStreamApiClient, { ClientConfiguration, SignWebcastUrl200Response } from '@eulerstream/euler-api-sdk';
 import { ISignTikTokUrlBodyMethodEnum } from '@eulerstream/euler-api-sdk/dist/sdk/api';
 import { SignConfig } from '@/lib';
-import Config from '@/lib/config';
+
 
 /**
  * TikTok Signer class
  */
-export default class TikTokApiSdk extends EulerStreamApiClient {
+export class EulerSigner extends EulerStreamApiClient  {
 
     constructor(config: Partial<ClientConfiguration> = {}) {
         super({ ...SignConfig, ...config });

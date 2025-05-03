@@ -3,8 +3,8 @@ import { deserializeMessage } from '@/lib/utilities';
 import CookieJar from '@/lib/web/lib/cookie-jar';
 import { WebcastHttpClientConfig, WebcastHttpClientRequestParams, WebcastMessage } from '@/types/client';
 import Config from '@/lib/config';
-import TikTokApiSdk from '@/lib/web/lib/tiktok-signer';
 import { ISignTikTokUrlBodyMethodEnum } from '@eulerstream/euler-api-sdk/dist/sdk/api';
+import { EulerSigner } from '@/lib';
 
 
 export default class WebcastHttpClient {
@@ -25,7 +25,7 @@ export default class WebcastHttpClient {
             clientParams: {},
             authenticateWs: false
         },
-        public readonly tiktokApi: TikTokApiSdk = new TikTokApiSdk()
+        public readonly webSigner: EulerSigner = new EulerSigner()
     ) {
 
         this.axiosInstance = axios.create({
@@ -101,7 +101,7 @@ export default class WebcastHttpClient {
                 throw new Error(`Invalid method for signing: ${method}. Must be one of ${Object.values(ISignTikTokUrlBodyMethodEnum).join(', ')}`);
             }
 
-            const signResponse = await this.tiktokApi.webcastSign(
+            const signResponse = await this.webSigner.webcastSign(
                 url,
                 method.toUpperCase() as ISignTikTokUrlBodyMethodEnum,
                 this.axiosInstance.defaults.headers['User-Agent'] as string
