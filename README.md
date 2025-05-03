@@ -175,15 +175,15 @@ SignConfig.baseOptions.headers['X-Custom-Header'] = 'Custom-Header-Value'
 The `WebcastWebClient` object is used to access TikTok's internal API routes. This object is available via
 the `webClient` property of the `TikTokLiveConnection` object.
 
-The following routes come bundled with the client:
+The following routes come bundled with the web client:
 
-- `connection.webClient.fetchRoomInfo` - FetchRoomInfoRoute
-- `connection.webClient.sendRoomChat` - SendRoomChatRoute
-- `connection.webClient.fetchRoomInfoFromApiLive` - FetchRoomInfoFromApiLiveRoute
-- `connection.webClient.fetchRoomInfoFromHtml` - FetchRoomInfoFromHtmlRoute
-- `connection.webClient.fetchSignedWebSocketFromEuler` FetchSignedWebSocketFromEulerRoute
-- `connection.webClient.fetchRoomIdFromEuler` - FetchRoomIdFromEulerRoute
-- `connection.webClient.fetchRoomInfoFromEuler` - FetchRoomInfoFromEulerRoute
+- `connection.webClient.fetchRoomInfo`
+- `connection.webClient.sendRoomChat`
+- `connection.webClient.fetchRoomInfoFromApiLive`
+- `connection.webClient.fetchRoomInfoFromHtml`
+- `connection.webClient.fetchSignedWebSocketFromEuler`
+- `connection.webClient.fetchRoomIdFromEuler`
+- `connection.webClient.fetchRoomInfoFromEuler`
 
 ### Example Usage:
 
@@ -229,8 +229,7 @@ connection.webClient.webSigner.webcast.getRateLimits()
 ### Example 2: Using JWT Authentication
 
 If you intend to run the TikTok-Live-Connector in a client environment (e.g. a bundled desktop app), you won't want to
-give the user your API key.
-For these use-cases, you can create a JWT token for the user to connect to the API.
+give the user your API key. Instead, you can create a JWT for the user to connect to the API.
 
 ### Server-Side:
 
