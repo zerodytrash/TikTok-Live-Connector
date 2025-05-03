@@ -7,7 +7,6 @@ export type TikTokLiveConnectionOptions = {
     processInitialData: boolean;
     fetchRoomInfoOnConnect: boolean;
     enableExtendedGiftInfo: boolean;
-    enableWebsocketUpgrade: boolean;
     enableRequestPolling: boolean;
     requestPollingIntervalMs: number;
     sessionId: string | null;
@@ -16,7 +15,6 @@ export type TikTokLiveConnectionOptions = {
     websocketHeaders: {};
     requestOptions: {};
     websocketOptions: {};
-    signProviderOptions: {}
     authenticateWs: boolean;
     preferredAgentIds: string[];
     connectWithUniqueId: boolean;

@@ -19,10 +19,10 @@ import TikTokSigner from '@/lib/web/lib/tiktok-signer';
 import {
     ConnectState,
     ControlEvent,
-    WebcastEvent,
     EventMap,
-    WebcastEventMap,
-    TikTokLiveConnectionState
+    TikTokLiveConnectionState,
+    WebcastEvent,
+    WebcastEventMap
 } from '@/types/events';
 
 
@@ -46,7 +46,6 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
      * @param {boolean} [options[].processInitialData=true] Process the initital data which includes messages of the last minutes
      * @param {boolean} [options[].fetchRoomInfoOnConnect=false] Fetch the room info (room status, streamer info, etc.) on connect (will be returned when calling connect())
      * @param {boolean} [options[].enableExtendedGiftInfo=false] Enable this option to get extended information on 'gift' events like gift name and cost
-     * @param {boolean} [options[].enableWebsocketUpgrade=true] Use WebSocket instead of request polling if TikTok offers it
      * @param {boolean} [options[].enableRequestPolling=true] Use request polling if no WebSocket upgrade is offered. If `false` an exception will be thrown if TikTok does not offer a WebSocket upgrade.
      * @param {number} [options[].requestPollingIntervalMs=1000] Request polling interval if WebSocket is not used
      * @param {string} [options[].sessionId=null] The session ID from the "sessionid" cookie is required if you want to send automated messages in the chat.
@@ -79,7 +78,6 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
             processInitialData: true,
             fetchRoomInfoOnConnect: false,
             enableExtendedGiftInfo: false,
-            enableWebsocketUpgrade: true,
             enableRequestPolling: true,
             requestPollingIntervalMs: 1000,
             sessionId: null,
@@ -88,7 +86,6 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
             websocketHeaders: {},
             requestOptions: {},
             websocketOptions: {},
-            signProviderOptions: {},
             authenticateWs: false,
             signedWebSocketProvider: undefined,
             logFetchFallbackErrors: false,
@@ -165,6 +162,20 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
         return this.clientParams.room_id;
     }
 
+
+    /**
+     * Get the current connection state including the cached room info and all available gifts
+     * (if `enableExtendedGiftInfo` option enabled)
+     */
+    public get state(): TikTokLiveConnectionState {
+        return {
+            isConnected: this.isConnected,
+            roomId: this.roomId,
+            roomInfo: this.roomInfo,
+            availableGifts: this.availableGifts
+        };
+    }
+
     /**
      * Connects to the live stream of the specified streamer
      * @param roomId Room ID to connect to. If not specified, the room ID will be retrieved from the TikTok API
@@ -185,8 +196,8 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
                     this._connectState = ConnectState.CONNECTING;
                     await this._connect(roomId);
                     this._connectState = ConnectState.CONNECTED;
-                    this.emit(ControlEvent.CONNECTED, this.getState());
-                    return this.getState();
+                    this.emit(ControlEvent.CONNECTED, this.state);
+                    return this.state;
                 } catch (err) {
                     this._connectState = ConnectState.DISCONNECTED;
                     this.handleError(err, 'Error while connecting');
@@ -265,19 +276,6 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
     }
 
     /**
-     * Get the current connection state including the cached room info and all available gifts
-     * (if `enableExtendedGiftInfo` option enabled)
-     */
-    public getState(): TikTokLiveConnectionState {
-        return {
-            isConnected: this.isConnected,
-            roomId: this.roomId,
-            roomInfo: this.roomInfo,
-            availableGifts: this.availableGifts
-        };
-    }
-
-    /**
      * Sends a chat message into the current live room using the provided session cookie
      * @param content Message Content
      * @returns Promise that will be resolved when the chat message has been submitted to the API
@@ -288,15 +286,16 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
 
     /**
      * Fetch the room ID from the TikTok API
-     *
-     * @protected
+     * @param uniqueId Optional unique ID to use instead of the current one
      */
-    public async fetchRoomId(): Promise<string> {
+    public async fetchRoomId(uniqueId?: string): Promise<string> {
         let errors: any[] = [];
+
+        uniqueId ||= this.uniqueId;
 
         // Method 1
         try {
-            const roomInfo = await this.webClient.fetchRoomInfoFromHtml({ uniqueId: this.uniqueId });
+            const roomInfo = await this.webClient.fetchRoomInfoFromHtml({ uniqueId: uniqueId });
             const roomId = roomInfo.liveRoomUserInfo.liveRoom.roomId;
             if (!roomId) throw new Error('Failed to extract roomId from HTML.');
         } catch (ex) {
@@ -306,8 +305,10 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
 
         // Method 2 (API Fallback)
         try {
-            const roomData = await this.webClient.fetchRoomInfoFromApiLive({ uniqueId: this.uniqueId });
-            this.webClient.roomId = roomData.data.user.roomId;
+            const roomData = await this.webClient.fetchRoomInfoFromApiLive({ uniqueId: uniqueId });
+            if (this.uniqueId === uniqueId) {
+                this.webClient.roomId = roomData.data.user.roomId;
+            }
         } catch (err) {
             this.options.logFetchFallbackErrors && console.error('Failed to retrieve roomId from API source, falling back to Euler source...');
             errors.push(err);
@@ -315,7 +316,7 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
 
         // Method 3 (Euler Fallback)
         try {
-            await this.webClient.fetchRoomIdFromEuler({ uniqueId: this.uniqueId });
+            await this.webClient.fetchRoomIdFromEuler({ uniqueId: uniqueId });
         } catch (err) {
             errors.push(err);
             throw new ExtractRoomIdError(errors, `Failed to retrieve room_id from all sources. ${err.message}`);
