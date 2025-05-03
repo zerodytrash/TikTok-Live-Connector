@@ -1958,7 +1958,7 @@ connection.fetchAvailableGifts().then((giftList: RoomGiftInfo) => {
 
 ### Send Chat Messages
 
-> [!INFO]
+> [!NOTE]
 > Due to the increased signature requirements by TikTok, sending chat messages is currently not possible.
 
 You can send chat messages via the [`sendMessage()`](#methods) function to automatically respond to chat commands for
