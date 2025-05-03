@@ -6,12 +6,6 @@ This allows you to connect to your own live chat as well as the live chat of oth
 > [!NOTE]
 > This is not an official API. It's a reverse engineering project.
 
-> [!NOTE]
-> This JavaScript library is intended for use in [Node.js](https://nodejs.org/) environments. If you want to process or display the data in the browser (client-side), you need to transfer the data from the Node.js environment to the browser. A good approach for this is to use [Socket.IO](https://socket.io/) or a different low-latency communication framework. A complete example project can be found here: [TikTok-Chat-Reader](https://github.com/zerodytrash/TikTok-Chat-Reader)
-
-> [!NOTE]
-> Due to a change on the part of TikTok, versions prior **v1.1.7** are no longer functional. If you are using one of these versions, upgrade to the latest version using the `npm i tiktok-live-connector` command.
-
 > [!TIP]
 > An example project is available at https://tiktok-chat-reader.zerody.one/
 
@@ -21,6 +15,13 @@ This allows you to connect to your own live chat as well as the live chat of oth
 > - **Java** rewrite: [TikTokLiveJava](https://github.com/jwdeveloper/TikTokLiveJava) by [@jwdeveloper](https://github.com/jwdeveloper)
 > - **C#** rewrite: [TikTokLiveSharp](https://github.com/frankvHoof93/TikTokLiveSharp) by [@frankvHoof93](https://github.com/frankvHoof93)
 > - **Go** rewrite: [GoTikTokLive](https://github.com/Davincible/gotiktoklive) by [@Davincible](https://github.com/Davincible)
+
+> [!WARNING]
+> This JavaScript library is intended for use in [Node.js](https://nodejs.org/) environments. If you want to process or display the data in the browser (client-side), you need to transfer the data from the Node.js environment to the browser. A good approach for this is to use [Socket.IO](https://socket.io/) or a different low-latency communication framework. A complete example project can be found here: [TikTok-Chat-Reader](https://github.com/zerodytrash/TikTok-Chat-Reader)
+
+> [!WARNING]
+> Due to a change on the part of TikTok, versions prior **v1.1.7** are no longer functional. If you are using one of these versions, upgrade to the latest version using the `npm i tiktok-live-connector` command.
+
 
 #### Overview
 - [Getting started](#getting-started)
