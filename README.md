@@ -35,7 +35,7 @@ and [Battles](#linkmicbattle) can be tracked.
   by [@frankvHoof93](https://github.com/frankvHoof93)
 - **Go** rewrite: [GoTikTokLive](https://github.com/Davincible/gotiktoklive)
   by [@Davincible](https://github.com/Davincible)
--
+
 ### Table of Contents
 
 - [Getting Started](#getting-started)
