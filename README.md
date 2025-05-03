@@ -17,7 +17,7 @@ and [Battles](#linkmicbattle) can be tracked.
 > This is not an official API. It's a reverse engineering project.
 
 > [!TIP]
-> An example project is available at https://tiktok-chat-reader.zerody.one/ - [(Source Code)](https://github.com/zerodytrash/TikTok-Chat-Reader)
+> An example project is available at https://tiktok-chat-reader.zerody.one/ - [View Source](https://github.com/zerodytrash/TikTok-Chat-Reader)
 
 > [!WARNING]
 > This JavaScript library is intended for use in [Node.js](https://nodejs.org/) environments. If you want to process or
