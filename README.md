@@ -17,7 +17,8 @@ and [Battles](#linkmicbattle) can be tracked.
 > This is not an official API. It is a reverse engineering project. You are responsible for your usage of this library.
 
 > [!TIP]
-> An example project is available at https://tiktok-chat-reader.zerody.one/ - [View Source](https://github.com/zerodytrash/TikTok-Chat-Reader)
+> An example project is available
+> at https://tiktok-chat-reader.zerody.one/ - [View Source](https://github.com/zerodytrash/TikTok-Chat-Reader)
 
 > [!WARNING]
 > This JavaScript library is intended for use in [Node.js](https://nodejs.org/) environments. If you want to process or
@@ -764,8 +765,6 @@ client.on(
 
 </p></details>
 
-<br>
-
 ### `disconnected`
 
 Triggered when the connection gets disconnected. In that case you can call `connect()` again to have a reconnect logic.
@@ -774,8 +773,6 @@ Note that you should wait a little bit before attempting a reconnect to to avoid
 ```ts
 connection.on(ControlEvent.DISCONNECTED, () => console.log('Disconnected :('));
 ```
-
-<br>
 
 ### `streamEnd`
 
@@ -792,8 +789,6 @@ connection.on(ControlEvent.STREAM_END, ({ action }: { action: ControlAction }) =
 });
 ```
 
-<br>
-
 ### `rawData`
 
 Triggered every time a protobuf encoded webcast message arrives. You can deserialize the binary object depending on the
@@ -804,8 +799,6 @@ connection.on(ControlEvent.RAW_DATA, (messageTypeName, binary) => {
     console.log(messageTypeName, binary);
 });
 ```
-
-<br>
 
 ### `decodedData`
 
@@ -818,8 +811,6 @@ connection.on(ControlEvent.DECODED_DATA, (event: string, decodedData: any, binar
 });
 ```
 
-<br>
-
 ### `websocketConnected`
 
 Will be triggered as soon as a WebSocket connection is established. The WebSocket client object is passed.
@@ -830,8 +821,6 @@ connection.on(ControlEvent.WEBSOCKET_CONNECTED, (client: WebcastWsClient) => {
 });
 ```
 
-<br>
-
 ### `error`
 
 General error event. You should handle this.
@@ -841,8 +830,6 @@ connection.on(ControlEvent.ERROR, err => {
     console.error('Error!', err);
 });
 ```
-
-<br>
 
 ## Message Events
 
@@ -912,8 +899,6 @@ connection.on(WebcastEvent.MEMBER, (data: WebcastMemberMessage) => {
 
 </p></details>
 
-<br>
-
 ### `chat`
 
 Triggered every time a new chat comment arrives.
@@ -980,7 +965,6 @@ connection.on(WebcastEvent.CHAT, (data: WebcastChatMessage) => {
 ```
 
 </p></details>
-<br>
 
 ### `gift`
 
@@ -1083,7 +1067,6 @@ connection.on(WebcastEvent.GIFT, (event: WebcastGiftMessage) => {
 ```
 
 </p></details>
-<br>
 
 ### `roomUser`
 
@@ -1261,8 +1244,6 @@ connection.on(WebcastEvent.ROOM_USER, data => {
 
 </p></details>
 
-<br>
-
 ### `like`
 
 Triggered when a viewer sends likes to the streamer. For streams with many viewers, this event is not always triggered
@@ -1333,7 +1314,6 @@ connection.on(WebcastEvent.LIKE, data => {
 ```
 
 </p></details>
-<br>
 
 ### `social`
 
@@ -1385,7 +1365,6 @@ connection.on(WebcastEvent.SOCIAL, data => {
 ```
 
 </p></details>
-<br>
 
 ### `emote`
 
@@ -1434,7 +1413,6 @@ connection.on(WebcastEvent.EMOTE, (data: WebcastEmoteChatMessage) => {
 ```
 
 </p></details>
-<br>
 
 ### `envelope`
 
@@ -1483,7 +1461,6 @@ connection.on(WebcastEvent.ENVELOPE, data => {
 ```
 
 </p></details>
-<br>
 
 ### `questionNew`
 
@@ -1531,7 +1508,6 @@ connection.on(WebcastEvent.QUESTION_NEW, data => {
 ```
 
 </p></details>
-<br>
 
 ### `linkMicBattle`
 
@@ -1589,7 +1565,6 @@ connection.on(WebcastEvent.LINK_MIC_BATTLE, (data) => {
 ```
 
 </p></details>
-<br>
 
 ### `linkMicArmies`
 
@@ -1669,7 +1644,6 @@ connection.on(WebcastEvent.LINK_MIC_ARMIES, (data) => {
 ```
 
 </p></details>
-<br>
 
 ### `liveIntro`
 
@@ -1733,8 +1707,6 @@ connection.on(WebcastEvent.LIVE_INTRO, (msg) => {
 
 </p></details>
 
-<br>
-
 ### `subscribe`
 
 Triggers when a user creates a subscription.
@@ -1786,12 +1758,9 @@ connection.on(WebcastEvent.SUBSCRIBE, (data) => {
 
 </p></details>
 
-<br>
-
 ### Custom Events
 
 These events are based on message events.
-<br>
 
 ### `follow`
 
@@ -1857,8 +1826,6 @@ connection.on(WebcastEvent.FOLLOW, (data) => {
 ```
 
 </p></details>
-
-<br>
 
 ### `share`
 
