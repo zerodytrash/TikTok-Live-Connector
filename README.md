@@ -8,17 +8,6 @@ required. Besides [Chat Comments](#chat), other events such
 as [Members Joining](#member), [Gifts](#gift), [Subscriptions](#subscribe), [Viewers](#roomuser), [Follows](#social), [Shares](#social), [Questions](#questionnew), [Likes](#like)
 and [Battles](#linkmicbattle) can be tracked.
 
-Do you prefer other programming languages?
-
-- **Python** rewrite: [TikTokLive](https://github.com/isaackogan/TikTokLive)
-  by [@isaackogan](https://github.com/isaackogan)
-- **Java** rewrite: [TikTokLiveJava](https://github.com/jwdeveloper/TikTokLiveJava)
-  by [@jwdeveloper](https://github.com/jwdeveloper)
-- **C#** rewrite: [TikTokLiveSharp](https://github.com/frankvHoof93/TikTokLiveSharp)
-  by [@frankvHoof93](https://github.com/frankvHoof93)
-- **Go** rewrite: [GoTikTokLive](https://github.com/Davincible/gotiktoklive)
-  by [@Davincible](https://github.com/Davincible)
-
 > [!NOTE]
 > This is not an official API. It's a reverse engineering project.
 
@@ -36,6 +25,17 @@ Do you prefer other programming languages?
 > Due to a change on the part of TikTok, versions prior **v1.1.7** are no longer functional. If you are using one of
 > these versions, upgrade to the latest version using the `npm i tiktok-live-connector` command.
 
+### Do you prefer other programming languages?
+
+- **Python** rewrite: [TikTokLive](https://github.com/isaackogan/TikTokLive)
+  by [@isaackogan](https://github.com/isaackogan)
+- **Java** rewrite: [TikTokLiveJava](https://github.com/jwdeveloper/TikTokLiveJava)
+  by [@jwdeveloper](https://github.com/jwdeveloper)
+- **C#** rewrite: [TikTokLiveSharp](https://github.com/frankvHoof93/TikTokLiveSharp)
+  by [@frankvHoof93](https://github.com/frankvHoof93)
+- **Go** rewrite: [GoTikTokLive](https://github.com/Davincible/gotiktoklive)
+  by [@Davincible](https://github.com/Davincible)
+-
 ### Table of Contents
 
 - [Getting Started](#getting-started)
