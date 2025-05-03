@@ -1961,6 +1961,10 @@ connection.fetchAvailableGifts().then((giftList: RoomGiftInfo) => {
 > [!NOTE]
 > Due to the increased signature requirements by TikTok, sending chat messages is currently not possible.
 
+> [!WARNING]
+> Use of this function is at your own risk. Spamming messages can lead to the suspension of your TikTok
+> account. Be careful!
+
 You can send chat messages via the [`sendMessage()`](#methods) function to automatically respond to chat commands for
 example. For this you need to provide your Session ID.
 
@@ -1968,22 +1972,18 @@ To get the Session ID from your account, open TikTok in your web browser and mak
 to open the developer tools. Switch to the **Application** tab and select **Cookies** on the left side. Then take the
 value of the cookie with the name **`sessionid`**.
 
-> [!WARNING]
-> Use of this function is at your own risk. Spamming messages can lead to the suspension of your TikTok
-> account. Be careful!
-
 ````ts
-let tiktokLiveConnection = new TikTokLiveConnection('@username', {
+let connection = new TikTokLiveConnection('@username', {
     sessionId: 'f7fbba3a57e48dd1ecd0b7b72cb27e6f', // Replace this with the Session ID of your TikTok account
     authenticateWs: true // Supply this IF you want to connect to the websocket with your account. This is risky.
 });
 
-tiktokLiveConnection.connect().catch(err => console.log(err));
+connection.connect().catch(err => console.log(err));
 
 connection.on(WebcastEvent.CHAT, (data: WebcastChatMessage) => {
     if (data.comment.toLowerCase() === '!dice') {
         let diceResult = Math.ceil(Math.random() * 6);
-        tiktokLiveConnection.sendMessage(`@${data.uniqueId} you rolled a ${diceResult}`).catch(err => console.error(err));
+        connection.sendMessage(`@${data.uniqueId} you rolled a ${diceResult}`).catch(err => console.error(err));
     }
 })
 ````
@@ -2003,7 +2003,7 @@ You can specify if you want to use a proxy for https requests, websockets or bot
 import { TikTokLiveConnection } from 'tiktok-live-connector';
 import ProxyAgent from 'proxy-agent';
 
-let tiktokLiveConnection = new TikTokLiveConnection('@username', {
+let connection = new TikTokLiveConnection('@username', {
     requestOptions: {
         httpsAgent: new ProxyAgent('https://username:password@host:port'),
         timeout: 10000 // 10 seconds
