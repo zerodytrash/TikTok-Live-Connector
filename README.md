@@ -159,7 +159,7 @@ const tikTokLiveConnection = new TikTokLiveConnection(tiktokUsername, {
 ## Signing Configuration
 
 It is possible to configure the [3rd-party library](https://github.com/EulerStream/EulerApiSdk) used to generate
-WebSocket URLs, a process referred to as 'signing'.
+WebSocket URLs, a process referred to as 'signing'. An example is provided below:
 
 ```ts
 // SignConfig is an instance of Partial<ClientConfiguration>
@@ -174,20 +174,24 @@ SignConfig.baseOptions.headers['X-Custom-Header'] = 'Custom-Header-Value'
 
 The `WebcastWebClient` object is used to access TikTok's internal API routes. This object is available via the `webClient` property of the `TikTokLiveConnection` object.
 
-The following routes are bundled with the client:
+The following routes come bundled with the client:
 
-- `public readonly fetchRoomInfo: FetchRoomInfoRoute;`
-- `public readonly sendRoomChat: SendRoomChatRoute;`
-- `public readonly fetchRoomInfoFromApiLive: FetchRoomInfoFromApiLiveRoute;`
-- `public readonly fetchRoomInfoFromHtml: FetchRoomInfoFromHtmlRoute;`
-- `public readonly fetchSignedWebSocketFromEuler: FetchSignedWebSocketFromEulerRoute;`
-- `public readonly fetchRoomIdFromEuler: FetchRoomIdFromEulerRoute;`
-- `public readonly fetchRoomInfoFromEuler: FetchRoomInfoFromEulerRoute;`
+- `fetchRoomInfo: FetchRoomInfoRoute;`
+- `sendRoomChat: SendRoomChatRoute;`
+- `fetchRoomInfoFromApiLive: FetchRoomInfoFromApiLiveRoute;`
+- `fetchRoomInfoFromHtml: FetchRoomInfoFromHtmlRoute;`
+- `fetchSignedWebSocketFromEuler: FetchSignedWebSocketFromEulerRoute;`
+- `fetchRoomIdFromEuler: FetchRoomIdFromEulerRoute;`
+- `fetchRoomInfoFromEuler: FetchRoomInfoFromEulerRoute;`
 
 ## Accessing 3rd-Party Routes
 
 The `WebcastWebClient` comes bundled with an instance of `EulerSigner`, a 3rd-party library that provides the WebSocket connection URL used to
-connect to TikTok LIVE. This is publicly accessible via `connection.webClient.webSigner` and exposes a ton of 3rd-party routes related to TikTok LIVE.
+connect to TikTok LIVE.
+
+This is publicly accessible via `connection.webClient.webSigner` and exposes additional 3rd-party routes related to TikTok LIVE.
+
+### Example 1: Fetching Rate Limits
 
 For example, here's how you can fetch the rate limits for your current API key:
 
@@ -207,6 +211,8 @@ connection.webClient.webSigner.webcast.getRateLimits()
         console.log('Rate Limits:', response.data);
     });
 ```
+
+### Example 2: Using JWT Authentication
 
 If you intend to run the TikTok-Live-Connector in a client environment (e.g. a bundled Desktop app), you won't want to give the user your API key.
 You can create a JWT token for the user to connect to the API.
