@@ -177,13 +177,24 @@ the `webClient` property of the `TikTokLiveConnection` object.
 
 The following routes come bundled with the client:
 
-- `connection.webClient.fetchRoomInfo` - An instance of FetchRoomInfoRoute
-- `connection.webClient.sendRoomChat` - An instance of SendRoomChatRoute
-- `connection.webClient.fetchRoomInfoFromApiLive` - An instance of FetchRoomInfoFromApiLiveRoute`
-- `connection.webClient.fetchRoomInfoFromHtml` - An instance of FetchRoomInfoFromHtmlRoute`
-- `connection.webClient.fetchSignedWebSocketFromEuler` - An instance of FetchSignedWebSocketFromEulerRoute`
-- `connection.webClient.fetchRoomIdFromEuler` - An instance of FetchRoomIdFromEulerRoute`
-- `connection.webClient.fetchRoomInfoFromEuler` - An instance of FetchRoomInfoFromEulerRoute`
+- `connection.webClient.fetchRoomInfo` - FetchRoomInfoRoute
+- `connection.webClient.sendRoomChat` - SendRoomChatRoute
+- `connection.webClient.fetchRoomInfoFromApiLive` - FetchRoomInfoFromApiLiveRoute
+- `connection.webClient.fetchRoomInfoFromHtml` - FetchRoomInfoFromHtmlRoute
+- `connection.webClient.fetchSignedWebSocketFromEuler` FetchSignedWebSocketFromEulerRoute
+- `connection.webClient.fetchRoomIdFromEuler` - FetchRoomIdFromEulerRoute
+- `connection.webClient.fetchRoomInfoFromEuler` - FetchRoomInfoFromEulerRoute
+
+### Example Usage:
+
+```ts
+const connection = new TikTokLiveConnection('officialgeilegisela');
+connection.webClient.fetchRoomInfoFromHtml({ uniqueId: uniqueId })
+    .then((response: FetchRoomInfoFromHtmlRouteResponse) => {
+        console.log('Room Info:', response.data);
+    });
+```
+
 
 ## Accessing 3rd-Party Routes
 
