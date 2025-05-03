@@ -69,10 +69,10 @@ import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
 const tiktokUsername = 'officialgeilegisela';
 
 // Create a new wrapper object and pass the username
-const tiktokLiveConnection = new TikTokLiveConnection(tiktokUsername);
+const connection = new TikTokLiveConnection(tiktokUsername);
 
 // Connect to the chat (await can be used as well)
-tiktokLiveConnection.connect().then(state => {
+connection.connect().then(state => {
     console.info(`Connected to roomId ${state.roomId}`);
 }).catch(err => {
     console.error('Failed to connect', err);
