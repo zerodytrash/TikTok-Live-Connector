@@ -1973,7 +1973,7 @@ value of the cookie with the name **`sessionid`**.
 > account. Be careful!
 
 ````ts
-let tiktokLiveConnection = new WebcastPushConnection('@username', {
+let tiktokLiveConnection = new TikTokLiveConnection('@username', {
     sessionId: 'f7fbba3a57e48dd1ecd0b7b72cb27e6f', // Replace this with the Session ID of your TikTok account
     authenticateWs: true // Supply this IF you want to connect to the websocket with your account. This is risky.
 });
@@ -2000,10 +2000,10 @@ npm i proxy-agent
 You can specify if you want to use a proxy for https requests, websockets or both:
 
 ````ts
-const { WebcastPushConnection } = require('tiktok-live-connector');
+const { TikTokLiveConnection } = require('tiktok-live-connector');
 const ProxyAgent = require('proxy-agent');
 
-let tiktokLiveConnection = new WebcastPushConnection('@username', {
+let tiktokLiveConnection = new TikTokLiveConnection('@username', {
     requestOptions: {
         httpsAgent: new ProxyAgent('https://username:password@host:port'),
         timeout: 10000 // 10 seconds
