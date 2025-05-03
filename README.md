@@ -172,24 +172,27 @@ SignConfig.baseOptions.headers['X-Custom-Header'] = 'Custom-Header-Value'
 
 ## Accessing TikTok LIVE Routes
 
-The `WebcastWebClient` object is used to access TikTok's internal API routes. This object is available via the `webClient` property of the `TikTokLiveConnection` object.
+The `WebcastWebClient` object is used to access TikTok's internal API routes. This object is available via
+the `webClient` property of the `TikTokLiveConnection` object.
 
 The following routes come bundled with the client:
 
-- `fetchRoomInfo: FetchRoomInfoRoute;`
-- `sendRoomChat: SendRoomChatRoute;`
-- `fetchRoomInfoFromApiLive: FetchRoomInfoFromApiLiveRoute;`
-- `fetchRoomInfoFromHtml: FetchRoomInfoFromHtmlRoute;`
-- `fetchSignedWebSocketFromEuler: FetchSignedWebSocketFromEulerRoute;`
-- `fetchRoomIdFromEuler: FetchRoomIdFromEulerRoute;`
-- `fetchRoomInfoFromEuler: FetchRoomInfoFromEulerRoute;`
+- `connection.webClient.fetchRoomInfo` - An instance of FetchRoomInfoRoute
+- `connection.webClient.sendRoomChat` - An instance of SendRoomChatRoute
+- `connection.webClient.fetchRoomInfoFromApiLive` - An instance of FetchRoomInfoFromApiLiveRoute`
+- `connection.webClient.fetchRoomInfoFromHtml` - An instance of FetchRoomInfoFromHtmlRoute`
+- `connection.webClient.fetchSignedWebSocketFromEuler` - An instance of FetchSignedWebSocketFromEulerRoute`
+- `connection.webClient.fetchRoomIdFromEuler` - An instance of FetchRoomIdFromEulerRoute`
+- `connection.webClient.fetchRoomInfoFromEuler` - An instance of FetchRoomInfoFromEulerRoute`
 
 ## Accessing 3rd-Party Routes
 
-The `WebcastWebClient` comes bundled with an instance of `EulerSigner`, a 3rd-party library that provides the WebSocket connection URL used to
+The `WebcastWebClient` comes bundled with an instance of `EulerSigner`, a 3rd-party library that provides the WebSocket
+connection URL used to
 connect to TikTok LIVE.
 
-This is publicly accessible via `connection.webClient.webSigner` and exposes additional 3rd-party routes related to TikTok LIVE.
+This is publicly accessible via `connection.webClient.webSigner` and exposes additional 3rd-party routes related to
+TikTok LIVE.
 
 ### Example 1: Fetching Rate Limits
 
@@ -214,12 +217,13 @@ connection.webClient.webSigner.webcast.getRateLimits()
 
 ### Example 2: Using JWT Authentication
 
-If you intend to run the TikTok-Live-Connector in a client environment (e.g. a bundled Desktop app), you won't want to give the user your API key.
-You can create a JWT token for the user to connect to the API.
+If you intend to run the TikTok-Live-Connector in a client environment (e.g. a bundled desktop app), you won't want to
+give the user your API key.
+For these use-cases, you can create a JWT token for the user to connect to the API.
 
 ### Server-Side:
 
-First, generate the JWT key and return it to your user:
+First, generate the JWT and return it to your user:
 
 ```ts
 import { SignConfig, WebcastWebClient } from './src';
@@ -244,7 +248,7 @@ connection.webSigner.authentication.createJWT(
 
 ### Client-Side:
 
-Then, use the JWT token to connect to the API in the client-side NodeJS application:
+Then, use the JWT to connect to the API in the client-side NodeJS application:
 
 ```ts
 import { SignConfig } from './config';
@@ -1849,7 +1853,7 @@ Triggers when a user shares the stream. Based on `social` event.
 
 ```ts
 connection.on(WebcastEvent.SHARE, (data) => {
-console.log(data.uniqueId, "shared the stream!");
+    console.log(data.uniqueId, "shared the stream!");
 })
 ```
 
@@ -1908,8 +1912,6 @@ console.log(data.uniqueId, "shared the stream!");
 
 </p></details>
 
-<br>
-
 ## Examples
 
 ### Retrieve Room Info
@@ -1964,16 +1966,17 @@ let tiktokLiveConnection = new WebcastPushConnection('@username', {
 tiktokLiveConnection.connect().catch(err => console.log(err));
 
 connection.on(WebcastEvent.CHAT, (data: WebcastChatMessage) => {
-if (data.comment.toLowerCase() === '!dice') {
-    let diceResult = Math.ceil(Math.random() * 6);
-    tiktokLiveConnection.sendMessage(`@${data.uniqueId} you rolled a ${diceResult}`).catch(err => console.error(err));
-}
+    if (data.comment.toLowerCase() === '!dice') {
+        let diceResult = Math.ceil(Math.random() * 6);
+        tiktokLiveConnection.sendMessage(`@${data.uniqueId} you rolled a ${diceResult}`).catch(err => console.error(err));
+    }
 })
 ````
 
 ### Proxied Connection
 
-[proxy-agent](https://www.npmjs.com/package/proxy-agent) supports `http`, `https`, `socks4` and `socks5` proxies:
+It is possible to proxy connections. The library [proxy-agent](https://www.npmjs.com/package/proxy-agent)
+supports `http`, `https`, `socks4` and `socks5` proxies:
 
 ````
 npm i proxy-agent
@@ -1996,7 +1999,7 @@ let tiktokLiveConnection = new WebcastPushConnection('@username', {
     }
 });
 
-// Connect as usual
+// Connect as per usual
 ````
 
 ## Contributing
@@ -2004,3 +2007,7 @@ let tiktokLiveConnection = new WebcastPushConnection('@username', {
 Your improvements are welcome! Feel free to open
 an <a href="https://github.com/zerodytrash/TikTok-Live-Connector/issues">issue</a>
 or <a href="https://github.com/zerodytrash/TikTok-Live-Connector/pulls">pull request</a>.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
