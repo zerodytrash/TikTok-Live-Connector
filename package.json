@@ -19,14 +19,8 @@
         "url": "git+https://github.com/zerodytrash/TikTok-Live-Connector.git"
     },
     "funding": [
-        {
-            "type": "Ko-fi",
-            "url": "https://ko-fi.com/zerody"
-        },
-        {
-            "type": "Patreon",
-            "url": "https://www.patreon.com/zerody"
-        }
+        "https://buymeacoffee.com/isaackogan",
+        "https://buymeacoffee.com/zerody"
     ],
     "keywords": [
         "tiktok",
