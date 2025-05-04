@@ -1,6 +1,7 @@
 import * as tikTokSchema from './tiktok-schema';
 import { MessageFns, WebcastResponse, WebcastWebsocketMessage } from './tiktok-schema';
 import { AxiosRequestConfig } from 'axios';
+import * as http from 'node:http';
 
 export type TikTokLiveConnectionOptions = {
     processInitialData: boolean;
@@ -9,15 +10,18 @@ export type TikTokLiveConnectionOptions = {
     enableRequestPolling: boolean;
     requestPollingIntervalMs: number;
     sessionId: string | null;
-    clientParams: Record<string, string>;
-    requestHeaders: {};
-    websocketHeaders: {};
-    requestOptions: {};
-    websocketOptions: {};
     authenticateWs: boolean;
     preferredAgentIds: string[];
     connectWithUniqueId: boolean;
     logFetchFallbackErrors: boolean;
+
+    webClientParams: Record<string, string>;
+    webClientHeaders: Record<string, string>;
+    webClientOptions: AxiosRequestConfig;
+
+    wsClientHeaders: Record<string, string>;
+    wsClientParams: Record<string, string>;
+    wsClientOptions: http.RequestOptions;
 
     // Override the default websocket provider
     signedWebSocketProvider?: (props: FetchSignedWebSocketParams) => Promise<WebcastResponse>
@@ -52,16 +56,26 @@ export type DecodedWebcastWebsocketMessage = WebcastWebsocketMessage & {
 }
 
 
-export interface IWebcastConfig extends Record<string, any> {
+export interface IWebcastConfig {
     TIKTOK_HOST_WEB: string;
     TIKTOK_HOST_WEBCAST: string;
     TIKTOK_HTTP_ORIGIN: string;
-    DEFAULT_HTTP_CLIENT_PARAMS: Record<string, any>;
-    DEFAULT_WS_CLIENT_PARAMS: Record<string, any>;
-    DEFAULT_REQUEST_HEADERS: Record<string, any> & {
+
+    // HTTP Client Options
+    DEFAULT_HTTP_CLIENT_COOKIES: Record<string, string>;
+    DEFAULT_HTTP_CLIENT_PARAMS: Record<string, string>;
+    DEFAULT_HTTP_CLIENT_OPTIONS: AxiosRequestConfig;
+    DEFAULT_WS_CLIENT_PARAMS_APPEND_PARAMETER: string;
+    DEFAULT_HTTP_CLIENT_HEADERS: Record<string, string> & {
         'User-Agent': string;
     };
-    WEBCAST_VERSION_CODE: string;
+
+    // WS Client Options
+    DEFAULT_WS_CLIENT_PARAMS: Record<string, string>;
+    DEFAULT_WS_CLIENT_HEADERS: Record<string, string> & {
+        'User-Agent': string;
+    };
+
 }
 
 export interface IWebcastDeserializeConfig {

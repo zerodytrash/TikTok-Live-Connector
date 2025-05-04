@@ -30,7 +30,7 @@ export default class WebcastHttpClient {
 
         this.axiosInstance = axios.create({
             timeout: parseInt(process.env.TIKTOK_CLIENT_TIMEOUT || '10000'),
-            headers: { ...Config.DEFAULT_REQUEST_HEADERS, ...this.configuration.customHeaders },
+            headers: { ...Config.DEFAULT_HTTP_CLIENT_HEADERS, ...this.configuration.customHeaders },
             ...this.configuration.axiosOptions
         });
 
@@ -63,7 +63,7 @@ export default class WebcastHttpClient {
      * Get the Room ID for the client
      */
     public get roomId() {
-        return this.clientParams.room_id || '';
+        return( this.clientParams.room_id as string) || '';
     }
 
     /**
@@ -206,7 +206,6 @@ export default class WebcastHttpClient {
 
         return fetchResponse.data;
     }
-
 
     /**
      * Get JSON object from Webcast API

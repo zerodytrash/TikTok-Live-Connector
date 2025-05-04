@@ -56,13 +56,13 @@ export class TikTokLiveError extends Error {
 }
 
 export enum ErrorReason {
-    RATE_LIMIT = "Rate Limited",
-    CONNECT_ERROR = "Connect Error",
-    EMPTY_PAYLOAD = "Empty Payload",
-    SIGN_NOT_200 = "Sign Error",
-    EMPTY_COOKIES = "Empty Cookies",
-    PREMIUM_FEATURE = "Premium Feature",
-    AUTHENTICATED_WS = "Authenticated WS"
+    RATE_LIMIT = 'Rate Limited',
+    CONNECT_ERROR = 'Connect Error',
+    EMPTY_PAYLOAD = 'Empty Payload',
+    SIGN_NOT_200 = 'Sign Error',
+    EMPTY_COOKIES = 'Empty Cookies',
+    PREMIUM_FEATURE = 'Premium Feature',
+    AUTHENTICATED_WS = 'Authenticated WS'
 }
 
 export class FetchSignedWebSocketIdentityParameterError extends Error {
@@ -79,7 +79,7 @@ export class SignAPIError extends TikTokLiveError {
         agentId?: string,
         ...args: (string | undefined)[]
     ) {
-        super([`[${ErrorReason[reason]}]`, ...args].join(' '));
+        super([`[${reason}]`, ...args].join(' '));
         this.reason = reason;
         this.logId = logId;
         this.agentId = agentId;
@@ -141,12 +141,6 @@ export class SignatureRateLimitError extends SignAPIError {
 
 }
 
-export class UnexpectedSignatureError extends SignAPIError {
-    constructor(...args: string[]) {
-        super(ErrorReason.SIGN_NOT_200, undefined, undefined, ...args);
-    }
-}
-
 export class SignatureMissingTokensError extends SignAPIError {
     constructor(...args: string[]) {
         super(ErrorReason.EMPTY_PAYLOAD, undefined, undefined, ...args);
@@ -165,3 +159,4 @@ export class AuthenticatedWebSocketConnectionError extends SignAPIError {
         super(ErrorReason.AUTHENTICATED_WS, undefined, undefined, ...args);
     }
 }
+

@@ -152,13 +152,7 @@ export const UserAgents: string[] = [
 export const Devices: DevicePreset[] = UserAgents.map((userAgent: string) => userAgentToDevicePreset(userAgent));
 
 // Pick a device
-export const Device: DevicePreset = (process.env.RANDOMIZE_TIKTOK_DEVICE?.toLowerCase() === 'true') ? Devices[Math.floor(Math.random() * Devices.length)] : {
-    browser_platform: 'Win32',
-    browser_name: 'Mozilla',
-    browser_version: '5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36',
-    user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36',
-    os: 'windows'
-};
+export const Device: DevicePreset = (process.env.RANDOMIZE_TIKTOK_DEVICE?.toLowerCase() === 'true') ? Devices[Math.floor(Math.random() * Devices.length)] : Devices[6];
 
 // Pick a location
 export const Location: LocationPreset = (process.env.RANDOMIZE_TIKTOK_LOCATION?.toLowerCase() === 'true') ? Locations[Math.floor(Math.random() * Locations.length)] : {
@@ -178,11 +172,10 @@ const Config: IWebcastConfig = {
     TIKTOK_HOST_WEB: 'www.tiktok.com',
     TIKTOK_HOST_WEBCAST: 'webcast.tiktok.com',
     TIKTOK_HTTP_ORIGIN: 'https://www.tiktok.com',
-    DEFAULT_HTTP_CLIENT_COOKIES: {
-        'tt-target-idc': 'useast1a'
-    },
+    DEFAULT_HTTP_CLIENT_COOKIES: { 'tt-target-idc': 'useast1a' },
+    DEFAULT_HTTP_CLIENT_OPTIONS: {},
     DEFAULT_HTTP_CLIENT_PARAMS: {
-        'aid': 1988,
+        'aid': (1988).toString(),
         'app_language': Location['lang'],
         'app_name': 'tiktok_web',
         'browser_language': Location['lang_country'],
@@ -197,8 +190,8 @@ const Config: IWebcastConfig = {
         'history_len': '10',
         'is_fullscreen': 'false',
         'is_page_visible': 'true',
-        'screen_height': Screen['screen_height'],
-        'screen_width': Screen['screen_width'],
+        'screen_height': Screen['screen_height'].toString(),
+        'screen_width': Screen['screen_width'].toString(),
         'tz_name': Location['tz_name'],
         'referer': 'https://www.tiktok.com/',
         'root_referer': 'https://www.tiktok.com/',
@@ -209,10 +202,11 @@ const Config: IWebcastConfig = {
         'region': Location['country'],
         'user_is_login': 'true',
         'webcast_language': Location['lang'],
-        'device_id': generateDeviceId(),
+        'device_id': generateDeviceId()
     },
     DEFAULT_WS_CLIENT_PARAMS: {
-        'aid': 1988,
+        'version_code': '180800',
+        'aid': (1988).toString(),
         'app_language': Location['lang'],
         'app_name': 'tiktok_web',
         'browser_platform': Device['browser_platform'],
@@ -224,39 +218,40 @@ const Config: IWebcastConfig = {
         'tz_name': Location['tz_name'],
         'device_platform': 'web',
         'debug': 'false',
-        'host': 'webcast.tiktok.com',
+        'host': 'https://webcast.tiktok.com',
         'identity': 'audience',
         'live_id': '12',
         'sup_ws_ds_opt': '1',
         'update_version_code': '2.0.0',
-        'version_code': '180800',
         'did_rule': '3',
-        'screen_height': Screen['screen_height'],
-        'screen_width': Screen['screen_width'],
+        'screen_height': (Screen['screen_height']).toString(),
+        'screen_width': (Screen['screen_width']).toString(),
         'heartbeat_duration': '0',
         'resp_content_type': 'protobuf',
         'history_comment_count': '6',
         // We think last_rtt means "last round trip time" in millis.
-        'last_rtt': Math.floor(Math.random() * 100) + 100
+        'last_rtt': (Math.floor(Math.random() * 100) + 100).toString(),
     },
-
-    DEFAULT_REQUEST_HEADERS: {
+    DEFAULT_WS_CLIENT_PARAMS_APPEND_PARAMETER: "&version_code=270000",
+    DEFAULT_HTTP_CLIENT_HEADERS: {
         'Connection': 'keep-alive',
         'Cache-Control': 'max-age=0',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36',
+        'User-Agent': Device['user_agent'],
         'Accept': 'text/html,application/json,application/protobuf',
         'Referer': 'https://www.tiktok.com/',
         'Origin': 'https://www.tiktok.com',
         'Accept-Language': 'en-US,en;q=0.9',
         'Accept-Encoding': 'gzip, deflate',
-        "Sec-Fetch-Site": 'same-site',
-        "Sec-Fetch-Mode": 'cors',
-        "Sec-Fetch-Dest": 'empty',
-        "Sec-Fetch-Ua-Mobile": '?0',
+        'Sec-Fetch-Site': 'same-site',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Ua-Mobile': '?0'
     },
-
-    WEBCAST_VERSION_CODE: '180800'
+    DEFAULT_WS_CLIENT_HEADERS: {
+        'User-Agent': Device['user_agent'],
+    }
 };
+
 
 export const SignConfig: Partial<ClientConfiguration> = {
     basePath: process.env.SIGN_API_URL || 'https://tiktok.eulerstream.com',
@@ -264,7 +259,7 @@ export const SignConfig: Partial<ClientConfiguration> = {
     baseOptions: {
         headers: { 'User-Agent': `tiktok-live-connector/${VERSION} ${process.platform}` },
         validateStatus: () => true
-    },
+    }
 };
 
 export default Config;

@@ -67,8 +67,8 @@ export class FetchSignedWebSocketFromEulerRoute extends Route<FetchSignedWebSock
                 roomId,
                 uniqueId,
                 this.webClient.clientParams?.cursor,
-                sessionId,
-                Config.DEFAULT_REQUEST_HEADERS['User-Agent'],
+                resolvedSessionId,
+                Config.DEFAULT_HTTP_CLIENT_HEADERS['User-Agent'],
                 preferredAgentIdsParam,
                 { responseType: 'arraybuffer' }
             ) as any;
@@ -107,7 +107,6 @@ export class FetchSignedWebSocketFromEulerRoute extends Route<FetchSignedWebSock
                 logId,
                 agentId,
                 `Unexpected sign server status ${response.status}. Payload:\n${payload}`,
-                JSON.stringify(response.data)
             );
         }
 

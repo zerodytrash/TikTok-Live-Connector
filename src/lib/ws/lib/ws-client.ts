@@ -30,8 +30,8 @@ export default class TikTokWsClient extends (WebSocket as WebSocketConstructor) 
     constructor(
         wsUrl: string,
         cookieJar: CookieJar,
-        protected readonly wsParams: Record<string, string>,
-        customHeaders: Record<string, string>,
+        protected readonly webSocketParams: Record<string, string>,
+        webSocketHeaders: Record<string, string>,
         webSocketOptions: http.RequestOptions,
         protected webSocketPingIntervalMs: number = 10000
     ) {
@@ -39,10 +39,10 @@ export default class TikTokWsClient extends (WebSocket as WebSocketConstructor) 
 
         this.pingInterval = null;
         this.connection = null;
-        this.wsUrlWithParams = `${wsUrl}?${new URLSearchParams(this.wsParams)}&version_code=${Config.WEBCAST_VERSION_CODE}`;
-        this.wsHeaders = { Cookie: cookieJar.getCookieString(), ...(customHeaders || {}) };
+        this.wsUrlWithParams = `${wsUrl}?${new URLSearchParams(this.webSocketParams)}${Config.DEFAULT_WS_CLIENT_PARAMS_APPEND_PARAMETER}`;
+        this.wsHeaders = { Cookie: cookieJar.getCookieString(), ...(webSocketHeaders || {}) };
         this.on('connect', this.onConnect.bind(this));
-        this.connect(this.wsUrlWithParams, '', Config.TIKTOK_URL_WEB, this.wsHeaders, webSocketOptions);
+        this.connect(this.wsUrlWithParams, '', `https://${Config.TIKTOK_HOST_WEB}`, this.wsHeaders, webSocketOptions);
     }
 
     protected onConnect(wsConnection: WebSocketConnection) {

@@ -49,10 +49,10 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
      * @param {boolean} [options[].enableRequestPolling=true] Use request polling if no WebSocket upgrade is offered. If `false` an exception will be thrown if TikTok does not offer a WebSocket upgrade.
      * @param {number} [options[].requestPollingIntervalMs=1000] Request polling interval if WebSocket is not used
      * @param {string} [options[].sessionId=null] The session ID from the "sessionid" cookie is required if you want to send automated messages in the chat.
-     * @param {object} [options[].clientParams={}] Custom client params for Webcast API
-     * @param {object} [options[].requestHeaders={}] Custom request headers for axios
+     * @param {object} [options[].webClientParams={}] Custom client params for Webcast API
+     * @param {object} [options[].webClientHeaders={}] Custom request headers for axios
      * @param {object} [options[].websocketHeaders={}] Custom request headers for websocket.client
-     * @param {object} [options[].requestOptions={}] Custom request options for axios. Here you can specify an `httpsAgent` to use a proxy and a `timeout` value for example.
+     * @param {object} [options[].webClientOptions={}] Custom request options for axios. Here you can specify an `httpsAgent` to use a proxy and a `timeout` value for example.
      * @param {object} [options[].websocketOptions={}] Custom request options for websocket.client. Here you can specify an `agent` to use a proxy and a `timeout` value for example.
      * @param {string[]} [options[].preferredAgentIds=[]] Preferred agent IDs to use for the WebSocket connection. If not specified, the default agent IDs will be used.
      * @param {boolean} [options[].connectWithUniqueId=false] Connect to the live stream using the unique ID instead of the room ID. If `true`, the room ID will be fetched from the TikTok API.
@@ -69,7 +69,6 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
 
         this.uniqueId = validateAndNormalizeUniqueId(uniqueId);
 
-
         // Assign the options
         this.options = {
             preferredAgentIds: [],
@@ -80,11 +79,17 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
             enableRequestPolling: true,
             requestPollingIntervalMs: 1000,
             sessionId: null,
-            clientParams: {},
-            requestHeaders: {},
-            websocketHeaders: {},
-            requestOptions: {},
-            websocketOptions: {},
+
+            // Override Http client params
+            webClientParams: {},
+            webClientHeaders: {},
+            webClientOptions: {},
+
+            // Override WebSocket params
+            wsClientHeaders: {},
+            wsClientOptions: {},
+            wsClientParams: {},
+
             authenticateWs: false,
             signedWebSocketProvider: undefined,
             logFetchFallbackErrors: false,
@@ -93,9 +98,9 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
 
         this.webClient = new TikTokWebClient(
             {
-                customHeaders: this.options?.requestHeaders || {},
-                axiosOptions: this.options?.requestOptions,
-                clientParams: this.options?.clientParams || {},
+                customHeaders: this.options?.webClientHeaders || {},
+                axiosOptions: this.options?.webClientOptions,
+                clientParams: this.options?.webClientParams || {},
                 authenticateWs: this.options?.authenticateWs || false
             },
             signer
@@ -158,7 +163,7 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
      * Get the current room ID
      */
     public get roomId(): string {
-        return this.clientParams.room_id;
+        return this.webClient.roomId;
     }
 
 
@@ -236,10 +241,10 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
         // <Required> Fetch initial room info. Let the user specify their own backend for signing, if they don't want to use Euler
         const webcastResponse: WebcastResponse = await (this.options.signedWebSocketProvider || this.webClient.fetchSignedWebSocketFromEuler)(
             {
-                roomId: (roomId || !this.options.connectWithUniqueId) ? this.clientParams.room_id : undefined,
+                roomId: (roomId || !this.options.connectWithUniqueId) ? this.roomId : undefined,
                 uniqueId: this.options.connectWithUniqueId ? this.uniqueId : undefined,
                 preferredAgentIds: this.options.preferredAgentIds,
-                sessionId: this.options.authenticateWs && this.options.sessionId
+                sessionId: this.options.authenticateWs ? this.options.sessionId : undefined
             }
         );
 
@@ -258,7 +263,13 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
         this.clientParams.internal_ext = webcastResponse.internalExt;
 
         // Connect to the WebSocket
-        const wsParams: Record<string, any> = { compress: 'gzip' };
+        const wsParams: Record<string, string> = {
+            compress: 'gzip',
+            room_id: this.roomId,
+            internal_ext: webcastResponse.internalExt,
+            cursor: webcastResponse.cursor
+        };
+
         webcastResponse.wsParams.forEach((wsParam) => wsParams[wsParam.name] = wsParam.value);
         this.wsClient = await this.setupWebsocket(webcastResponse.wsUrl, wsParams);
         this.emit(ControlEvent.WEBSOCKET_CONNECTED, this.wsClient);
@@ -423,9 +434,9 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
             const wsClient = new TikTokWsClient(
                 wsUrl,
                 this.webClient.cookieJar,
-                { ...this.clientParams, ...Config.DEFAULT_WS_CLIENT_PARAMS, ...wsParams },
-                this.options?.websocketHeaders,
-                this.options?.websocketOptions
+                { ...Config.DEFAULT_WS_CLIENT_PARAMS, ...this.options.wsClientParams, ...wsParams },
+                { ...Config.DEFAULT_WS_CLIENT_HEADERS, ...this.options?.wsClientHeaders },
+                this.options?.wsClientOptions
             );
 
             // Handle the connection

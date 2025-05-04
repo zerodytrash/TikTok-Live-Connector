@@ -42,6 +42,12 @@ export default class CookieJar {
                     }
                 },
                 set(target: CookieJar, p: string, value: any): boolean {
+                    if (value === null) {
+                        // Delete the cookie if the value is null
+                        delete target.cookies[p];
+                        return true;
+                    }
+
                     if (p in target) {
                         target[p] = value;
                     } else {
@@ -61,17 +67,18 @@ export default class CookieJar {
      * Set the session ID
      * @param sessionId The session ID to set
      */
-    public set sessionId(sessionId: string) {
+    public set sessionId(sessionId: string | null) {
         this.cookies['sessionid'] = sessionId;
         this.cookies['sessionid_ss'] = sessionId;
         this.cookies['sid_tt'] = sessionId;
+        this.cookies['sid_guard'] = sessionId;
     }
 
     /**
      * Get the session ID
      */
-    public get sessionId() {
-        return this.cookies['sessionid'] || this.cookies['sessionid_ss'] || this.cookies['sid_tt'];
+    public get sessionId(): string | null {
+        return this.cookies['sessionid'] || this.cookies['sessionid_ss'] || this.cookies['sid_tt'] ||this.cookies['sid_guard'] || null;
     }
 
     /**
@@ -80,7 +87,6 @@ export default class CookieJar {
      */
     public readCookies(response: AxiosResponse) {
         const setCookieHeaders = response.headers['set-cookie'];
-
         if (Array.isArray(setCookieHeaders)) {
             // Multiple set-cookie headers
             setCookieHeaders.forEach((setCookieHeader) => this.processSetCookieHeader(setCookieHeader));
@@ -139,7 +145,6 @@ export default class CookieJar {
         const cookieValue = parts.join('=');
 
         if (typeof cookieName === 'string' && cookieName !== '' && typeof cookieValue === 'string') {
-            // this.cookies[decodeURIComponent(cookieName)] = decodeURIComponent(cookieValue);
             this.cookies[decodeURIComponent(cookieName)] = cookieValue;
         }
     }
@@ -151,6 +156,7 @@ export default class CookieJar {
         let cookieParams = []
 
         for (const cookieName in this.cookies) {
+
             cookieParams.push(encodeURIComponent(cookieName) + '=' + this.cookies[cookieName])
         }
 

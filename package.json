@@ -54,11 +54,11 @@
     "homepage": "https://github.com/zerodytrash/TikTok-Live-Connector#readme",
     "dependencies": {
         "@bufbuild/protobuf": "^2.2.5",
-        "@eulerstream/euler-api-sdk": "0.0.3",
+        "@eulerstream/euler-api-sdk": "^0.0.4",
         "axios": "^1.9.0",
         "callable-instance": "^2.0.0",
         "protobufjs": "^6.11.2",
-        "websocket": "^1.0.34"
+        "websocket": "^1.0.35"
     },
     "devDependencies": {
         "@babel/cli": "^7.17.0",
@@ -66,6 +66,7 @@
         "@babel/preset-env": "^7.16.11",
         "@types/node": "^22.15.3",
         "@types/websocket": "^1.0.10",
+        "@types/ws": "^8.18.1",
         "cpx": "^1.5.0",
         "dotenv": "^16.5.0",
         "prettier": "2.5.1",

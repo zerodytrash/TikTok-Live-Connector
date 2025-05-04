@@ -107,8 +107,8 @@ export function userAgentToDevicePreset(userAgent: string): DevicePreset {
 
     return {
         user_agent: userAgent,
-        browser_name: encodeURIComponent(browserName),
-        browser_version: encodeURIComponent(browserVersion),
+        browser_name: browserName,
+        browser_version: browserVersion,
         browser_platform: userAgent.includes('Macintosh') ? 'MacIntel' : 'Win32',
         os: userAgent.includes('Macintosh') ? 'mac' : 'windows'
     };
