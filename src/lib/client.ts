@@ -286,15 +286,6 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
     }
 
     /**
-     * Sends a chat message into the current live room using the provided session cookie
-     * @param content Message Content
-     * @returns Promise that will be resolved when the chat message has been submitted to the API
-     */
-    async sendMessage(content: string) {
-        return this.webClient.sendRoomChat({ content });
-    }
-
-    /**
      * Fetch the room ID from the TikTok API
      * @param uniqueId Optional unique ID to use instead of the current one
      */
