@@ -37,11 +37,16 @@ async function signRequest(providerPath, url, headers, cookieJar, signProviderOp
     params.uuc = getUuc();
 
     let hostsToTry = [config.signProviderHost, ...config.signProviderFallbackHosts];
-    // Prioritize the custom host if provided
+
     if (signProviderOptions?.host) {
         // Remove any existing entries of the custom host to avoid duplication
         hostsToTry = hostsToTry.filter((host) => host !== signProviderOptions.host);
-        hostsToTry.unshift(signProviderOptions.host);
+
+        if (typeof signProviderOptions?.isFallback === 'boolean' && signProviderOptions.isFallback) {
+            hostsToTry.push(signProviderOptions.host);
+        } else {
+            hostsToTry.unshift(signProviderOptions.host);
+        }
     }
 
     let signHost;
