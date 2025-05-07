@@ -299,31 +299,33 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
             const roomInfo = await this.webClient.fetchRoomInfoFromHtml({ uniqueId: uniqueId });
             const roomId = roomInfo.liveRoomUserInfo.liveRoom.roomId;
             if (!roomId) throw new Error('Failed to extract roomId from HTML.');
+            return roomId;
         } catch (ex) {
-            this.options.logFetchFallbackErrors && console.error('Failed to retrieve roomId from main page, falling back to API source...');
+            this.options.logFetchFallbackErrors && console.error('Failed to retrieve roomId from main page, falling back to API source...', ex.stack);
             errors.push(ex);
         }
 
         // Method 2 (API Fallback)
         try {
             const roomData = await this.webClient.fetchRoomInfoFromApiLive({ uniqueId: uniqueId });
-            if (this.uniqueId === uniqueId) {
-                this.webClient.roomId = roomData.data.user.roomId;
-            }
+            const roomId = roomData?.data?.user?.roomId;
+            if (!roomId) throw new Error('Failed to extract roomId from API.');
+            return roomId;
         } catch (err) {
-            this.options.logFetchFallbackErrors && console.error('Failed to retrieve roomId from API source, falling back to Euler source...');
+            this.options.logFetchFallbackErrors && console.error('Failed to retrieve roomId from API source, falling back to Euler source...', err.stack);
             errors.push(err);
         }
 
         // Method 3 (Euler Fallback)
         try {
-            await this.webClient.fetchRoomIdFromEuler({ uniqueId: uniqueId });
+            const response = await this.webClient.fetchRoomIdFromEuler({ uniqueId: uniqueId });
+            if (!response.ok) throw new Error(`Failed to retrieve roomId from Euler due to an error: ${response.message}`);
+            if (!response.room_id) throw new Error('Failed to extract roomId from Euler.');
+            return response.room_id;
         } catch (err) {
             errors.push(err);
             throw new ExtractRoomIdError(errors, `Failed to retrieve room_id from all sources. ${err.message}`);
         }
-
-        return this.roomId;
 
     }
 
