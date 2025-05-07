@@ -1,15 +1,16 @@
 import { Route } from '@/types/route';
 import { InvalidResponseError, MissingRoomIdError } from '@/types/errors';
+import { RoomInfo } from '@/types/client';
 
 export type RoomInfoRouteParams = { roomId?: string; } | void;
 export type RoomInfoResponse = any;
 
 export class FetchRoomInfoRoute extends Route<RoomInfoRouteParams, RoomInfoResponse> {
 
-    async call({ roomId }) {
-
+    async call(params: RoomInfoRouteParams) {
         // Assign Room ID
-        roomId ||= this.webClient.roomId;
+        const { roomId } = params || this.webClient;
+
 
         // Must have a Room ID to fetch
         if (roomId == null) {
@@ -18,7 +19,7 @@ export class FetchRoomInfoRoute extends Route<RoomInfoRouteParams, RoomInfoRespo
 
         // Fetch room info
         try {
-            return await this.webClient.getJsonObjectFromWebcastApi(
+            return await this.webClient.getJsonObjectFromWebcastApi<RoomInfo>(
                 'room/info/',
                 { ...this.webClient.clientParams, roomId: roomId },
                 false
