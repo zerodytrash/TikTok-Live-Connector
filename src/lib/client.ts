@@ -421,11 +421,22 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
      * @param options Optional parameters for the message (incl. parameter overrides)
      */
     public async sendMessage(content: string, options?: Partial<Omit<IWebcastRoomChatPayload, 'content'>>): Promise<IWebcastRoomChatRouteResponse> {
+
+        const roomId = options?.roomId || this.roomId;
+        if (!roomId) {
+            throw new Error('Room ID is required to send a message.');
+        }
+
+        const sessionId = options?.sessionId || this.webClient.cookieJar.sessionId;
+        if (!sessionId) {
+            throw new Error('Session ID is required to send a message.');
+        }
+
         return this.webClient.sendRoomChatFromEuler(
             {
-                content: content, // The chat
-                roomId: options?.roomId || this.roomId, // Specify a different room
-                sessionId: options?.sessionId || this.webClient.cookieJar.sessionId // Specify a different session
+                content: content,
+                roomId: roomId,
+                sessionId: sessionId
             }
         );
     }
