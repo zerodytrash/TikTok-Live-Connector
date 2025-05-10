@@ -47,7 +47,6 @@ This release converts the package to exclusively typescript-based, also providin
 
 #### Breaking Changes
 
-- The `sendMessage` function has been removed (for now)
 - `WebcastPushConnection` has been renamed to `TikTokLiveConnection`
 - CommonJS support has been removed
 - Data fetching functions have been renamed
@@ -160,7 +159,7 @@ const tikTokLiveConnection = new TikTokLiveConnection(tiktokUsername, {
 |---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | connect(`[roomId]`)       | Connects to the live stream chat.<br>Returns a `Promise` which will be resolved when the connection is successfully established. Optionally, you can provide a Room Id to bypass Room Id scraping.                                                                                                                                        |
 | disconnect()              | Disconnects from the stream if connected.                                                                                                                                                                                                                                                                                                 |
-| sendMessage(`<content>`)  | Send a message to a TikTok LIVE chat. Simply speciy the message you want to send, and voila! Requires an API key.                                                                                                                                                                                                                         |
+| sendMessage(`<content>`)  | Send a message to a TikTok LIVE chat. Simply speciy the message you want to send, and voila! Requires an API key. <br>[Example](#send-messages)                                                                                                                                                                                                                         |
 | fetchRoomId(`[uniqueId]`) | Fetch the Room Id associated with the currently configured `uniqueId`. Optionally, provide a `uniqueId` for a different user to check. Returns a `Promise` which is resolved when the Room Id is fetched.                                                                                                                                 |
 | fetchIsLive()             | Fetch whether the user is currently streaming. Returns a `Promise` which resolves when the state is fetched.                                                                                                                                                                                                                              |
 | waitUntilLive()           | Returns a blocking promise that resolves when the user goes live.                                                                                                                                                                                                                                                                         |
