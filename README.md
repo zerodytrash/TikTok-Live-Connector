@@ -1976,6 +1976,30 @@ const connection = new TikTokLiveConnection('@username', {
 // Connect as per usual
 ````
 
+### Send Messages
+
+As of `2.0.2` you can now send messages to TikTok LIVE chats!
+
+```ts
+import { TikTokLiveConnection } from 'tiktok-live-connector';
+import { connection } from 'websocket';
+
+const connection = new TikTokLiveConnection(
+    'tv_asahi_news',
+    {
+        sessionId: '<account_session_id>',
+        signApiKey: '<your_sign_api_key>'
+    }
+);
+
+// Connect, then send a chat!
+connection.connect().then(() => {
+    connection.sendMessage('Hello world!');
+    console.log('Connected to TikTok LIVE chat!');
+}).catch(err => {
+    console.error('Error connecting to TikTok LIVE chat:', err);
+});
+```
 ## Contributors
 
 * **Zerody** - *Initial Reverse-Engineering and Protobuf-Decoding* - [Zerody](https://github.com/zerodytrash/)
