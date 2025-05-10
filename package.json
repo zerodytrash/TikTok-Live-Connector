@@ -48,7 +48,7 @@
     "homepage": "https://github.com/zerodytrash/TikTok-Live-Connector#readme",
     "dependencies": {
         "@bufbuild/protobuf": "^2.2.5",
-        "@eulerstream/euler-api-sdk": "^0.0.4",
+        "@eulerstream/euler-api-sdk": "^0.0.6",
         "axios": "^1.9.0",
         "callable-instance": "^2.0.0",
         "protobufjs": "^6.11.2",

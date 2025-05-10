@@ -23,9 +23,10 @@ export default class WebcastHttpClient {
             customHeaders: {},
             axiosOptions: {},
             clientParams: {},
-            authenticateWs: false
+            authenticateWs: false,
+            signApiKey: undefined
         },
-        public readonly webSigner: EulerSigner = new EulerSigner()
+        public readonly webSigner: EulerSigner = new EulerSigner({apiKey: configuration.signApiKey})
     ) {
 
         this.axiosInstance = axios.create({

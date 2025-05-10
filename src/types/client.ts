@@ -10,6 +10,7 @@ export type TikTokLiveConnectionOptions = {
     enableRequestPolling: boolean;
     requestPollingIntervalMs: number;
     sessionId: string | null;
+    signApiKey: string | null;
     authenticateWs: boolean;
     preferredAgentIds: string[];
     connectWithUniqueId: boolean;
@@ -44,6 +45,7 @@ export type WebcastHttpClientConfig = {
     axiosOptions: AxiosRequestConfig;
     clientParams: Record<string, string>;
     authenticateWs?: boolean;
+    signApiKey?: string;
 }
 
 export interface TikTokLiveConnectionWebSocketParams extends Record<string, any> {

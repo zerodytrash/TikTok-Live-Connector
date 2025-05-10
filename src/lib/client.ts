@@ -24,6 +24,7 @@ import {
     WebcastEvent,
     WebcastEventMap
 } from '@/types/events';
+import { IWebcastRoomChatPayload, IWebcastRoomChatRouteResponse } from '@eulerstream/euler-api-sdk';
 
 
 export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventEmitter<EventMap>) {
@@ -66,7 +67,6 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
         public readonly signer?: EulerSigner
     ) {
         super();
-
         this.uniqueId = validateAndNormalizeUniqueId(uniqueId);
 
         // Assign the options
@@ -79,6 +79,7 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
             enableRequestPolling: true,
             requestPollingIntervalMs: 1000,
             sessionId: null,
+            signApiKey: null,
 
             // Override Http client params
             webClientParams: {},
@@ -101,7 +102,8 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
                 customHeaders: this.options?.webClientHeaders || {},
                 axiosOptions: this.options?.webClientOptions,
                 clientParams: this.options?.webClientParams || {},
-                authenticateWs: this.options?.authenticateWs || false
+                authenticateWs: this.options?.authenticateWs || false,
+                signApiKey: this.options?.signApiKey ?? undefined
             },
             signer
         );
@@ -413,7 +415,23 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
     }
 
     /**
-     * Setup the WebSocket connection
+     * Send a message to a TikTok LIVE Room
+     *
+     * @param content Message content to send to the stream
+     * @param options Optional parameters for the message (incl. parameter overrides)
+     */
+    public async sendMessage(content: string, options?: Partial<Omit<IWebcastRoomChatPayload, 'content'>>): Promise<IWebcastRoomChatRouteResponse> {
+        return this.webClient.sendRoomChatFromEuler(
+            {
+                content: content, // The chat
+                roomId: options?.roomId || this.roomId, // Specify a different room
+                sessionId: options?.sessionId || this.webClient.cookieJar.sessionId // Specify a different session
+            }
+        );
+    }
+
+    /**
+     * Set up the WebSocket connection
      *
      * @param wsUrl WebSocket URL
      * @param wsParams WebSocket parameters
