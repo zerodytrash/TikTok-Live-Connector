@@ -1,6 +1,6 @@
 {
     "name": "tiktok-live-connector",
-    "version": "2.0.2",
+    "version": "2.0.3",
     "description": "Node.js library to receive live stream chat events like comments and gifts from TikTok LIVE.",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -48,7 +48,7 @@
     "homepage": "https://github.com/zerodytrash/TikTok-Live-Connector#readme",
     "dependencies": {
         "@bufbuild/protobuf": "^2.2.5",
-        "@eulerstream/euler-api-sdk": "^0.0.6",
+        "@eulerstream/euler-api-sdk": "^0.0.7",
         "axios": "^1.9.0",
         "callable-instance": "^2.0.0",
         "protobufjs": "^6.11.2",
