@@ -14,7 +14,7 @@ export type TikTokLiveConnectionOptions = {
     authenticateWs: boolean;
     preferredAgentIds: string[];
     connectWithUniqueId: boolean;
-    logFetchFallbackErrors: boolean;
+    disableEulerFallbacks: boolean;
 
     webClientParams: Record<string, string>;
     webClientHeaders: Record<string, string>;

@@ -1,7 +1,6 @@
 import {
     AlreadyConnectedError,
     AlreadyConnectingError,
-    ExtractRoomIdError,
     FetchIsLiveError,
     InvalidResponseError,
     UserOfflineError
@@ -80,6 +79,7 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
             requestPollingIntervalMs: 1000,
             sessionId: null,
             signApiKey: null,
+            disableEulerFallbacks: false,
 
             // Override Http client params
             webClientParams: {},
@@ -93,7 +93,6 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
 
             authenticateWs: false,
             signedWebSocketProvider: undefined,
-            logFetchFallbackErrors: false,
             ...options
         };
 
@@ -300,10 +299,10 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
         try {
             const roomInfo = await this.webClient.fetchRoomInfoFromHtml({ uniqueId: uniqueId });
             const roomId = roomInfo.liveRoomUserInfo.liveRoom.roomId;
-            if (!roomId) throw new Error('Failed to extract roomId from HTML.');
+            if (!roomId) throw new Error('Failed to extract Room ID from HTML.');
             return roomId;
         } catch (ex) {
-            this.options.logFetchFallbackErrors && console.error('Failed to retrieve roomId from main page, falling back to API source...', ex.stack);
+            this.handleError(ex, 'Failed to retrieve Room ID from main page, falling back to API source...');
             errors.push(ex);
         }
 
@@ -311,24 +310,31 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
         try {
             const roomData = await this.webClient.fetchRoomInfoFromApiLive({ uniqueId: uniqueId });
             const roomId = roomData?.data?.user?.roomId;
-            if (!roomId) throw new Error('Failed to extract roomId from API.');
+            if (!roomId) throw new Error('Failed to extract Room ID from API.');
             return roomId;
-        } catch (err) {
-            this.options.logFetchFallbackErrors && console.error('Failed to retrieve roomId from API source, falling back to Euler source...', err.stack);
-            errors.push(err);
+        } catch (ex) {
+            this.handleError(ex, 'Failed to retrieve Room ID from API source, falling back to Euler source...');
+            errors.push(ex);
         }
 
         // Method 3 (Euler Fallback)
-        try {
-            const response = await this.webClient.fetchRoomIdFromEuler({ uniqueId: uniqueId });
-            if (!response.ok) throw new Error(`Failed to retrieve roomId from Euler due to an error: ${response.message}`);
-            if (!response.room_id) throw new Error('Failed to extract roomId from Euler.');
-            return response.room_id;
-        } catch (err) {
-            errors.push(err);
-            throw new ExtractRoomIdError(errors, `Failed to retrieve room_id from all sources. ${err.message}`);
+        if (!this.options.disableEulerFallbacks) {
+            try {
+                const response = await this.webClient.fetchRoomIdFromEuler({ uniqueId: uniqueId });
+                if (!response.ok) throw new Error(`Failed to retrieve Room ID from Euler due to an error: ${response.message}`);
+                if (!response.room_id) throw new Error('Failed to extract Room ID from Euler.');
+                return response.room_id;
+            } catch (err) {
+                this.handleError(err, 'Failed to retrieve Room ID from Euler source, no more sources available...');
+                errors.push(err);
+            }
         }
 
+        // If we reach this point, it means all sources have failed
+        const errMsg: string = 'Failed to retrieve Room ID from all sources.';
+        const failErr = new FetchIsLiveError(errors, errMsg);
+        this.handleError(failErr, errMsg);
+        throw failErr;
     }
 
     public async fetchIsLive(): Promise<boolean> {
@@ -341,7 +347,7 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
             if (roomInfo?.liveRoomUserInfo?.liveRoom?.status === undefined) throw new Error('Failed to extract status from HTML.');
             return isOnline(roomInfo?.liveRoomUserInfo?.liveRoom?.status);
         } catch (ex) {
-            this.options.logFetchFallbackErrors && console.error('Failed to retrieve room info from main page, falling back to API source...', ex);
+            this.handleError(ex, 'Failed to retrieve room info for live status from main page, falling back to API source...');
             errors.push(ex);
         }
 
@@ -351,20 +357,27 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
             if (roomData?.data?.liveRoom?.status === undefined) throw new Error('Failed to extract status from API.');
             return isOnline(roomData?.data?.liveRoom?.status);
         } catch (err) {
-            this.options.logFetchFallbackErrors && console.error('Failed to retrieve room info from API source, falling back to Euler source...', err);
+            this.handleError(err, 'Failed to retrieve room info for live status from API source, falling back to Euler source...');
             errors.push(err);
         }
 
         // Method 3 (Euler)
-        try {
-            const roomData = await this.webClient.fetchRoomIdFromEuler({ uniqueId: this.uniqueId });
-            if (roomData.code !== 200) throw new Error('Failed to extract status from Euler.');
-            return roomData.is_live;
-        } catch (err) {
-            this.options.logFetchFallbackErrors && console.error('Failed to retrieve room info from Euler source...', err);
-            errors.push(err);
-            throw new FetchIsLiveError(errors, `Failed to retrieve room_id from all sources. ${err.message}`);
+        if (!this.options.disableEulerFallbacks) {
+            try {
+                const roomData = await this.webClient.fetchRoomIdFromEuler({ uniqueId: this.uniqueId });
+                if (roomData.code !== 200) throw new Error('Failed to extract status from Euler.');
+                return roomData.is_live;
+            } catch (err) {
+                this.handleError(err, 'Failed to retrieve room info for live status from Euler source, no more sources available...');
+                errors.push(err);
+            }
         }
+
+        // If we reach this point, it means all sources have failed
+        const errMsg: string = 'Failed to retrieve live status rom all sources.';
+        const failErr = new FetchIsLiveError(errors, errMsg);
+        this.handleError(failErr, errMsg);
+        throw failErr;
 
     }
 
