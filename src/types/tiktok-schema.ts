@@ -101,11 +101,145 @@ export interface TopUser {
   user: User | undefined;
 }
 
+export interface ImageModel {
+  mUrls: string[];
+  mUri: string;
+  height: number;
+  width: number;
+  avgColor: string;
+  imageType: number;
+  schema: string;
+  content: ImageModel_Content | undefined;
+  isAnimated: boolean;
+}
+
+export interface ImageModel_Content {
+  name: string;
+  fontColor: string;
+  level: string;
+}
+
 export interface WebcastChatMessage {
   event: WebcastMessageEvent | undefined;
   user: User | undefined;
   comment: string;
+  visibleToSender: boolean;
+  background: ImageModel | undefined;
+  fullScreenTextColor: string;
+  backgroundImageV2: ImageModel | undefined;
+  giftImage: ImageModel | undefined;
+  inputType: number;
+  atUser: User | undefined;
   emotes: WebcastSubEmote[];
+  contentLanguage: string;
+  quickChatScene: number;
+  communityflaggedStatus: number;
+  commentQualityScores: WebcastChatMessage_CommentQualityScore[];
+  userIdentity: WebcastChatMessage_UserIdentity | undefined;
+  commentTag: WebcastChatMessage_CommentTag[];
+  screenTime: string;
+  signature: string;
+  signatureVersion: string;
+  ecStreamerKey: string;
+}
+
+export enum WebcastChatMessage_CommentTag {
+  COMMENT_TAG_NORMAL = 0,
+  COMMENT_TAG_CANDIDATE = 1,
+  COMMENT_TAG_OVERAGE = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function webcastChatMessage_CommentTagFromJSON(object: any): WebcastChatMessage_CommentTag {
+  switch (object) {
+    case 0:
+    case "COMMENT_TAG_NORMAL":
+      return WebcastChatMessage_CommentTag.COMMENT_TAG_NORMAL;
+    case 1:
+    case "COMMENT_TAG_CANDIDATE":
+      return WebcastChatMessage_CommentTag.COMMENT_TAG_CANDIDATE;
+    case 2:
+    case "COMMENT_TAG_OVERAGE":
+      return WebcastChatMessage_CommentTag.COMMENT_TAG_OVERAGE;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return WebcastChatMessage_CommentTag.UNRECOGNIZED;
+  }
+}
+
+export function webcastChatMessage_CommentTagToJSON(object: WebcastChatMessage_CommentTag): string {
+  switch (object) {
+    case WebcastChatMessage_CommentTag.COMMENT_TAG_NORMAL:
+      return "COMMENT_TAG_NORMAL";
+    case WebcastChatMessage_CommentTag.COMMENT_TAG_CANDIDATE:
+      return "COMMENT_TAG_CANDIDATE";
+    case WebcastChatMessage_CommentTag.COMMENT_TAG_OVERAGE:
+      return "COMMENT_TAG_OVERAGE";
+    case WebcastChatMessage_CommentTag.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+export interface WebcastChatMessage_UserIdentity {
+  isGiftGiverOfAnchor: boolean;
+  isSubscriberOfAnchor: boolean;
+  isMutualFollowingWithAnchor: boolean;
+  isFollowerOfAnchor: boolean;
+  isModeratorOfAnchor: boolean;
+  isAnchor: boolean;
+}
+
+export interface WebcastChatMessage_CommentQualityScore {
+  version: string;
+  score: string;
+}
+
+export interface EmoteUploadInfo {
+  userId: string;
+  emoteUploadSource?: EmoteUploadInfo_UserEmoteUploadSource | undefined;
+  userInfo: User | undefined;
+  userIdStr: string;
+}
+
+export enum EmoteUploadInfo_UserEmoteUploadSource {
+  USER_EMOTE_UPLOAD_SOURCE_EMOTE_UPLOAD_SOURCE_ANCHOR = 0,
+  USER_EMOTE_UPLOAD_SOURCE_EMOTE_UPLOAD_SOURCE_SUBSCRIBER = 1,
+  USER_EMOTE_UPLOAD_SOURCE_EMOTE_UPLOAD_SOURCE_MODERATOR = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function emoteUploadInfo_UserEmoteUploadSourceFromJSON(object: any): EmoteUploadInfo_UserEmoteUploadSource {
+  switch (object) {
+    case 0:
+    case "USER_EMOTE_UPLOAD_SOURCE_EMOTE_UPLOAD_SOURCE_ANCHOR":
+      return EmoteUploadInfo_UserEmoteUploadSource.USER_EMOTE_UPLOAD_SOURCE_EMOTE_UPLOAD_SOURCE_ANCHOR;
+    case 1:
+    case "USER_EMOTE_UPLOAD_SOURCE_EMOTE_UPLOAD_SOURCE_SUBSCRIBER":
+      return EmoteUploadInfo_UserEmoteUploadSource.USER_EMOTE_UPLOAD_SOURCE_EMOTE_UPLOAD_SOURCE_SUBSCRIBER;
+    case 2:
+    case "USER_EMOTE_UPLOAD_SOURCE_EMOTE_UPLOAD_SOURCE_MODERATOR":
+      return EmoteUploadInfo_UserEmoteUploadSource.USER_EMOTE_UPLOAD_SOURCE_EMOTE_UPLOAD_SOURCE_MODERATOR;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return EmoteUploadInfo_UserEmoteUploadSource.UNRECOGNIZED;
+  }
+}
+
+export function emoteUploadInfo_UserEmoteUploadSourceToJSON(object: EmoteUploadInfo_UserEmoteUploadSource): string {
+  switch (object) {
+    case EmoteUploadInfo_UserEmoteUploadSource.USER_EMOTE_UPLOAD_SOURCE_EMOTE_UPLOAD_SOURCE_ANCHOR:
+      return "USER_EMOTE_UPLOAD_SOURCE_EMOTE_UPLOAD_SOURCE_ANCHOR";
+    case EmoteUploadInfo_UserEmoteUploadSource.USER_EMOTE_UPLOAD_SOURCE_EMOTE_UPLOAD_SOURCE_SUBSCRIBER:
+      return "USER_EMOTE_UPLOAD_SOURCE_EMOTE_UPLOAD_SOURCE_SUBSCRIBER";
+    case EmoteUploadInfo_UserEmoteUploadSource.USER_EMOTE_UPLOAD_SOURCE_EMOTE_UPLOAD_SOURCE_MODERATOR:
+      return "USER_EMOTE_UPLOAD_SOURCE_EMOTE_UPLOAD_SOURCE_MODERATOR";
+    case EmoteUploadInfo_UserEmoteUploadSource.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
 }
 
 /** Chat Emotes (Subscriber) */
@@ -956,8 +1090,322 @@ export const TopUser: MessageFns<TopUser> = {
   },
 };
 
+function createBaseImageModel(): ImageModel {
+  return {
+    mUrls: [],
+    mUri: "",
+    height: 0,
+    width: 0,
+    avgColor: "",
+    imageType: 0,
+    schema: "",
+    content: undefined,
+    isAnimated: false,
+  };
+}
+
+export const ImageModel: MessageFns<ImageModel> = {
+  encode(message: ImageModel, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.mUrls) {
+      writer.uint32(10).string(v!);
+    }
+    if (message.mUri !== "") {
+      writer.uint32(18).string(message.mUri);
+    }
+    if (message.height !== 0) {
+      writer.uint32(24).int32(message.height);
+    }
+    if (message.width !== 0) {
+      writer.uint32(32).int32(message.width);
+    }
+    if (message.avgColor !== "") {
+      writer.uint32(42).string(message.avgColor);
+    }
+    if (message.imageType !== 0) {
+      writer.uint32(48).int32(message.imageType);
+    }
+    if (message.schema !== "") {
+      writer.uint32(58).string(message.schema);
+    }
+    if (message.content !== undefined) {
+      ImageModel_Content.encode(message.content, writer.uint32(66).fork()).join();
+    }
+    if (message.isAnimated !== false) {
+      writer.uint32(72).bool(message.isAnimated);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ImageModel {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseImageModel();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.mUrls.push(reader.string());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.mUri = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.height = reader.int32();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.width = reader.int32();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.avgColor = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.imageType = reader.int32();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.schema = reader.string();
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.content = ImageModel_Content.decode(reader, reader.uint32());
+          continue;
+        }
+        case 9: {
+          if (tag !== 72) {
+            break;
+          }
+
+          message.isAnimated = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ImageModel {
+    return {
+      mUrls: globalThis.Array.isArray(object?.mUrls) ? object.mUrls.map((e: any) => globalThis.String(e)) : [],
+      mUri: isSet(object.mUri) ? globalThis.String(object.mUri) : "",
+      height: isSet(object.height) ? globalThis.Number(object.height) : 0,
+      width: isSet(object.width) ? globalThis.Number(object.width) : 0,
+      avgColor: isSet(object.avgColor) ? globalThis.String(object.avgColor) : "",
+      imageType: isSet(object.imageType) ? globalThis.Number(object.imageType) : 0,
+      schema: isSet(object.schema) ? globalThis.String(object.schema) : "",
+      content: isSet(object.content) ? ImageModel_Content.fromJSON(object.content) : undefined,
+      isAnimated: isSet(object.isAnimated) ? globalThis.Boolean(object.isAnimated) : false,
+    };
+  },
+
+  toJSON(message: ImageModel): unknown {
+    const obj: any = {};
+    if (message.mUrls?.length) {
+      obj.mUrls = message.mUrls;
+    }
+    if (message.mUri !== "") {
+      obj.mUri = message.mUri;
+    }
+    if (message.height !== 0) {
+      obj.height = Math.round(message.height);
+    }
+    if (message.width !== 0) {
+      obj.width = Math.round(message.width);
+    }
+    if (message.avgColor !== "") {
+      obj.avgColor = message.avgColor;
+    }
+    if (message.imageType !== 0) {
+      obj.imageType = Math.round(message.imageType);
+    }
+    if (message.schema !== "") {
+      obj.schema = message.schema;
+    }
+    if (message.content !== undefined) {
+      obj.content = ImageModel_Content.toJSON(message.content);
+    }
+    if (message.isAnimated !== false) {
+      obj.isAnimated = message.isAnimated;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ImageModel>, I>>(base?: I): ImageModel {
+    return ImageModel.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ImageModel>, I>>(object: I): ImageModel {
+    const message = createBaseImageModel();
+    message.mUrls = object.mUrls?.map((e) => e) || [];
+    message.mUri = object.mUri ?? "";
+    message.height = object.height ?? 0;
+    message.width = object.width ?? 0;
+    message.avgColor = object.avgColor ?? "";
+    message.imageType = object.imageType ?? 0;
+    message.schema = object.schema ?? "";
+    message.content = (object.content !== undefined && object.content !== null)
+      ? ImageModel_Content.fromPartial(object.content)
+      : undefined;
+    message.isAnimated = object.isAnimated ?? false;
+    return message;
+  },
+};
+
+function createBaseImageModel_Content(): ImageModel_Content {
+  return { name: "", fontColor: "", level: "0" };
+}
+
+export const ImageModel_Content: MessageFns<ImageModel_Content> = {
+  encode(message: ImageModel_Content, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.name !== "") {
+      writer.uint32(10).string(message.name);
+    }
+    if (message.fontColor !== "") {
+      writer.uint32(18).string(message.fontColor);
+    }
+    if (message.level !== "0") {
+      writer.uint32(24).int64(message.level);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ImageModel_Content {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseImageModel_Content();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.fontColor = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.level = reader.int64().toString();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ImageModel_Content {
+    return {
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      fontColor: isSet(object.fontColor) ? globalThis.String(object.fontColor) : "",
+      level: isSet(object.level) ? globalThis.String(object.level) : "0",
+    };
+  },
+
+  toJSON(message: ImageModel_Content): unknown {
+    const obj: any = {};
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.fontColor !== "") {
+      obj.fontColor = message.fontColor;
+    }
+    if (message.level !== "0") {
+      obj.level = message.level;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ImageModel_Content>, I>>(base?: I): ImageModel_Content {
+    return ImageModel_Content.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ImageModel_Content>, I>>(object: I): ImageModel_Content {
+    const message = createBaseImageModel_Content();
+    message.name = object.name ?? "";
+    message.fontColor = object.fontColor ?? "";
+    message.level = object.level ?? "0";
+    return message;
+  },
+};
+
 function createBaseWebcastChatMessage(): WebcastChatMessage {
-  return { event: undefined, user: undefined, comment: "", emotes: [] };
+  return {
+    event: undefined,
+    user: undefined,
+    comment: "",
+    visibleToSender: false,
+    background: undefined,
+    fullScreenTextColor: "",
+    backgroundImageV2: undefined,
+    giftImage: undefined,
+    inputType: 0,
+    atUser: undefined,
+    emotes: [],
+    contentLanguage: "",
+    quickChatScene: 0,
+    communityflaggedStatus: 0,
+    commentQualityScores: [],
+    userIdentity: undefined,
+    commentTag: [],
+    screenTime: "0",
+    signature: "",
+    signatureVersion: "",
+    ecStreamerKey: "",
+  };
 }
 
 export const WebcastChatMessage: MessageFns<WebcastChatMessage> = {
@@ -971,8 +1419,61 @@ export const WebcastChatMessage: MessageFns<WebcastChatMessage> = {
     if (message.comment !== "") {
       writer.uint32(26).string(message.comment);
     }
+    if (message.visibleToSender !== false) {
+      writer.uint32(32).bool(message.visibleToSender);
+    }
+    if (message.background !== undefined) {
+      ImageModel.encode(message.background, writer.uint32(42).fork()).join();
+    }
+    if (message.fullScreenTextColor !== "") {
+      writer.uint32(50).string(message.fullScreenTextColor);
+    }
+    if (message.backgroundImageV2 !== undefined) {
+      ImageModel.encode(message.backgroundImageV2, writer.uint32(58).fork()).join();
+    }
+    if (message.giftImage !== undefined) {
+      ImageModel.encode(message.giftImage, writer.uint32(82).fork()).join();
+    }
+    if (message.inputType !== 0) {
+      writer.uint32(88).int32(message.inputType);
+    }
+    if (message.atUser !== undefined) {
+      User.encode(message.atUser, writer.uint32(98).fork()).join();
+    }
     for (const v of message.emotes) {
       WebcastSubEmote.encode(v!, writer.uint32(106).fork()).join();
+    }
+    if (message.contentLanguage !== "") {
+      writer.uint32(114).string(message.contentLanguage);
+    }
+    if (message.quickChatScene !== 0) {
+      writer.uint32(128).int32(message.quickChatScene);
+    }
+    if (message.communityflaggedStatus !== 0) {
+      writer.uint32(136).int32(message.communityflaggedStatus);
+    }
+    for (const v of message.commentQualityScores) {
+      WebcastChatMessage_CommentQualityScore.encode(v!, writer.uint32(154).fork()).join();
+    }
+    if (message.userIdentity !== undefined) {
+      WebcastChatMessage_UserIdentity.encode(message.userIdentity, writer.uint32(146).fork()).join();
+    }
+    writer.uint32(162).fork();
+    for (const v of message.commentTag) {
+      writer.int32(v);
+    }
+    writer.join();
+    if (message.screenTime !== "0") {
+      writer.uint32(176).int64(message.screenTime);
+    }
+    if (message.signature !== "") {
+      writer.uint32(186).string(message.signature);
+    }
+    if (message.signatureVersion !== "") {
+      writer.uint32(194).string(message.signatureVersion);
+    }
+    if (message.ecStreamerKey !== "") {
+      writer.uint32(202).string(message.ecStreamerKey);
     }
     return writer;
   },
@@ -1008,12 +1509,158 @@ export const WebcastChatMessage: MessageFns<WebcastChatMessage> = {
           message.comment = reader.string();
           continue;
         }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.visibleToSender = reader.bool();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.background = ImageModel.decode(reader, reader.uint32());
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.fullScreenTextColor = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.backgroundImageV2 = ImageModel.decode(reader, reader.uint32());
+          continue;
+        }
+        case 10: {
+          if (tag !== 82) {
+            break;
+          }
+
+          message.giftImage = ImageModel.decode(reader, reader.uint32());
+          continue;
+        }
+        case 11: {
+          if (tag !== 88) {
+            break;
+          }
+
+          message.inputType = reader.int32();
+          continue;
+        }
+        case 12: {
+          if (tag !== 98) {
+            break;
+          }
+
+          message.atUser = User.decode(reader, reader.uint32());
+          continue;
+        }
         case 13: {
           if (tag !== 106) {
             break;
           }
 
           message.emotes.push(WebcastSubEmote.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 14: {
+          if (tag !== 114) {
+            break;
+          }
+
+          message.contentLanguage = reader.string();
+          continue;
+        }
+        case 16: {
+          if (tag !== 128) {
+            break;
+          }
+
+          message.quickChatScene = reader.int32();
+          continue;
+        }
+        case 17: {
+          if (tag !== 136) {
+            break;
+          }
+
+          message.communityflaggedStatus = reader.int32();
+          continue;
+        }
+        case 19: {
+          if (tag !== 154) {
+            break;
+          }
+
+          message.commentQualityScores.push(WebcastChatMessage_CommentQualityScore.decode(reader, reader.uint32()));
+          continue;
+        }
+        case 18: {
+          if (tag !== 146) {
+            break;
+          }
+
+          message.userIdentity = WebcastChatMessage_UserIdentity.decode(reader, reader.uint32());
+          continue;
+        }
+        case 20: {
+          if (tag === 160) {
+            message.commentTag.push(reader.int32() as any);
+
+            continue;
+          }
+
+          if (tag === 162) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.commentTag.push(reader.int32() as any);
+            }
+
+            continue;
+          }
+
+          break;
+        }
+        case 22: {
+          if (tag !== 176) {
+            break;
+          }
+
+          message.screenTime = reader.int64().toString();
+          continue;
+        }
+        case 23: {
+          if (tag !== 186) {
+            break;
+          }
+
+          message.signature = reader.string();
+          continue;
+        }
+        case 24: {
+          if (tag !== 194) {
+            break;
+          }
+
+          message.signatureVersion = reader.string();
+          continue;
+        }
+        case 25: {
+          if (tag !== 202) {
+            break;
+          }
+
+          message.ecStreamerKey = reader.string();
           continue;
         }
       }
@@ -1030,9 +1677,34 @@ export const WebcastChatMessage: MessageFns<WebcastChatMessage> = {
       event: isSet(object.event) ? WebcastMessageEvent.fromJSON(object.event) : undefined,
       user: isSet(object.user) ? User.fromJSON(object.user) : undefined,
       comment: isSet(object.comment) ? globalThis.String(object.comment) : "",
+      visibleToSender: isSet(object.visibleToSender) ? globalThis.Boolean(object.visibleToSender) : false,
+      background: isSet(object.background) ? ImageModel.fromJSON(object.background) : undefined,
+      fullScreenTextColor: isSet(object.fullScreenTextColor) ? globalThis.String(object.fullScreenTextColor) : "",
+      backgroundImageV2: isSet(object.backgroundImageV2) ? ImageModel.fromJSON(object.backgroundImageV2) : undefined,
+      giftImage: isSet(object.giftImage) ? ImageModel.fromJSON(object.giftImage) : undefined,
+      inputType: isSet(object.inputType) ? globalThis.Number(object.inputType) : 0,
+      atUser: isSet(object.atUser) ? User.fromJSON(object.atUser) : undefined,
       emotes: globalThis.Array.isArray(object?.emotes)
         ? object.emotes.map((e: any) => WebcastSubEmote.fromJSON(e))
         : [],
+      contentLanguage: isSet(object.contentLanguage) ? globalThis.String(object.contentLanguage) : "",
+      quickChatScene: isSet(object.quickChatScene) ? globalThis.Number(object.quickChatScene) : 0,
+      communityflaggedStatus: isSet(object.communityflaggedStatus)
+        ? globalThis.Number(object.communityflaggedStatus)
+        : 0,
+      commentQualityScores: globalThis.Array.isArray(object?.commentQualityScores)
+        ? object.commentQualityScores.map((e: any) => WebcastChatMessage_CommentQualityScore.fromJSON(e))
+        : [],
+      userIdentity: isSet(object.userIdentity)
+        ? WebcastChatMessage_UserIdentity.fromJSON(object.userIdentity)
+        : undefined,
+      commentTag: globalThis.Array.isArray(object?.commentTag)
+        ? object.commentTag.map((e: any) => webcastChatMessage_CommentTagFromJSON(e))
+        : [],
+      screenTime: isSet(object.screenTime) ? globalThis.String(object.screenTime) : "0",
+      signature: isSet(object.signature) ? globalThis.String(object.signature) : "",
+      signatureVersion: isSet(object.signatureVersion) ? globalThis.String(object.signatureVersion) : "",
+      ecStreamerKey: isSet(object.ecStreamerKey) ? globalThis.String(object.ecStreamerKey) : "",
     };
   },
 
@@ -1047,8 +1719,61 @@ export const WebcastChatMessage: MessageFns<WebcastChatMessage> = {
     if (message.comment !== "") {
       obj.comment = message.comment;
     }
+    if (message.visibleToSender !== false) {
+      obj.visibleToSender = message.visibleToSender;
+    }
+    if (message.background !== undefined) {
+      obj.background = ImageModel.toJSON(message.background);
+    }
+    if (message.fullScreenTextColor !== "") {
+      obj.fullScreenTextColor = message.fullScreenTextColor;
+    }
+    if (message.backgroundImageV2 !== undefined) {
+      obj.backgroundImageV2 = ImageModel.toJSON(message.backgroundImageV2);
+    }
+    if (message.giftImage !== undefined) {
+      obj.giftImage = ImageModel.toJSON(message.giftImage);
+    }
+    if (message.inputType !== 0) {
+      obj.inputType = Math.round(message.inputType);
+    }
+    if (message.atUser !== undefined) {
+      obj.atUser = User.toJSON(message.atUser);
+    }
     if (message.emotes?.length) {
       obj.emotes = message.emotes.map((e) => WebcastSubEmote.toJSON(e));
+    }
+    if (message.contentLanguage !== "") {
+      obj.contentLanguage = message.contentLanguage;
+    }
+    if (message.quickChatScene !== 0) {
+      obj.quickChatScene = Math.round(message.quickChatScene);
+    }
+    if (message.communityflaggedStatus !== 0) {
+      obj.communityflaggedStatus = Math.round(message.communityflaggedStatus);
+    }
+    if (message.commentQualityScores?.length) {
+      obj.commentQualityScores = message.commentQualityScores.map((e) =>
+        WebcastChatMessage_CommentQualityScore.toJSON(e)
+      );
+    }
+    if (message.userIdentity !== undefined) {
+      obj.userIdentity = WebcastChatMessage_UserIdentity.toJSON(message.userIdentity);
+    }
+    if (message.commentTag?.length) {
+      obj.commentTag = message.commentTag.map((e) => webcastChatMessage_CommentTagToJSON(e));
+    }
+    if (message.screenTime !== "0") {
+      obj.screenTime = message.screenTime;
+    }
+    if (message.signature !== "") {
+      obj.signature = message.signature;
+    }
+    if (message.signatureVersion !== "") {
+      obj.signatureVersion = message.signatureVersion;
+    }
+    if (message.ecStreamerKey !== "") {
+      obj.ecStreamerKey = message.ecStreamerKey;
     }
     return obj;
   },
@@ -1063,7 +1788,380 @@ export const WebcastChatMessage: MessageFns<WebcastChatMessage> = {
       : undefined;
     message.user = (object.user !== undefined && object.user !== null) ? User.fromPartial(object.user) : undefined;
     message.comment = object.comment ?? "";
+    message.visibleToSender = object.visibleToSender ?? false;
+    message.background = (object.background !== undefined && object.background !== null)
+      ? ImageModel.fromPartial(object.background)
+      : undefined;
+    message.fullScreenTextColor = object.fullScreenTextColor ?? "";
+    message.backgroundImageV2 = (object.backgroundImageV2 !== undefined && object.backgroundImageV2 !== null)
+      ? ImageModel.fromPartial(object.backgroundImageV2)
+      : undefined;
+    message.giftImage = (object.giftImage !== undefined && object.giftImage !== null)
+      ? ImageModel.fromPartial(object.giftImage)
+      : undefined;
+    message.inputType = object.inputType ?? 0;
+    message.atUser = (object.atUser !== undefined && object.atUser !== null)
+      ? User.fromPartial(object.atUser)
+      : undefined;
     message.emotes = object.emotes?.map((e) => WebcastSubEmote.fromPartial(e)) || [];
+    message.contentLanguage = object.contentLanguage ?? "";
+    message.quickChatScene = object.quickChatScene ?? 0;
+    message.communityflaggedStatus = object.communityflaggedStatus ?? 0;
+    message.commentQualityScores =
+      object.commentQualityScores?.map((e) => WebcastChatMessage_CommentQualityScore.fromPartial(e)) || [];
+    message.userIdentity = (object.userIdentity !== undefined && object.userIdentity !== null)
+      ? WebcastChatMessage_UserIdentity.fromPartial(object.userIdentity)
+      : undefined;
+    message.commentTag = object.commentTag?.map((e) => e) || [];
+    message.screenTime = object.screenTime ?? "0";
+    message.signature = object.signature ?? "";
+    message.signatureVersion = object.signatureVersion ?? "";
+    message.ecStreamerKey = object.ecStreamerKey ?? "";
+    return message;
+  },
+};
+
+function createBaseWebcastChatMessage_UserIdentity(): WebcastChatMessage_UserIdentity {
+  return {
+    isGiftGiverOfAnchor: false,
+    isSubscriberOfAnchor: false,
+    isMutualFollowingWithAnchor: false,
+    isFollowerOfAnchor: false,
+    isModeratorOfAnchor: false,
+    isAnchor: false,
+  };
+}
+
+export const WebcastChatMessage_UserIdentity: MessageFns<WebcastChatMessage_UserIdentity> = {
+  encode(message: WebcastChatMessage_UserIdentity, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.isGiftGiverOfAnchor !== false) {
+      writer.uint32(8).bool(message.isGiftGiverOfAnchor);
+    }
+    if (message.isSubscriberOfAnchor !== false) {
+      writer.uint32(16).bool(message.isSubscriberOfAnchor);
+    }
+    if (message.isMutualFollowingWithAnchor !== false) {
+      writer.uint32(24).bool(message.isMutualFollowingWithAnchor);
+    }
+    if (message.isFollowerOfAnchor !== false) {
+      writer.uint32(32).bool(message.isFollowerOfAnchor);
+    }
+    if (message.isModeratorOfAnchor !== false) {
+      writer.uint32(40).bool(message.isModeratorOfAnchor);
+    }
+    if (message.isAnchor !== false) {
+      writer.uint32(48).bool(message.isAnchor);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): WebcastChatMessage_UserIdentity {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseWebcastChatMessage_UserIdentity();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.isGiftGiverOfAnchor = reader.bool();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.isSubscriberOfAnchor = reader.bool();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.isMutualFollowingWithAnchor = reader.bool();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.isFollowerOfAnchor = reader.bool();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.isModeratorOfAnchor = reader.bool();
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.isAnchor = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): WebcastChatMessage_UserIdentity {
+    return {
+      isGiftGiverOfAnchor: isSet(object.isGiftGiverOfAnchor) ? globalThis.Boolean(object.isGiftGiverOfAnchor) : false,
+      isSubscriberOfAnchor: isSet(object.isSubscriberOfAnchor)
+        ? globalThis.Boolean(object.isSubscriberOfAnchor)
+        : false,
+      isMutualFollowingWithAnchor: isSet(object.isMutualFollowingWithAnchor)
+        ? globalThis.Boolean(object.isMutualFollowingWithAnchor)
+        : false,
+      isFollowerOfAnchor: isSet(object.isFollowerOfAnchor) ? globalThis.Boolean(object.isFollowerOfAnchor) : false,
+      isModeratorOfAnchor: isSet(object.isModeratorOfAnchor) ? globalThis.Boolean(object.isModeratorOfAnchor) : false,
+      isAnchor: isSet(object.isAnchor) ? globalThis.Boolean(object.isAnchor) : false,
+    };
+  },
+
+  toJSON(message: WebcastChatMessage_UserIdentity): unknown {
+    const obj: any = {};
+    if (message.isGiftGiverOfAnchor !== false) {
+      obj.isGiftGiverOfAnchor = message.isGiftGiverOfAnchor;
+    }
+    if (message.isSubscriberOfAnchor !== false) {
+      obj.isSubscriberOfAnchor = message.isSubscriberOfAnchor;
+    }
+    if (message.isMutualFollowingWithAnchor !== false) {
+      obj.isMutualFollowingWithAnchor = message.isMutualFollowingWithAnchor;
+    }
+    if (message.isFollowerOfAnchor !== false) {
+      obj.isFollowerOfAnchor = message.isFollowerOfAnchor;
+    }
+    if (message.isModeratorOfAnchor !== false) {
+      obj.isModeratorOfAnchor = message.isModeratorOfAnchor;
+    }
+    if (message.isAnchor !== false) {
+      obj.isAnchor = message.isAnchor;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<WebcastChatMessage_UserIdentity>, I>>(base?: I): WebcastChatMessage_UserIdentity {
+    return WebcastChatMessage_UserIdentity.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<WebcastChatMessage_UserIdentity>, I>>(
+    object: I,
+  ): WebcastChatMessage_UserIdentity {
+    const message = createBaseWebcastChatMessage_UserIdentity();
+    message.isGiftGiverOfAnchor = object.isGiftGiverOfAnchor ?? false;
+    message.isSubscriberOfAnchor = object.isSubscriberOfAnchor ?? false;
+    message.isMutualFollowingWithAnchor = object.isMutualFollowingWithAnchor ?? false;
+    message.isFollowerOfAnchor = object.isFollowerOfAnchor ?? false;
+    message.isModeratorOfAnchor = object.isModeratorOfAnchor ?? false;
+    message.isAnchor = object.isAnchor ?? false;
+    return message;
+  },
+};
+
+function createBaseWebcastChatMessage_CommentQualityScore(): WebcastChatMessage_CommentQualityScore {
+  return { version: "", score: "0" };
+}
+
+export const WebcastChatMessage_CommentQualityScore: MessageFns<WebcastChatMessage_CommentQualityScore> = {
+  encode(message: WebcastChatMessage_CommentQualityScore, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.version !== "") {
+      writer.uint32(10).string(message.version);
+    }
+    if (message.score !== "0") {
+      writer.uint32(16).int64(message.score);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): WebcastChatMessage_CommentQualityScore {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseWebcastChatMessage_CommentQualityScore();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.version = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.score = reader.int64().toString();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): WebcastChatMessage_CommentQualityScore {
+    return {
+      version: isSet(object.version) ? globalThis.String(object.version) : "",
+      score: isSet(object.score) ? globalThis.String(object.score) : "0",
+    };
+  },
+
+  toJSON(message: WebcastChatMessage_CommentQualityScore): unknown {
+    const obj: any = {};
+    if (message.version !== "") {
+      obj.version = message.version;
+    }
+    if (message.score !== "0") {
+      obj.score = message.score;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<WebcastChatMessage_CommentQualityScore>, I>>(
+    base?: I,
+  ): WebcastChatMessage_CommentQualityScore {
+    return WebcastChatMessage_CommentQualityScore.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<WebcastChatMessage_CommentQualityScore>, I>>(
+    object: I,
+  ): WebcastChatMessage_CommentQualityScore {
+    const message = createBaseWebcastChatMessage_CommentQualityScore();
+    message.version = object.version ?? "";
+    message.score = object.score ?? "0";
+    return message;
+  },
+};
+
+function createBaseEmoteUploadInfo(): EmoteUploadInfo {
+  return { userId: "0", emoteUploadSource: undefined, userInfo: undefined, userIdStr: "" };
+}
+
+export const EmoteUploadInfo: MessageFns<EmoteUploadInfo> = {
+  encode(message: EmoteUploadInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.userId !== "0") {
+      writer.uint32(8).int64(message.userId);
+    }
+    if (message.emoteUploadSource !== undefined) {
+      writer.uint32(16).int32(message.emoteUploadSource);
+    }
+    if (message.userInfo !== undefined) {
+      User.encode(message.userInfo, writer.uint32(26).fork()).join();
+    }
+    if (message.userIdStr !== "") {
+      writer.uint32(34).string(message.userIdStr);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): EmoteUploadInfo {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseEmoteUploadInfo();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.userId = reader.int64().toString();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.emoteUploadSource = reader.int32() as any;
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.userInfo = User.decode(reader, reader.uint32());
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.userIdStr = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): EmoteUploadInfo {
+    return {
+      userId: isSet(object.userId) ? globalThis.String(object.userId) : "0",
+      emoteUploadSource: isSet(object.emoteUploadSource)
+        ? emoteUploadInfo_UserEmoteUploadSourceFromJSON(object.emoteUploadSource)
+        : undefined,
+      userInfo: isSet(object.userInfo) ? User.fromJSON(object.userInfo) : undefined,
+      userIdStr: isSet(object.userIdStr) ? globalThis.String(object.userIdStr) : "",
+    };
+  },
+
+  toJSON(message: EmoteUploadInfo): unknown {
+    const obj: any = {};
+    if (message.userId !== "0") {
+      obj.userId = message.userId;
+    }
+    if (message.emoteUploadSource !== undefined) {
+      obj.emoteUploadSource = emoteUploadInfo_UserEmoteUploadSourceToJSON(message.emoteUploadSource);
+    }
+    if (message.userInfo !== undefined) {
+      obj.userInfo = User.toJSON(message.userInfo);
+    }
+    if (message.userIdStr !== "") {
+      obj.userIdStr = message.userIdStr;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<EmoteUploadInfo>, I>>(base?: I): EmoteUploadInfo {
+    return EmoteUploadInfo.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<EmoteUploadInfo>, I>>(object: I): EmoteUploadInfo {
+    const message = createBaseEmoteUploadInfo();
+    message.userId = object.userId ?? "0";
+    message.emoteUploadSource = object.emoteUploadSource ?? undefined;
+    message.userInfo = (object.userInfo !== undefined && object.userInfo !== null)
+      ? User.fromPartial(object.userInfo)
+      : undefined;
+    message.userIdStr = object.userIdStr ?? "";
     return message;
   },
 };
