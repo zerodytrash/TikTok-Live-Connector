@@ -50,12 +50,88 @@ message TopUser {
     User user = 2;
 }
 
+message ImageModel {
+    repeated string m_urls = 1;
+    string m_uri = 2;
+    int32 height = 3;
+    int32 width = 4;
+    string avg_color = 5;
+    int32 image_type = 6;
+    string schema = 7;
+    Content content = 8;
+    bool is_animated = 9;
+
+    message Content {
+        string name = 1;
+        string font_color = 2;
+        int64 level = 3;
+
+    }
+}
+
 message WebcastChatMessage {
     WebcastMessageEvent event = 1;
     User user = 2;
     string comment = 3;
+    bool visible_to_sender = 4;
+    ImageModel background = 5;
+    string full_screen_text_color = 6;
+    ImageModel background_image_v2 = 7;
+    ImageModel gift_image = 10;
+    int32 input_type = 11;
+    User at_user = 12;
     repeated WebcastSubEmote emotes = 13;
+    string content_language = 14;
+
+    int32 quick_chat_scene = 16;
+    int32 communityflagged_status = 17;
+    repeated CommentQualityScore comment_quality_scores = 19;
+    UserIdentity user_identity = 18;
+    repeated CommentTag comment_tag = 20;
+    int64 screen_time = 22;
+    string signature = 23;
+    string signature_version = 24;
+    string ec_streamer_key = 25;
+
+    message UserIdentity {
+        bool is_gift_giver_of_anchor = 1;
+        bool is_subscriber_of_anchor = 2;
+        bool is_mutual_following_with_anchor = 3;
+        bool is_follower_of_anchor = 4;
+        bool is_moderator_of_anchor = 5;
+        bool is_anchor = 6;
+
+    }
+
+    message CommentQualityScore {
+        string version = 1;
+        int64 score = 2;
+
+    }
+
+    enum CommentTag {
+        COMMENT_TAG_NORMAL = 0;
+        COMMENT_TAG_CANDIDATE = 1;
+        COMMENT_TAG_OVERAGE = 2;
+    }
+
 }
+
+
+message EmoteUploadInfo {
+    int64 user_id = 1;
+    optional UserEmoteUploadSource emote_upload_source = 2;
+    User user_info = 3;
+    string user_id_str = 4;
+
+    enum UserEmoteUploadSource {
+        USER_EMOTE_UPLOAD_SOURCE_EMOTE_UPLOAD_SOURCE_ANCHOR = 0;
+        USER_EMOTE_UPLOAD_SOURCE_EMOTE_UPLOAD_SOURCE_SUBSCRIBER = 1;
+        USER_EMOTE_UPLOAD_SOURCE_EMOTE_UPLOAD_SOURCE_MODERATOR = 2;
+    }
+}
+
+
 
 // Chat Emotes (Subscriber)
 message WebcastEmoteChatMessage {
