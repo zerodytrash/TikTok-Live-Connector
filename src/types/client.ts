@@ -10,6 +10,7 @@ export type TikTokLiveConnectionOptions = {
     enableRequestPolling: boolean;
     requestPollingIntervalMs: number;
     sessionId: string | null;
+    ttTargetIdc: string | null;
     signApiKey: string | null;
     authenticateWs: boolean;
     preferredAgentIds: string[];
@@ -36,6 +37,7 @@ export type FetchSignedWebSocketParams = {
     roomId?: string;
     uniqueId?: string;
     preferredAgentIds?: string[];
+    ttTargetIdc?: string;
     sessionId?: string;
 }
 

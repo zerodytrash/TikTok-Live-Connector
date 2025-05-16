@@ -1,17 +1,36 @@
 import { Route } from '@/types/route';
 import { IWebcastRoomChatPayload, IWebcastRoomChatRouteResponse } from '@eulerstream/euler-api-sdk';
 import { AxiosRequestConfig } from 'axios';
-import { PremiumFeatureError } from '@/types';
+import { FetchSignedWebSocketIdentityParameterError, PremiumFeatureError } from '@/types';
 
-export type SendRoomChatFromEulerRouteParams = IWebcastRoomChatPayload & AxiosRequestConfig;
+export type SendRoomChatFromEulerRouteParams = IWebcastRoomChatPayload & { options?: AxiosRequestConfig };
 
 export class SendRoomChatFromEulerRoute extends Route<SendRoomChatFromEulerRouteParams, IWebcastRoomChatRouteResponse> {
 
-    async call({ roomId, content, sessionId, options }): Promise<IWebcastRoomChatRouteResponse> {
+    async call(
+        {
+            roomId,
+            content,
+            sessionId,
+            ttTargetIdc,
+            options
+        }: SendRoomChatFromEulerRouteParams
+    ): Promise<IWebcastRoomChatRouteResponse> {
+
+        const resolvedSessionId = sessionId || this.webClient.cookieJar.sessionId;
+        const resolvedTtTargetIdc = ttTargetIdc || this.webClient.cookieJar.ttTargetIdc;
+
+        if (resolvedSessionId && !resolvedTtTargetIdc) {
+            throw new FetchSignedWebSocketIdentityParameterError(
+                'ttTargetIdc must be set when sessionId is provided.'
+            );
+        }
+
         const fetchResponse = await this.webClient.webSigner.webcast.sendRoomChat({
                 roomId,
                 content,
-                sessionId
+                sessionId: resolvedSessionId,
+                ttTargetIdc: resolvedTtTargetIdc
             },
             options
         );

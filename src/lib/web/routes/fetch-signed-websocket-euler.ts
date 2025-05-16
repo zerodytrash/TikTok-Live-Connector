@@ -23,7 +23,8 @@ export class FetchSignedWebSocketFromEulerRoute extends Route<FetchSignedWebSock
             roomId,
             uniqueId,
             preferredAgentIds,
-            sessionId
+            sessionId,
+            ttTargetIdc
         }: FetchSignedWebSocketFromEulerRouteParams
     ): Promise<WebcastResponse> {
 
@@ -41,6 +42,13 @@ export class FetchSignedWebSocketFromEulerRoute extends Route<FetchSignedWebSock
 
         const preferredAgentIdsParam = preferredAgentIds?.join(',') ?? null;
         const resolvedSessionId = sessionId || this.webClient.cookieJar.sessionId;
+        const resolvedTtTargetIdc = ttTargetIdc || this.webClient.cookieJar.ttTargetIdc;
+
+        if (resolvedSessionId && !resolvedTtTargetIdc) {
+            throw new FetchSignedWebSocketIdentityParameterError(
+                'ttTargetIdc must be set when sessionId is provided.'
+            );
+        }
 
         if (this.webClient.configuration.authenticateWs && resolvedSessionId) {
             const envHost = process.env.WHITELIST_AUTHENTICATED_SESSION_ID_HOST;
@@ -70,6 +78,7 @@ export class FetchSignedWebSocketFromEulerRoute extends Route<FetchSignedWebSock
                 resolvedSessionId,
                 Config.DEFAULT_HTTP_CLIENT_HEADERS['User-Agent'],
                 preferredAgentIdsParam,
+                resolvedTtTargetIdc,
                 { responseType: 'arraybuffer' }
             ) as any;
         } catch (err: any) {
@@ -106,7 +115,7 @@ export class FetchSignedWebSocketFromEulerRoute extends Route<FetchSignedWebSock
                 ErrorReason.SIGN_NOT_200,
                 logId,
                 agentId,
-                `Unexpected sign server status ${response.status}. Payload:\n${payload}`,
+                `Unexpected sign server status ${response.status}. Payload:\n${payload}`
             );
         }
 

@@ -26,7 +26,7 @@ export default class WebcastHttpClient {
             authenticateWs: false,
             signApiKey: undefined
         },
-        public readonly webSigner: EulerSigner = new EulerSigner({apiKey: configuration.signApiKey})
+        public readonly webSigner: EulerSigner = new EulerSigner({ apiKey: configuration.signApiKey })
     ) {
 
         this.axiosInstance = axios.create({
@@ -64,7 +64,7 @@ export default class WebcastHttpClient {
      * Get the Room ID for the client
      */
     public get roomId() {
-        return( this.clientParams.room_id as string) || '';
+        return (this.clientParams.room_id as string) || '';
     }
 
     /**
@@ -105,7 +105,9 @@ export default class WebcastHttpClient {
             const signResponse = await this.webSigner.webcastSign(
                 url,
                 method.toUpperCase() as ISignTikTokUrlBodyMethodEnum,
-                this.axiosInstance.defaults.headers['User-Agent'] as string
+                this.axiosInstance.defaults.headers['User-Agent'] as string,
+                this.cookieJar.sessionId,
+                this.cookieJar.ttTargetIdc
             );
 
             url = signResponse.response.signedUrl;

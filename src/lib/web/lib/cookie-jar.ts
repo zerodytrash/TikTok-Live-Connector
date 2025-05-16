@@ -64,21 +64,39 @@ export default class CookieJar {
     }
 
     /**
-     * Set the session ID
+     * Set the session ID and tt-target-idc
+     *
      * @param sessionId The session ID to set
+     * @param ttTargetIdc The tt-target-idc to set
      */
-    public set sessionId(sessionId: string | null) {
+    public setSession(sessionId: string | null, ttTargetIdc: string | null) {
+
+        if (sessionId && !ttTargetIdc) {
+            throw new Error('tt-target-idc is required when sessionId is set');
+        }
+
+        // (1) Set the sid
         this.cookies['sessionid'] = sessionId;
         this.cookies['sessionid_ss'] = sessionId;
         this.cookies['sid_tt'] = sessionId;
         this.cookies['sid_guard'] = sessionId;
+
+        // (2) Set the IDC, basically, the account region. Must match the account's sid.
+        this.cookies['tt-target-idc'] = ttTargetIdc;
+    }
+
+    /**
+     * Get the tt-target-idc cookie
+     */
+    public get ttTargetIdc(): string | null {
+        return this.cookies['tt-target-idc'] || null;
     }
 
     /**
      * Get the session ID
      */
     public get sessionId(): string | null {
-        return this.cookies['sessionid'] || this.cookies['sessionid_ss'] || this.cookies['sid_tt'] ||this.cookies['sid_guard'] || null;
+        return this.cookies['sessionid'] || this.cookies['sessionid_ss'] || this.cookies['sid_tt'] || this.cookies['sid_guard'] || null;
     }
 
     /**
@@ -153,11 +171,11 @@ export default class CookieJar {
      * Get the cookie string
      */
     public getCookieString(): string {
-        let cookieParams = []
+        let cookieParams = [];
 
         for (const cookieName in this.cookies) {
 
-            cookieParams.push(encodeURIComponent(cookieName) + '=' + this.cookies[cookieName])
+            cookieParams.push(encodeURIComponent(cookieName) + '=' + this.cookies[cookieName]);
         }
 
         return cookieParams.join('; ');

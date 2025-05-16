@@ -78,6 +78,7 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
             enableRequestPolling: true,
             requestPollingIntervalMs: 1000,
             sessionId: null,
+            ttTargetIdc: null,
             signApiKey: null,
             disableEulerFallbacks: false,
 
@@ -107,7 +108,7 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
             signer
         );
 
-        this.webClient.cookieJar.sessionId = this.options?.sessionId;
+        this.webClient.cookieJar.setSession(this.options.sessionId, this.options.ttTargetIdc);
         this.setDisconnected();
     }
 
@@ -445,11 +446,17 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
             throw new Error('Session ID is required to send a message.');
         }
 
+        const ttTargetIdc = options?.ttTargetIdc || this.webClient.cookieJar.ttTargetIdc;
+        if (!ttTargetIdc) {
+            throw new Error('ttTargetIdc is required to send a message.');
+        }
+
         return this.webClient.sendRoomChatFromEuler(
             {
                 content: content,
                 roomId: roomId,
-                sessionId: sessionId
+                sessionId: sessionId,
+                ttTargetIdc: ttTargetIdc
             }
         );
     }
