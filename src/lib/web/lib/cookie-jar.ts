@@ -173,9 +173,9 @@ export default class CookieJar {
     public getCookieString(): string {
         let cookieParams = [];
 
-        for (const cookieName in this.cookies) {
-
-            cookieParams.push(encodeURIComponent(cookieName) + '=' + this.cookies[cookieName]);
+        for (const [cookieName, cookieValue] of Object.entries(this.cookies)) {
+            if (!cookieValue) continue;
+            cookieParams.push(cookieName + '=' + cookieValue);
         }
 
         return cookieParams.join('; ');
