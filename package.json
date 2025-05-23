@@ -52,11 +52,12 @@
         "axios": "^1.9.0",
         "callable-instance": "^2.0.0",
         "protobufjs": "^6.11.2",
-        "ts-proto": "^2.6.1",
         "typed-emitter": "^2.1.0",
         "websocket": "^1.0.35"
     },
     "devDependencies": {
+        "ws": "^8.18.2",
+        "ts-proto": "^2.6.1",
         "@babel/cli": "^7.17.0",
         "@babel/core": "^7.17.2",
         "@babel/preset-env": "^7.16.11",
