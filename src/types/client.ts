@@ -30,7 +30,7 @@ export type TikTokLiveConnectionOptions = {
 }
 
 
-export type RoomInfo = Record<string, any> & { status: number }
+export type RoomInfo = Record<string, any> & { data: { status: number } }
 export type RoomGiftInfo = any;
 
 export type FetchSignedWebSocketParams = {
@@ -49,11 +49,6 @@ export type WebcastHttpClientConfig = {
     authenticateWs?: boolean;
     signApiKey?: string;
 }
-
-export interface TikTokLiveConnectionWebSocketParams extends Record<string, any> {
-    compress?: string;
-}
-
 
 export type DecodedWebcastWebsocketMessage = WebcastWebsocketMessage & {
     webcastResponse?: any;
@@ -96,25 +91,33 @@ export type WebcastMessage = {
 
 // Top-Level Messages
 export type WebcastEventMessage = {
-    [K in keyof WebcastMessage as K extends `Webcast${string}` ? K : never]: WebcastMessage[K];
+    [K in keyof WebcastMessage as
+        K extends `Webcast${string}`
+            ? K extends `${string}_${string}`
+                ? never
+                : K
+            : never
+    ]: WebcastMessage[K];
 };
+
+
+export type DecodedData = {
+    [K in keyof WebcastEventMessage]: {
+        type: K;
+        data: WebcastEventMessage[K]
+    }
+}[keyof WebcastEventMessage];
 
 declare module '@/types/tiktok-schema' {
     export interface Message {
-        decodedData?: WebcastEventMessage[keyof WebcastEventMessage];
+        decodedData?: DecodedData;
     }
+
+    export interface WebcastGiftMessage {
+        extendedGiftInfo?: any;
+    }
+
 }
-
-
-export type WebcastWsEvent =
-    string
-    | 'webcastResponse'
-    | 'unknownResponse'
-    | 'messageDecodingFailed'
-    | 'connect'
-    | 'connectFailed'
-    | 'httpResponse';
-
 
 export type WebcastHttpClientRequestParams = Omit<Omit<AxiosRequestConfig, 'url'>, 'baseURL'> & {
     host: string;
@@ -123,4 +126,12 @@ export type WebcastHttpClientRequestParams = Omit<Omit<AxiosRequestConfig, 'url'
     signRequest: boolean;
 };
 
+
+export type WebSocketParams = {
+    [key: string]: string;
+    compress?: string;
+    room_id: string;
+    internal_ext: string;
+    cursor: string;
+}
 
