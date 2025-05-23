@@ -156,9 +156,9 @@ export const Device: DevicePreset = (process.env.RANDOMIZE_TIKTOK_DEVICE?.toLowe
 
 // Pick a location
 export const Location: LocationPreset = (process.env.RANDOMIZE_TIKTOK_LOCATION?.toLowerCase() === 'true') ? Locations[Math.floor(Math.random() * Locations.length)] : {
-    lang_country: 'en-US',
+    lang_country: 'en-DE',
     lang: 'en',
-    country: 'GB',
+    country: 'DE',
     tz_name: 'Europe/Berlin'
 };
 
@@ -229,10 +229,11 @@ const Config: IWebcastConfig = {
         'heartbeat_duration': '0',
         'resp_content_type': 'protobuf',
         'history_comment_count': '6',
+        // 'client_enter': '1',
         // We think last_rtt means "last round trip time" in millis.
-        'last_rtt': (Math.floor(Math.random() * 100) + 100).toString(),
+        'last_rtt': ((Math.random() * 100) + 100).toString()
     },
-    DEFAULT_WS_CLIENT_PARAMS_APPEND_PARAMETER: "&version_code=270000",
+    DEFAULT_WS_CLIENT_PARAMS_APPEND_PARAMETER: '&version_code=270000',
     DEFAULT_HTTP_CLIENT_HEADERS: {
         'Connection': 'keep-alive',
         'Cache-Control': 'max-age=0',
@@ -248,7 +249,7 @@ const Config: IWebcastConfig = {
         'Sec-Fetch-Ua-Mobile': '?0'
     },
     DEFAULT_WS_CLIENT_HEADERS: {
-        'User-Agent': Device['user_agent'],
+        'User-Agent': Device['user_agent']
     }
 };
 
