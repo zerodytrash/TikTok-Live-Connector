@@ -19,7 +19,7 @@ export class WebcastPushConnection extends (TikTokLiveConnection as new (...args
         // Process and emit decoded data depending on the message type
         webcastResponse.messages
             .forEach((message) => {
-                let simplifiedObj = simplifyObject(message.decodedData || {});
+                let simplifiedObj = simplifyObject(message.decodedData.data || {});
                 this.emit(ControlEvent.DECODED_DATA, message.type, simplifiedObj, message.binary);
 
                 switch (message.type) {
@@ -27,7 +27,7 @@ export class WebcastPushConnection extends (TikTokLiveConnection as new (...args
                         // Known control actions:
                         // 3 = Stream terminated by user
                         // 4 = Stream terminated by platform moderator (ban)
-                        const action = (message.decodedData as WebcastControlMessage).action;
+                        const action = (message.decodedData.data as WebcastControlMessage).action;
                         if ([3, 4].includes(action)) {
                             this.emit(WebcastEvent.STREAM_END, { action });
                             this.disconnect();
