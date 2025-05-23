@@ -15,7 +15,7 @@ import {
     WebcastSocialMessage,
     WebcastSubNotifyMessage
 } from '@/types/tiktok-schema';
-import { RoomGiftInfo, RoomInfo, WebcastMessage } from '@/types/client';
+import { RoomGiftInfo, RoomInfo, WebcastEventMessage, WebcastMessage } from '@/types/client';
 import TikTokWsClient from '@/lib/ws/lib/ws-client';
 
 export enum ControlEvent {
@@ -24,7 +24,8 @@ export enum ControlEvent {
     ERROR = 'error',
     RAW_DATA = 'rawData',
     DECODED_DATA = 'decodedData',
-    WEBSOCKET_CONNECTED = 'websocketConnected'
+    WEBSOCKET_CONNECTED = 'websocketConnected',
+    WEBSOCKET_DATA = 'websocketData',
 }
 
 
@@ -45,6 +46,8 @@ export enum WebcastEvent {
     FOLLOW = 'follow',
     SHARE = 'share',
     STREAM_END = 'streamEnd',
+    CONTROL_MESSAGE = 'controlMessage',
+    BARRAGE = 'barrage'
 }
 
 export enum ConnectState {
@@ -72,6 +75,8 @@ export type EventMap = {
     [WebcastEvent.ENVELOPE]: EventHandler<WebcastEnvelopeMessage>,
     [WebcastEvent.SUBSCRIBE]: EventHandler<WebcastSubNotifyMessage>,
     [WebcastEvent.STREAM_END]: (event: {action: ControlAction}) => void | Promise<void>,
+    [WebcastEvent.CONTROL_MESSAGE]: EventHandler<WebcastControlMessage>,
+    [WebcastEvent.BARRAGE]: EventHandler<WebcastMessage>,
 
     // Custom Events
     [WebcastEvent.FOLLOW]: EventHandler<WebcastSocialMessage>,
@@ -81,13 +86,14 @@ export type EventMap = {
     [ControlEvent.CONNECTED]: EventHandler<TikTokLiveConnectionState>,
     [ControlEvent.DISCONNECTED]: EventHandler<void>,
     [ControlEvent.ERROR]: EventHandler<any>,
+    [ControlEvent.WEBSOCKET_DATA]: EventHandler<Uint8Array>,
     [ControlEvent.RAW_DATA]: (type: string, data: Uint8Array) => void | Promise<void>;
     [ControlEvent.DECODED_DATA]: (type: string, event: any, binary: Uint8Array) => void | Promise<void>;
     [ControlEvent.WEBSOCKET_CONNECTED]: EventHandler<TikTokWsClient>
 
 };
 
-export const WebcastEventMap: Partial<Record<keyof WebcastMessage, string>> = {
+export const WebcastEventMap: Partial<Record<keyof WebcastEventMessage, keyof EventMap>> = {
     'WebcastChatMessage': WebcastEvent.CHAT,
     'WebcastMemberMessage': WebcastEvent.MEMBER,
     'WebcastRoomUserSeqMessage': WebcastEvent.ROOM_USER,
@@ -99,7 +105,8 @@ export const WebcastEventMap: Partial<Record<keyof WebcastMessage, string>> = {
     'WebcastLiveIntroMessage': WebcastEvent.LIVE_INTRO,
     'WebcastEmoteChatMessage': WebcastEvent.EMOTE,
     'WebcastEnvelopeMessage': WebcastEvent.ENVELOPE,
-    'WebcastSubNotifyMessage': WebcastEvent.SUBSCRIBE
+    'WebcastSubNotifyMessage': WebcastEvent.SUBSCRIBE,
+    'WebcastBarrageMessage': WebcastEvent.BARRAGE
 };
 
 
