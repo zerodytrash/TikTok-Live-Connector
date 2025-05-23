@@ -403,3 +403,120 @@ message WebcastWebsocketAck {
     uint64 id = 2;
     string type = 7;
 }
+
+
+// Message representing the room info
+message HeartbeatFrameRoomInfo {
+    uint64 room_id = 1;
+}
+
+// Message representing metadata field 6
+message HeartbeatFrameMetadataField6 {
+    uint32 unknown_1 = 14;
+}
+
+// Message representing metadata field 7
+message HeartbeatFrameMetadataField7 {
+    uint32 unknown_1 = 13;
+}
+
+// Heartbeat keepalive message
+message HeartbeatFrame {
+    HeartbeatFrameMetadataField6 metadata_field_6 = 6;
+    HeartbeatFrameMetadataField7 metadata_field_7 = 7;
+    HeartbeatFrameRoomInfo room_info = 8;
+}
+
+// TODO: In a future release, set client_enter=1 on both /im/fetch and WS url; this is what the web client does
+// Didn't do it because it requires an agent update & sign server update
+//         // Create a room enter container
+//        const container = ImEnterRoomMessagePushFrame.fromPartial({
+//            payloadType: "im_enter_room",
+//            payload: {
+//                roomId: roomId,
+//                unknown1: 12,
+//                role: "audience",
+//                cursor: cursor,
+//                unknown2: 0,
+//                unknown3: "0",
+//                unknown4: 0
+//            },
+//            metadata: {
+//                unknown1: 98
+//            }
+//        });
+message ImEnterRoomMessagePushFrame {
+
+    Metadata metadata = 6;
+    string payload_type = 7; // "im_enter_room"
+    ImEnterRoomMessage payload = 8;
+
+    message Metadata {
+        uint32 unknown1 = 14; // "98"
+    }
+
+    message ImEnterRoomMessage {
+        uint64 room_id = 1; // Room ID
+        uint32 unknown1 = 4; // "12"
+        string role = 5; // "audience"
+        string cursor = 6; // Cursor
+        optional int32  unknown2 = 7; // "0"
+        string unknown3 = 9; // "0"
+        optional int32 unknown4 = 10; // "0"
+    }
+
+}
+message WebcastBarrageMessage {
+    WebcastMessageEvent base_message = 1;
+    BarrageEvent event = 2;
+    optional BarrageType msg_type = 3;
+    ImageModel icon = 4;
+    int64 duration = 6;
+    ImageModel back_ground = 7;
+    ImageModel right_icon = 8;
+    int32 display_config = 9;
+    int64 gallery_gift_id = 10;
+    bool use_marquee = 14;
+    optional ShowType show_type = 15;
+    optional RenderType render_type = 17;
+    optional IconDisplayType left_icon_display_type = 18;
+    ImageModel ribbon_animation = 19;
+    string hybrid_url = 21;
+    string schema = 22;
+    string sub_type = 23;
+    PrivilegeLogExtra privilege_log_extra = 103;
+
+    enum BarrageType {
+        BARRAGE_TYPE_UNKNOWN = 0;
+        BARRAGE_TYPE_E_COM_ORDERING = 1;
+        BARRAGE_TYPE_E_COM_BUYING = 2;
+        BARRAGE_TYPE_NORMAL = 3;
+        BARRAGE_TYPE_SUBSCRIBE = 4;
+        BARRAGE_TYPE_EVENT_VIEW = 5;
+        BARRAGE_TYPE_EVENT_REGISTERED = 6;
+        BARRAGE_TYPE_SUBSCRIBE_GIFT = 7;
+        BARRAGE_TYPE_USER_UPGRADE = 8;
+        BARRAGE_TYPE_GRADE_USER_ENTRANCE_NOTIFICATION = 9;
+        BARRAGE_TYPE_FANS_LEVEL_UPGRADE = 10;
+        BARRAGE_TYPE_FANS_LEVEL_ENTRANCE = 11;
+        BARRAGE_TYPE_GAME_PARTNERSHIP = 12;
+        BARRAGE_TYPE_GIFT_GALLERY = 13;
+        BARRAGE_TYPE_E_COM_BOUGHT = 14;
+        BARRAGE_TYPE_COMMON_BARRAGE = 100;}
+    enum ShowType {
+        SHOW_TYPE_NORMAL = 0;
+        SHOW_TYPE_FADE_IN_OUT = 1;}
+    enum RenderType {
+        RENDER_TYPE_NATIVE = 0;
+        RENDER_TYPE_HYBRID = 1;
+        RENDER_TYPE_ALPHA = 2;}
+    enum IconDisplayType {
+        ICON_DISPLAY_TYPE_IMAGE = 0;
+        ICON_DISPLAY_TYPE_BADGE = 1;}
+    message BarrageEvent {
+        string event_name = 1;
+        map<string, string> params = 2;
+
+    }
+
+}

@@ -509,6 +509,334 @@ export interface WebcastWebsocketAck {
   type: string;
 }
 
+/** Message representing the room info */
+export interface HeartbeatFrameRoomInfo {
+  roomId: string;
+}
+
+/** Message representing metadata field 6 */
+export interface HeartbeatFrameMetadataField6 {
+  unknown1: number;
+}
+
+/** Message representing metadata field 7 */
+export interface HeartbeatFrameMetadataField7 {
+  unknown1: number;
+}
+
+/** Heartbeat keepalive message */
+export interface HeartbeatFrame {
+  metadataField6: HeartbeatFrameMetadataField6 | undefined;
+  metadataField7: HeartbeatFrameMetadataField7 | undefined;
+  roomInfo: HeartbeatFrameRoomInfo | undefined;
+}
+
+/**
+ * TODO: In a future release, set client_enter=1 on both /im/fetch and WS url; this is what the web client does
+ * Didn't do it because it requires an agent update & sign server update
+ *         // Create a room enter container
+ *        const container = ImEnterRoomMessagePushFrame.fromPartial({
+ *            payloadType: "im_enter_room",
+ *            payload: {
+ *                roomId: roomId,
+ *                unknown1: 12,
+ *                role: "audience",
+ *                cursor: cursor,
+ *                unknown2: 0,
+ *                unknown3: "0",
+ *                unknown4: 0
+ *            },
+ *            metadata: {
+ *                unknown1: 98
+ *            }
+ *        });
+ */
+export interface ImEnterRoomMessagePushFrame {
+  metadata:
+    | ImEnterRoomMessagePushFrame_Metadata
+    | undefined;
+  /** "im_enter_room" */
+  payloadType: string;
+  payload: ImEnterRoomMessagePushFrame_ImEnterRoomMessage | undefined;
+}
+
+export interface ImEnterRoomMessagePushFrame_Metadata {
+  /** "98" */
+  unknown1: number;
+}
+
+export interface ImEnterRoomMessagePushFrame_ImEnterRoomMessage {
+  /** Room ID */
+  roomId: string;
+  /** "12" */
+  unknown1: number;
+  /** "audience" */
+  role: string;
+  /** Cursor */
+  cursor: string;
+  /** "0" */
+  unknown2?:
+    | number
+    | undefined;
+  /** "0" */
+  unknown3: string;
+  /** "0" */
+  unknown4?: number | undefined;
+}
+
+export interface WebcastBarrageMessage {
+  baseMessage: WebcastMessageEvent | undefined;
+  event: WebcastBarrageMessage_BarrageEvent | undefined;
+  msgType?: WebcastBarrageMessage_BarrageType | undefined;
+  icon: ImageModel | undefined;
+  duration: string;
+  backGround: ImageModel | undefined;
+  rightIcon: ImageModel | undefined;
+  displayConfig: number;
+  galleryGiftId: string;
+  useMarquee: boolean;
+  showType?: WebcastBarrageMessage_ShowType | undefined;
+  renderType?: WebcastBarrageMessage_RenderType | undefined;
+  leftIconDisplayType?: WebcastBarrageMessage_IconDisplayType | undefined;
+  ribbonAnimation: ImageModel | undefined;
+  hybridUrl: string;
+  schema: string;
+  subType: string;
+  privilegeLogExtra: PrivilegeLogExtra | undefined;
+}
+
+export enum WebcastBarrageMessage_BarrageType {
+  BARRAGE_TYPE_UNKNOWN = 0,
+  BARRAGE_TYPE_E_COM_ORDERING = 1,
+  BARRAGE_TYPE_E_COM_BUYING = 2,
+  BARRAGE_TYPE_NORMAL = 3,
+  BARRAGE_TYPE_SUBSCRIBE = 4,
+  BARRAGE_TYPE_EVENT_VIEW = 5,
+  BARRAGE_TYPE_EVENT_REGISTERED = 6,
+  BARRAGE_TYPE_SUBSCRIBE_GIFT = 7,
+  BARRAGE_TYPE_USER_UPGRADE = 8,
+  BARRAGE_TYPE_GRADE_USER_ENTRANCE_NOTIFICATION = 9,
+  BARRAGE_TYPE_FANS_LEVEL_UPGRADE = 10,
+  BARRAGE_TYPE_FANS_LEVEL_ENTRANCE = 11,
+  BARRAGE_TYPE_GAME_PARTNERSHIP = 12,
+  BARRAGE_TYPE_GIFT_GALLERY = 13,
+  BARRAGE_TYPE_E_COM_BOUGHT = 14,
+  BARRAGE_TYPE_COMMON_BARRAGE = 100,
+  UNRECOGNIZED = -1,
+}
+
+export function webcastBarrageMessage_BarrageTypeFromJSON(object: any): WebcastBarrageMessage_BarrageType {
+  switch (object) {
+    case 0:
+    case "BARRAGE_TYPE_UNKNOWN":
+      return WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_UNKNOWN;
+    case 1:
+    case "BARRAGE_TYPE_E_COM_ORDERING":
+      return WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_E_COM_ORDERING;
+    case 2:
+    case "BARRAGE_TYPE_E_COM_BUYING":
+      return WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_E_COM_BUYING;
+    case 3:
+    case "BARRAGE_TYPE_NORMAL":
+      return WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_NORMAL;
+    case 4:
+    case "BARRAGE_TYPE_SUBSCRIBE":
+      return WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_SUBSCRIBE;
+    case 5:
+    case "BARRAGE_TYPE_EVENT_VIEW":
+      return WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_EVENT_VIEW;
+    case 6:
+    case "BARRAGE_TYPE_EVENT_REGISTERED":
+      return WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_EVENT_REGISTERED;
+    case 7:
+    case "BARRAGE_TYPE_SUBSCRIBE_GIFT":
+      return WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_SUBSCRIBE_GIFT;
+    case 8:
+    case "BARRAGE_TYPE_USER_UPGRADE":
+      return WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_USER_UPGRADE;
+    case 9:
+    case "BARRAGE_TYPE_GRADE_USER_ENTRANCE_NOTIFICATION":
+      return WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_GRADE_USER_ENTRANCE_NOTIFICATION;
+    case 10:
+    case "BARRAGE_TYPE_FANS_LEVEL_UPGRADE":
+      return WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_FANS_LEVEL_UPGRADE;
+    case 11:
+    case "BARRAGE_TYPE_FANS_LEVEL_ENTRANCE":
+      return WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_FANS_LEVEL_ENTRANCE;
+    case 12:
+    case "BARRAGE_TYPE_GAME_PARTNERSHIP":
+      return WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_GAME_PARTNERSHIP;
+    case 13:
+    case "BARRAGE_TYPE_GIFT_GALLERY":
+      return WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_GIFT_GALLERY;
+    case 14:
+    case "BARRAGE_TYPE_E_COM_BOUGHT":
+      return WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_E_COM_BOUGHT;
+    case 100:
+    case "BARRAGE_TYPE_COMMON_BARRAGE":
+      return WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_COMMON_BARRAGE;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return WebcastBarrageMessage_BarrageType.UNRECOGNIZED;
+  }
+}
+
+export function webcastBarrageMessage_BarrageTypeToJSON(object: WebcastBarrageMessage_BarrageType): string {
+  switch (object) {
+    case WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_UNKNOWN:
+      return "BARRAGE_TYPE_UNKNOWN";
+    case WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_E_COM_ORDERING:
+      return "BARRAGE_TYPE_E_COM_ORDERING";
+    case WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_E_COM_BUYING:
+      return "BARRAGE_TYPE_E_COM_BUYING";
+    case WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_NORMAL:
+      return "BARRAGE_TYPE_NORMAL";
+    case WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_SUBSCRIBE:
+      return "BARRAGE_TYPE_SUBSCRIBE";
+    case WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_EVENT_VIEW:
+      return "BARRAGE_TYPE_EVENT_VIEW";
+    case WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_EVENT_REGISTERED:
+      return "BARRAGE_TYPE_EVENT_REGISTERED";
+    case WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_SUBSCRIBE_GIFT:
+      return "BARRAGE_TYPE_SUBSCRIBE_GIFT";
+    case WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_USER_UPGRADE:
+      return "BARRAGE_TYPE_USER_UPGRADE";
+    case WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_GRADE_USER_ENTRANCE_NOTIFICATION:
+      return "BARRAGE_TYPE_GRADE_USER_ENTRANCE_NOTIFICATION";
+    case WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_FANS_LEVEL_UPGRADE:
+      return "BARRAGE_TYPE_FANS_LEVEL_UPGRADE";
+    case WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_FANS_LEVEL_ENTRANCE:
+      return "BARRAGE_TYPE_FANS_LEVEL_ENTRANCE";
+    case WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_GAME_PARTNERSHIP:
+      return "BARRAGE_TYPE_GAME_PARTNERSHIP";
+    case WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_GIFT_GALLERY:
+      return "BARRAGE_TYPE_GIFT_GALLERY";
+    case WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_E_COM_BOUGHT:
+      return "BARRAGE_TYPE_E_COM_BOUGHT";
+    case WebcastBarrageMessage_BarrageType.BARRAGE_TYPE_COMMON_BARRAGE:
+      return "BARRAGE_TYPE_COMMON_BARRAGE";
+    case WebcastBarrageMessage_BarrageType.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+export enum WebcastBarrageMessage_ShowType {
+  SHOW_TYPE_NORMAL = 0,
+  SHOW_TYPE_FADE_IN_OUT = 1,
+  UNRECOGNIZED = -1,
+}
+
+export function webcastBarrageMessage_ShowTypeFromJSON(object: any): WebcastBarrageMessage_ShowType {
+  switch (object) {
+    case 0:
+    case "SHOW_TYPE_NORMAL":
+      return WebcastBarrageMessage_ShowType.SHOW_TYPE_NORMAL;
+    case 1:
+    case "SHOW_TYPE_FADE_IN_OUT":
+      return WebcastBarrageMessage_ShowType.SHOW_TYPE_FADE_IN_OUT;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return WebcastBarrageMessage_ShowType.UNRECOGNIZED;
+  }
+}
+
+export function webcastBarrageMessage_ShowTypeToJSON(object: WebcastBarrageMessage_ShowType): string {
+  switch (object) {
+    case WebcastBarrageMessage_ShowType.SHOW_TYPE_NORMAL:
+      return "SHOW_TYPE_NORMAL";
+    case WebcastBarrageMessage_ShowType.SHOW_TYPE_FADE_IN_OUT:
+      return "SHOW_TYPE_FADE_IN_OUT";
+    case WebcastBarrageMessage_ShowType.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+export enum WebcastBarrageMessage_RenderType {
+  RENDER_TYPE_NATIVE = 0,
+  RENDER_TYPE_HYBRID = 1,
+  RENDER_TYPE_ALPHA = 2,
+  UNRECOGNIZED = -1,
+}
+
+export function webcastBarrageMessage_RenderTypeFromJSON(object: any): WebcastBarrageMessage_RenderType {
+  switch (object) {
+    case 0:
+    case "RENDER_TYPE_NATIVE":
+      return WebcastBarrageMessage_RenderType.RENDER_TYPE_NATIVE;
+    case 1:
+    case "RENDER_TYPE_HYBRID":
+      return WebcastBarrageMessage_RenderType.RENDER_TYPE_HYBRID;
+    case 2:
+    case "RENDER_TYPE_ALPHA":
+      return WebcastBarrageMessage_RenderType.RENDER_TYPE_ALPHA;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return WebcastBarrageMessage_RenderType.UNRECOGNIZED;
+  }
+}
+
+export function webcastBarrageMessage_RenderTypeToJSON(object: WebcastBarrageMessage_RenderType): string {
+  switch (object) {
+    case WebcastBarrageMessage_RenderType.RENDER_TYPE_NATIVE:
+      return "RENDER_TYPE_NATIVE";
+    case WebcastBarrageMessage_RenderType.RENDER_TYPE_HYBRID:
+      return "RENDER_TYPE_HYBRID";
+    case WebcastBarrageMessage_RenderType.RENDER_TYPE_ALPHA:
+      return "RENDER_TYPE_ALPHA";
+    case WebcastBarrageMessage_RenderType.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+export enum WebcastBarrageMessage_IconDisplayType {
+  ICON_DISPLAY_TYPE_IMAGE = 0,
+  ICON_DISPLAY_TYPE_BADGE = 1,
+  UNRECOGNIZED = -1,
+}
+
+export function webcastBarrageMessage_IconDisplayTypeFromJSON(object: any): WebcastBarrageMessage_IconDisplayType {
+  switch (object) {
+    case 0:
+    case "ICON_DISPLAY_TYPE_IMAGE":
+      return WebcastBarrageMessage_IconDisplayType.ICON_DISPLAY_TYPE_IMAGE;
+    case 1:
+    case "ICON_DISPLAY_TYPE_BADGE":
+      return WebcastBarrageMessage_IconDisplayType.ICON_DISPLAY_TYPE_BADGE;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return WebcastBarrageMessage_IconDisplayType.UNRECOGNIZED;
+  }
+}
+
+export function webcastBarrageMessage_IconDisplayTypeToJSON(object: WebcastBarrageMessage_IconDisplayType): string {
+  switch (object) {
+    case WebcastBarrageMessage_IconDisplayType.ICON_DISPLAY_TYPE_IMAGE:
+      return "ICON_DISPLAY_TYPE_IMAGE";
+    case WebcastBarrageMessage_IconDisplayType.ICON_DISPLAY_TYPE_BADGE:
+      return "ICON_DISPLAY_TYPE_BADGE";
+    case WebcastBarrageMessage_IconDisplayType.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
+export interface WebcastBarrageMessage_BarrageEvent {
+  eventName: string;
+  params: { [key: string]: string };
+}
+
+export interface WebcastBarrageMessage_BarrageEvent_ParamsEntry {
+  key: string;
+  value: string;
+}
+
 function createBaseWebcastResponse(): WebcastResponse {
   return {
     messages: [],
@@ -6050,6 +6378,1161 @@ export const WebcastWebsocketAck: MessageFns<WebcastWebsocketAck> = {
   },
 };
 
+function createBaseHeartbeatFrameRoomInfo(): HeartbeatFrameRoomInfo {
+  return { roomId: "0" };
+}
+
+export const HeartbeatFrameRoomInfo: MessageFns<HeartbeatFrameRoomInfo> = {
+  encode(message: HeartbeatFrameRoomInfo, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.roomId !== "0") {
+      writer.uint32(8).uint64(message.roomId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): HeartbeatFrameRoomInfo {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseHeartbeatFrameRoomInfo();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.roomId = reader.uint64().toString();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): HeartbeatFrameRoomInfo {
+    return { roomId: isSet(object.roomId) ? globalThis.String(object.roomId) : "0" };
+  },
+
+  toJSON(message: HeartbeatFrameRoomInfo): unknown {
+    const obj: any = {};
+    if (message.roomId !== "0") {
+      obj.roomId = message.roomId;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<HeartbeatFrameRoomInfo>, I>>(base?: I): HeartbeatFrameRoomInfo {
+    return HeartbeatFrameRoomInfo.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<HeartbeatFrameRoomInfo>, I>>(object: I): HeartbeatFrameRoomInfo {
+    const message = createBaseHeartbeatFrameRoomInfo();
+    message.roomId = object.roomId ?? "0";
+    return message;
+  },
+};
+
+function createBaseHeartbeatFrameMetadataField6(): HeartbeatFrameMetadataField6 {
+  return { unknown1: 0 };
+}
+
+export const HeartbeatFrameMetadataField6: MessageFns<HeartbeatFrameMetadataField6> = {
+  encode(message: HeartbeatFrameMetadataField6, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.unknown1 !== 0) {
+      writer.uint32(112).uint32(message.unknown1);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): HeartbeatFrameMetadataField6 {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseHeartbeatFrameMetadataField6();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 14: {
+          if (tag !== 112) {
+            break;
+          }
+
+          message.unknown1 = reader.uint32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): HeartbeatFrameMetadataField6 {
+    return { unknown1: isSet(object.unknown1) ? globalThis.Number(object.unknown1) : 0 };
+  },
+
+  toJSON(message: HeartbeatFrameMetadataField6): unknown {
+    const obj: any = {};
+    if (message.unknown1 !== 0) {
+      obj.unknown1 = Math.round(message.unknown1);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<HeartbeatFrameMetadataField6>, I>>(base?: I): HeartbeatFrameMetadataField6 {
+    return HeartbeatFrameMetadataField6.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<HeartbeatFrameMetadataField6>, I>>(object: I): HeartbeatFrameMetadataField6 {
+    const message = createBaseHeartbeatFrameMetadataField6();
+    message.unknown1 = object.unknown1 ?? 0;
+    return message;
+  },
+};
+
+function createBaseHeartbeatFrameMetadataField7(): HeartbeatFrameMetadataField7 {
+  return { unknown1: 0 };
+}
+
+export const HeartbeatFrameMetadataField7: MessageFns<HeartbeatFrameMetadataField7> = {
+  encode(message: HeartbeatFrameMetadataField7, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.unknown1 !== 0) {
+      writer.uint32(104).uint32(message.unknown1);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): HeartbeatFrameMetadataField7 {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseHeartbeatFrameMetadataField7();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 13: {
+          if (tag !== 104) {
+            break;
+          }
+
+          message.unknown1 = reader.uint32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): HeartbeatFrameMetadataField7 {
+    return { unknown1: isSet(object.unknown1) ? globalThis.Number(object.unknown1) : 0 };
+  },
+
+  toJSON(message: HeartbeatFrameMetadataField7): unknown {
+    const obj: any = {};
+    if (message.unknown1 !== 0) {
+      obj.unknown1 = Math.round(message.unknown1);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<HeartbeatFrameMetadataField7>, I>>(base?: I): HeartbeatFrameMetadataField7 {
+    return HeartbeatFrameMetadataField7.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<HeartbeatFrameMetadataField7>, I>>(object: I): HeartbeatFrameMetadataField7 {
+    const message = createBaseHeartbeatFrameMetadataField7();
+    message.unknown1 = object.unknown1 ?? 0;
+    return message;
+  },
+};
+
+function createBaseHeartbeatFrame(): HeartbeatFrame {
+  return { metadataField6: undefined, metadataField7: undefined, roomInfo: undefined };
+}
+
+export const HeartbeatFrame: MessageFns<HeartbeatFrame> = {
+  encode(message: HeartbeatFrame, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.metadataField6 !== undefined) {
+      HeartbeatFrameMetadataField6.encode(message.metadataField6, writer.uint32(50).fork()).join();
+    }
+    if (message.metadataField7 !== undefined) {
+      HeartbeatFrameMetadataField7.encode(message.metadataField7, writer.uint32(58).fork()).join();
+    }
+    if (message.roomInfo !== undefined) {
+      HeartbeatFrameRoomInfo.encode(message.roomInfo, writer.uint32(66).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): HeartbeatFrame {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseHeartbeatFrame();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.metadataField6 = HeartbeatFrameMetadataField6.decode(reader, reader.uint32());
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.metadataField7 = HeartbeatFrameMetadataField7.decode(reader, reader.uint32());
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.roomInfo = HeartbeatFrameRoomInfo.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): HeartbeatFrame {
+    return {
+      metadataField6: isSet(object.metadataField6)
+        ? HeartbeatFrameMetadataField6.fromJSON(object.metadataField6)
+        : undefined,
+      metadataField7: isSet(object.metadataField7)
+        ? HeartbeatFrameMetadataField7.fromJSON(object.metadataField7)
+        : undefined,
+      roomInfo: isSet(object.roomInfo) ? HeartbeatFrameRoomInfo.fromJSON(object.roomInfo) : undefined,
+    };
+  },
+
+  toJSON(message: HeartbeatFrame): unknown {
+    const obj: any = {};
+    if (message.metadataField6 !== undefined) {
+      obj.metadataField6 = HeartbeatFrameMetadataField6.toJSON(message.metadataField6);
+    }
+    if (message.metadataField7 !== undefined) {
+      obj.metadataField7 = HeartbeatFrameMetadataField7.toJSON(message.metadataField7);
+    }
+    if (message.roomInfo !== undefined) {
+      obj.roomInfo = HeartbeatFrameRoomInfo.toJSON(message.roomInfo);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<HeartbeatFrame>, I>>(base?: I): HeartbeatFrame {
+    return HeartbeatFrame.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<HeartbeatFrame>, I>>(object: I): HeartbeatFrame {
+    const message = createBaseHeartbeatFrame();
+    message.metadataField6 = (object.metadataField6 !== undefined && object.metadataField6 !== null)
+      ? HeartbeatFrameMetadataField6.fromPartial(object.metadataField6)
+      : undefined;
+    message.metadataField7 = (object.metadataField7 !== undefined && object.metadataField7 !== null)
+      ? HeartbeatFrameMetadataField7.fromPartial(object.metadataField7)
+      : undefined;
+    message.roomInfo = (object.roomInfo !== undefined && object.roomInfo !== null)
+      ? HeartbeatFrameRoomInfo.fromPartial(object.roomInfo)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseImEnterRoomMessagePushFrame(): ImEnterRoomMessagePushFrame {
+  return { metadata: undefined, payloadType: "", payload: undefined };
+}
+
+export const ImEnterRoomMessagePushFrame: MessageFns<ImEnterRoomMessagePushFrame> = {
+  encode(message: ImEnterRoomMessagePushFrame, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.metadata !== undefined) {
+      ImEnterRoomMessagePushFrame_Metadata.encode(message.metadata, writer.uint32(50).fork()).join();
+    }
+    if (message.payloadType !== "") {
+      writer.uint32(58).string(message.payloadType);
+    }
+    if (message.payload !== undefined) {
+      ImEnterRoomMessagePushFrame_ImEnterRoomMessage.encode(message.payload, writer.uint32(66).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ImEnterRoomMessagePushFrame {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseImEnterRoomMessagePushFrame();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.metadata = ImEnterRoomMessagePushFrame_Metadata.decode(reader, reader.uint32());
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.payloadType = reader.string();
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.payload = ImEnterRoomMessagePushFrame_ImEnterRoomMessage.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ImEnterRoomMessagePushFrame {
+    return {
+      metadata: isSet(object.metadata) ? ImEnterRoomMessagePushFrame_Metadata.fromJSON(object.metadata) : undefined,
+      payloadType: isSet(object.payloadType) ? globalThis.String(object.payloadType) : "",
+      payload: isSet(object.payload)
+        ? ImEnterRoomMessagePushFrame_ImEnterRoomMessage.fromJSON(object.payload)
+        : undefined,
+    };
+  },
+
+  toJSON(message: ImEnterRoomMessagePushFrame): unknown {
+    const obj: any = {};
+    if (message.metadata !== undefined) {
+      obj.metadata = ImEnterRoomMessagePushFrame_Metadata.toJSON(message.metadata);
+    }
+    if (message.payloadType !== "") {
+      obj.payloadType = message.payloadType;
+    }
+    if (message.payload !== undefined) {
+      obj.payload = ImEnterRoomMessagePushFrame_ImEnterRoomMessage.toJSON(message.payload);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ImEnterRoomMessagePushFrame>, I>>(base?: I): ImEnterRoomMessagePushFrame {
+    return ImEnterRoomMessagePushFrame.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ImEnterRoomMessagePushFrame>, I>>(object: I): ImEnterRoomMessagePushFrame {
+    const message = createBaseImEnterRoomMessagePushFrame();
+    message.metadata = (object.metadata !== undefined && object.metadata !== null)
+      ? ImEnterRoomMessagePushFrame_Metadata.fromPartial(object.metadata)
+      : undefined;
+    message.payloadType = object.payloadType ?? "";
+    message.payload = (object.payload !== undefined && object.payload !== null)
+      ? ImEnterRoomMessagePushFrame_ImEnterRoomMessage.fromPartial(object.payload)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseImEnterRoomMessagePushFrame_Metadata(): ImEnterRoomMessagePushFrame_Metadata {
+  return { unknown1: 0 };
+}
+
+export const ImEnterRoomMessagePushFrame_Metadata: MessageFns<ImEnterRoomMessagePushFrame_Metadata> = {
+  encode(message: ImEnterRoomMessagePushFrame_Metadata, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.unknown1 !== 0) {
+      writer.uint32(112).uint32(message.unknown1);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ImEnterRoomMessagePushFrame_Metadata {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseImEnterRoomMessagePushFrame_Metadata();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 14: {
+          if (tag !== 112) {
+            break;
+          }
+
+          message.unknown1 = reader.uint32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ImEnterRoomMessagePushFrame_Metadata {
+    return { unknown1: isSet(object.unknown1) ? globalThis.Number(object.unknown1) : 0 };
+  },
+
+  toJSON(message: ImEnterRoomMessagePushFrame_Metadata): unknown {
+    const obj: any = {};
+    if (message.unknown1 !== 0) {
+      obj.unknown1 = Math.round(message.unknown1);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ImEnterRoomMessagePushFrame_Metadata>, I>>(
+    base?: I,
+  ): ImEnterRoomMessagePushFrame_Metadata {
+    return ImEnterRoomMessagePushFrame_Metadata.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ImEnterRoomMessagePushFrame_Metadata>, I>>(
+    object: I,
+  ): ImEnterRoomMessagePushFrame_Metadata {
+    const message = createBaseImEnterRoomMessagePushFrame_Metadata();
+    message.unknown1 = object.unknown1 ?? 0;
+    return message;
+  },
+};
+
+function createBaseImEnterRoomMessagePushFrame_ImEnterRoomMessage(): ImEnterRoomMessagePushFrame_ImEnterRoomMessage {
+  return { roomId: "0", unknown1: 0, role: "", cursor: "", unknown2: undefined, unknown3: "", unknown4: undefined };
+}
+
+export const ImEnterRoomMessagePushFrame_ImEnterRoomMessage: MessageFns<
+  ImEnterRoomMessagePushFrame_ImEnterRoomMessage
+> = {
+  encode(
+    message: ImEnterRoomMessagePushFrame_ImEnterRoomMessage,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.roomId !== "0") {
+      writer.uint32(8).uint64(message.roomId);
+    }
+    if (message.unknown1 !== 0) {
+      writer.uint32(32).uint32(message.unknown1);
+    }
+    if (message.role !== "") {
+      writer.uint32(42).string(message.role);
+    }
+    if (message.cursor !== "") {
+      writer.uint32(50).string(message.cursor);
+    }
+    if (message.unknown2 !== undefined) {
+      writer.uint32(56).int32(message.unknown2);
+    }
+    if (message.unknown3 !== "") {
+      writer.uint32(74).string(message.unknown3);
+    }
+    if (message.unknown4 !== undefined) {
+      writer.uint32(80).int32(message.unknown4);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ImEnterRoomMessagePushFrame_ImEnterRoomMessage {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseImEnterRoomMessagePushFrame_ImEnterRoomMessage();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.roomId = reader.uint64().toString();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.unknown1 = reader.uint32();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.role = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.cursor = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.unknown2 = reader.int32();
+          continue;
+        }
+        case 9: {
+          if (tag !== 74) {
+            break;
+          }
+
+          message.unknown3 = reader.string();
+          continue;
+        }
+        case 10: {
+          if (tag !== 80) {
+            break;
+          }
+
+          message.unknown4 = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): ImEnterRoomMessagePushFrame_ImEnterRoomMessage {
+    return {
+      roomId: isSet(object.roomId) ? globalThis.String(object.roomId) : "0",
+      unknown1: isSet(object.unknown1) ? globalThis.Number(object.unknown1) : 0,
+      role: isSet(object.role) ? globalThis.String(object.role) : "",
+      cursor: isSet(object.cursor) ? globalThis.String(object.cursor) : "",
+      unknown2: isSet(object.unknown2) ? globalThis.Number(object.unknown2) : undefined,
+      unknown3: isSet(object.unknown3) ? globalThis.String(object.unknown3) : "",
+      unknown4: isSet(object.unknown4) ? globalThis.Number(object.unknown4) : undefined,
+    };
+  },
+
+  toJSON(message: ImEnterRoomMessagePushFrame_ImEnterRoomMessage): unknown {
+    const obj: any = {};
+    if (message.roomId !== "0") {
+      obj.roomId = message.roomId;
+    }
+    if (message.unknown1 !== 0) {
+      obj.unknown1 = Math.round(message.unknown1);
+    }
+    if (message.role !== "") {
+      obj.role = message.role;
+    }
+    if (message.cursor !== "") {
+      obj.cursor = message.cursor;
+    }
+    if (message.unknown2 !== undefined) {
+      obj.unknown2 = Math.round(message.unknown2);
+    }
+    if (message.unknown3 !== "") {
+      obj.unknown3 = message.unknown3;
+    }
+    if (message.unknown4 !== undefined) {
+      obj.unknown4 = Math.round(message.unknown4);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<ImEnterRoomMessagePushFrame_ImEnterRoomMessage>, I>>(
+    base?: I,
+  ): ImEnterRoomMessagePushFrame_ImEnterRoomMessage {
+    return ImEnterRoomMessagePushFrame_ImEnterRoomMessage.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<ImEnterRoomMessagePushFrame_ImEnterRoomMessage>, I>>(
+    object: I,
+  ): ImEnterRoomMessagePushFrame_ImEnterRoomMessage {
+    const message = createBaseImEnterRoomMessagePushFrame_ImEnterRoomMessage();
+    message.roomId = object.roomId ?? "0";
+    message.unknown1 = object.unknown1 ?? 0;
+    message.role = object.role ?? "";
+    message.cursor = object.cursor ?? "";
+    message.unknown2 = object.unknown2 ?? undefined;
+    message.unknown3 = object.unknown3 ?? "";
+    message.unknown4 = object.unknown4 ?? undefined;
+    return message;
+  },
+};
+
+function createBaseWebcastBarrageMessage(): WebcastBarrageMessage {
+  return {
+    baseMessage: undefined,
+    event: undefined,
+    msgType: undefined,
+    icon: undefined,
+    duration: "0",
+    backGround: undefined,
+    rightIcon: undefined,
+    displayConfig: 0,
+    galleryGiftId: "0",
+    useMarquee: false,
+    showType: undefined,
+    renderType: undefined,
+    leftIconDisplayType: undefined,
+    ribbonAnimation: undefined,
+    hybridUrl: "",
+    schema: "",
+    subType: "",
+    privilegeLogExtra: undefined,
+  };
+}
+
+export const WebcastBarrageMessage: MessageFns<WebcastBarrageMessage> = {
+  encode(message: WebcastBarrageMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.baseMessage !== undefined) {
+      WebcastMessageEvent.encode(message.baseMessage, writer.uint32(10).fork()).join();
+    }
+    if (message.event !== undefined) {
+      WebcastBarrageMessage_BarrageEvent.encode(message.event, writer.uint32(18).fork()).join();
+    }
+    if (message.msgType !== undefined) {
+      writer.uint32(24).int32(message.msgType);
+    }
+    if (message.icon !== undefined) {
+      ImageModel.encode(message.icon, writer.uint32(34).fork()).join();
+    }
+    if (message.duration !== "0") {
+      writer.uint32(48).int64(message.duration);
+    }
+    if (message.backGround !== undefined) {
+      ImageModel.encode(message.backGround, writer.uint32(58).fork()).join();
+    }
+    if (message.rightIcon !== undefined) {
+      ImageModel.encode(message.rightIcon, writer.uint32(66).fork()).join();
+    }
+    if (message.displayConfig !== 0) {
+      writer.uint32(72).int32(message.displayConfig);
+    }
+    if (message.galleryGiftId !== "0") {
+      writer.uint32(80).int64(message.galleryGiftId);
+    }
+    if (message.useMarquee !== false) {
+      writer.uint32(112).bool(message.useMarquee);
+    }
+    if (message.showType !== undefined) {
+      writer.uint32(120).int32(message.showType);
+    }
+    if (message.renderType !== undefined) {
+      writer.uint32(136).int32(message.renderType);
+    }
+    if (message.leftIconDisplayType !== undefined) {
+      writer.uint32(144).int32(message.leftIconDisplayType);
+    }
+    if (message.ribbonAnimation !== undefined) {
+      ImageModel.encode(message.ribbonAnimation, writer.uint32(154).fork()).join();
+    }
+    if (message.hybridUrl !== "") {
+      writer.uint32(170).string(message.hybridUrl);
+    }
+    if (message.schema !== "") {
+      writer.uint32(178).string(message.schema);
+    }
+    if (message.subType !== "") {
+      writer.uint32(186).string(message.subType);
+    }
+    if (message.privilegeLogExtra !== undefined) {
+      PrivilegeLogExtra.encode(message.privilegeLogExtra, writer.uint32(826).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): WebcastBarrageMessage {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseWebcastBarrageMessage();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.baseMessage = WebcastMessageEvent.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.event = WebcastBarrageMessage_BarrageEvent.decode(reader, reader.uint32());
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.msgType = reader.int32() as any;
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.icon = ImageModel.decode(reader, reader.uint32());
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.duration = reader.int64().toString();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.backGround = ImageModel.decode(reader, reader.uint32());
+          continue;
+        }
+        case 8: {
+          if (tag !== 66) {
+            break;
+          }
+
+          message.rightIcon = ImageModel.decode(reader, reader.uint32());
+          continue;
+        }
+        case 9: {
+          if (tag !== 72) {
+            break;
+          }
+
+          message.displayConfig = reader.int32();
+          continue;
+        }
+        case 10: {
+          if (tag !== 80) {
+            break;
+          }
+
+          message.galleryGiftId = reader.int64().toString();
+          continue;
+        }
+        case 14: {
+          if (tag !== 112) {
+            break;
+          }
+
+          message.useMarquee = reader.bool();
+          continue;
+        }
+        case 15: {
+          if (tag !== 120) {
+            break;
+          }
+
+          message.showType = reader.int32() as any;
+          continue;
+        }
+        case 17: {
+          if (tag !== 136) {
+            break;
+          }
+
+          message.renderType = reader.int32() as any;
+          continue;
+        }
+        case 18: {
+          if (tag !== 144) {
+            break;
+          }
+
+          message.leftIconDisplayType = reader.int32() as any;
+          continue;
+        }
+        case 19: {
+          if (tag !== 154) {
+            break;
+          }
+
+          message.ribbonAnimation = ImageModel.decode(reader, reader.uint32());
+          continue;
+        }
+        case 21: {
+          if (tag !== 170) {
+            break;
+          }
+
+          message.hybridUrl = reader.string();
+          continue;
+        }
+        case 22: {
+          if (tag !== 178) {
+            break;
+          }
+
+          message.schema = reader.string();
+          continue;
+        }
+        case 23: {
+          if (tag !== 186) {
+            break;
+          }
+
+          message.subType = reader.string();
+          continue;
+        }
+        case 103: {
+          if (tag !== 826) {
+            break;
+          }
+
+          message.privilegeLogExtra = PrivilegeLogExtra.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): WebcastBarrageMessage {
+    return {
+      baseMessage: isSet(object.baseMessage) ? WebcastMessageEvent.fromJSON(object.baseMessage) : undefined,
+      event: isSet(object.event) ? WebcastBarrageMessage_BarrageEvent.fromJSON(object.event) : undefined,
+      msgType: isSet(object.msgType) ? webcastBarrageMessage_BarrageTypeFromJSON(object.msgType) : undefined,
+      icon: isSet(object.icon) ? ImageModel.fromJSON(object.icon) : undefined,
+      duration: isSet(object.duration) ? globalThis.String(object.duration) : "0",
+      backGround: isSet(object.backGround) ? ImageModel.fromJSON(object.backGround) : undefined,
+      rightIcon: isSet(object.rightIcon) ? ImageModel.fromJSON(object.rightIcon) : undefined,
+      displayConfig: isSet(object.displayConfig) ? globalThis.Number(object.displayConfig) : 0,
+      galleryGiftId: isSet(object.galleryGiftId) ? globalThis.String(object.galleryGiftId) : "0",
+      useMarquee: isSet(object.useMarquee) ? globalThis.Boolean(object.useMarquee) : false,
+      showType: isSet(object.showType) ? webcastBarrageMessage_ShowTypeFromJSON(object.showType) : undefined,
+      renderType: isSet(object.renderType) ? webcastBarrageMessage_RenderTypeFromJSON(object.renderType) : undefined,
+      leftIconDisplayType: isSet(object.leftIconDisplayType)
+        ? webcastBarrageMessage_IconDisplayTypeFromJSON(object.leftIconDisplayType)
+        : undefined,
+      ribbonAnimation: isSet(object.ribbonAnimation) ? ImageModel.fromJSON(object.ribbonAnimation) : undefined,
+      hybridUrl: isSet(object.hybridUrl) ? globalThis.String(object.hybridUrl) : "",
+      schema: isSet(object.schema) ? globalThis.String(object.schema) : "",
+      subType: isSet(object.subType) ? globalThis.String(object.subType) : "",
+      privilegeLogExtra: isSet(object.privilegeLogExtra)
+        ? PrivilegeLogExtra.fromJSON(object.privilegeLogExtra)
+        : undefined,
+    };
+  },
+
+  toJSON(message: WebcastBarrageMessage): unknown {
+    const obj: any = {};
+    if (message.baseMessage !== undefined) {
+      obj.baseMessage = WebcastMessageEvent.toJSON(message.baseMessage);
+    }
+    if (message.event !== undefined) {
+      obj.event = WebcastBarrageMessage_BarrageEvent.toJSON(message.event);
+    }
+    if (message.msgType !== undefined) {
+      obj.msgType = webcastBarrageMessage_BarrageTypeToJSON(message.msgType);
+    }
+    if (message.icon !== undefined) {
+      obj.icon = ImageModel.toJSON(message.icon);
+    }
+    if (message.duration !== "0") {
+      obj.duration = message.duration;
+    }
+    if (message.backGround !== undefined) {
+      obj.backGround = ImageModel.toJSON(message.backGround);
+    }
+    if (message.rightIcon !== undefined) {
+      obj.rightIcon = ImageModel.toJSON(message.rightIcon);
+    }
+    if (message.displayConfig !== 0) {
+      obj.displayConfig = Math.round(message.displayConfig);
+    }
+    if (message.galleryGiftId !== "0") {
+      obj.galleryGiftId = message.galleryGiftId;
+    }
+    if (message.useMarquee !== false) {
+      obj.useMarquee = message.useMarquee;
+    }
+    if (message.showType !== undefined) {
+      obj.showType = webcastBarrageMessage_ShowTypeToJSON(message.showType);
+    }
+    if (message.renderType !== undefined) {
+      obj.renderType = webcastBarrageMessage_RenderTypeToJSON(message.renderType);
+    }
+    if (message.leftIconDisplayType !== undefined) {
+      obj.leftIconDisplayType = webcastBarrageMessage_IconDisplayTypeToJSON(message.leftIconDisplayType);
+    }
+    if (message.ribbonAnimation !== undefined) {
+      obj.ribbonAnimation = ImageModel.toJSON(message.ribbonAnimation);
+    }
+    if (message.hybridUrl !== "") {
+      obj.hybridUrl = message.hybridUrl;
+    }
+    if (message.schema !== "") {
+      obj.schema = message.schema;
+    }
+    if (message.subType !== "") {
+      obj.subType = message.subType;
+    }
+    if (message.privilegeLogExtra !== undefined) {
+      obj.privilegeLogExtra = PrivilegeLogExtra.toJSON(message.privilegeLogExtra);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<WebcastBarrageMessage>, I>>(base?: I): WebcastBarrageMessage {
+    return WebcastBarrageMessage.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<WebcastBarrageMessage>, I>>(object: I): WebcastBarrageMessage {
+    const message = createBaseWebcastBarrageMessage();
+    message.baseMessage = (object.baseMessage !== undefined && object.baseMessage !== null)
+      ? WebcastMessageEvent.fromPartial(object.baseMessage)
+      : undefined;
+    message.event = (object.event !== undefined && object.event !== null)
+      ? WebcastBarrageMessage_BarrageEvent.fromPartial(object.event)
+      : undefined;
+    message.msgType = object.msgType ?? undefined;
+    message.icon = (object.icon !== undefined && object.icon !== null)
+      ? ImageModel.fromPartial(object.icon)
+      : undefined;
+    message.duration = object.duration ?? "0";
+    message.backGround = (object.backGround !== undefined && object.backGround !== null)
+      ? ImageModel.fromPartial(object.backGround)
+      : undefined;
+    message.rightIcon = (object.rightIcon !== undefined && object.rightIcon !== null)
+      ? ImageModel.fromPartial(object.rightIcon)
+      : undefined;
+    message.displayConfig = object.displayConfig ?? 0;
+    message.galleryGiftId = object.galleryGiftId ?? "0";
+    message.useMarquee = object.useMarquee ?? false;
+    message.showType = object.showType ?? undefined;
+    message.renderType = object.renderType ?? undefined;
+    message.leftIconDisplayType = object.leftIconDisplayType ?? undefined;
+    message.ribbonAnimation = (object.ribbonAnimation !== undefined && object.ribbonAnimation !== null)
+      ? ImageModel.fromPartial(object.ribbonAnimation)
+      : undefined;
+    message.hybridUrl = object.hybridUrl ?? "";
+    message.schema = object.schema ?? "";
+    message.subType = object.subType ?? "";
+    message.privilegeLogExtra = (object.privilegeLogExtra !== undefined && object.privilegeLogExtra !== null)
+      ? PrivilegeLogExtra.fromPartial(object.privilegeLogExtra)
+      : undefined;
+    return message;
+  },
+};
+
+function createBaseWebcastBarrageMessage_BarrageEvent(): WebcastBarrageMessage_BarrageEvent {
+  return { eventName: "", params: {} };
+}
+
+export const WebcastBarrageMessage_BarrageEvent: MessageFns<WebcastBarrageMessage_BarrageEvent> = {
+  encode(message: WebcastBarrageMessage_BarrageEvent, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.eventName !== "") {
+      writer.uint32(10).string(message.eventName);
+    }
+    Object.entries(message.params).forEach(([key, value]) => {
+      WebcastBarrageMessage_BarrageEvent_ParamsEntry.encode({ key: key as any, value }, writer.uint32(18).fork())
+        .join();
+    });
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): WebcastBarrageMessage_BarrageEvent {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseWebcastBarrageMessage_BarrageEvent();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.eventName = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          const entry2 = WebcastBarrageMessage_BarrageEvent_ParamsEntry.decode(reader, reader.uint32());
+          if (entry2.value !== undefined) {
+            message.params[entry2.key] = entry2.value;
+          }
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): WebcastBarrageMessage_BarrageEvent {
+    return {
+      eventName: isSet(object.eventName) ? globalThis.String(object.eventName) : "",
+      params: isObject(object.params)
+        ? Object.entries(object.params).reduce<{ [key: string]: string }>((acc, [key, value]) => {
+          acc[key] = String(value);
+          return acc;
+        }, {})
+        : {},
+    };
+  },
+
+  toJSON(message: WebcastBarrageMessage_BarrageEvent): unknown {
+    const obj: any = {};
+    if (message.eventName !== "") {
+      obj.eventName = message.eventName;
+    }
+    if (message.params) {
+      const entries = Object.entries(message.params);
+      if (entries.length > 0) {
+        obj.params = {};
+        entries.forEach(([k, v]) => {
+          obj.params[k] = v;
+        });
+      }
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<WebcastBarrageMessage_BarrageEvent>, I>>(
+    base?: I,
+  ): WebcastBarrageMessage_BarrageEvent {
+    return WebcastBarrageMessage_BarrageEvent.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<WebcastBarrageMessage_BarrageEvent>, I>>(
+    object: I,
+  ): WebcastBarrageMessage_BarrageEvent {
+    const message = createBaseWebcastBarrageMessage_BarrageEvent();
+    message.eventName = object.eventName ?? "";
+    message.params = Object.entries(object.params ?? {}).reduce<{ [key: string]: string }>((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = globalThis.String(value);
+      }
+      return acc;
+    }, {});
+    return message;
+  },
+};
+
+function createBaseWebcastBarrageMessage_BarrageEvent_ParamsEntry(): WebcastBarrageMessage_BarrageEvent_ParamsEntry {
+  return { key: "", value: "" };
+}
+
+export const WebcastBarrageMessage_BarrageEvent_ParamsEntry: MessageFns<
+  WebcastBarrageMessage_BarrageEvent_ParamsEntry
+> = {
+  encode(
+    message: WebcastBarrageMessage_BarrageEvent_ParamsEntry,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== "") {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): WebcastBarrageMessage_BarrageEvent_ParamsEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseWebcastBarrageMessage_BarrageEvent_ParamsEntry();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.key = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.value = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): WebcastBarrageMessage_BarrageEvent_ParamsEntry {
+    return {
+      key: isSet(object.key) ? globalThis.String(object.key) : "",
+      value: isSet(object.value) ? globalThis.String(object.value) : "",
+    };
+  },
+
+  toJSON(message: WebcastBarrageMessage_BarrageEvent_ParamsEntry): unknown {
+    const obj: any = {};
+    if (message.key !== "") {
+      obj.key = message.key;
+    }
+    if (message.value !== "") {
+      obj.value = message.value;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<WebcastBarrageMessage_BarrageEvent_ParamsEntry>, I>>(
+    base?: I,
+  ): WebcastBarrageMessage_BarrageEvent_ParamsEntry {
+    return WebcastBarrageMessage_BarrageEvent_ParamsEntry.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<WebcastBarrageMessage_BarrageEvent_ParamsEntry>, I>>(
+    object: I,
+  ): WebcastBarrageMessage_BarrageEvent_ParamsEntry {
+    const message = createBaseWebcastBarrageMessage_BarrageEvent_ParamsEntry();
+    message.key = object.key ?? "";
+    message.value = object.value ?? "";
+    return message;
+  },
+};
+
 function bytesFromBase64(b64: string): Uint8Array {
   if ((globalThis as any).Buffer) {
     return Uint8Array.from(globalThis.Buffer.from(b64, "base64"));
@@ -6086,6 +7569,10 @@ export type DeepPartial<T> = T extends Builtin ? T
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type Exact<P, I extends P> = P extends Builtin ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
+
+function isObject(value: any): boolean {
+  return typeof value === "object" && value !== null;
+}
 
 function isSet(value: any): boolean {
   return value !== null && value !== undefined;
