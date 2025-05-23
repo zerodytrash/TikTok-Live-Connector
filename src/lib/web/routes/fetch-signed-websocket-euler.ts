@@ -69,12 +69,13 @@ export class FetchSignedWebSocketFromEulerRoute extends Route<FetchSignedWebSock
         }
 
         let response: AxiosResponse<ArrayBuffer>;
+
         try {
             response = await this.webClient.webSigner.webcast.fetchWebcastURL(
                 'ttlive-node',
                 roomId,
                 uniqueId,
-                this.webClient.clientParams?.cursor,
+                this.webClient.clientParams?.cursor ?? undefined,
                 resolvedSessionId,
                 Config.DEFAULT_HTTP_CLIENT_HEADERS['User-Agent'],
                 preferredAgentIdsParam,

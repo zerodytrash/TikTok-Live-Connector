@@ -8,10 +8,10 @@ import {
 
 import TypedEventEmitter from 'typed-emitter';
 import { EventEmitter } from 'node:events';
-import { ControlAction, WebcastControlMessage, WebcastResponse } from '@/types/tiktok-schema';
+import { ControlAction, WebcastResponse } from '@/types/tiktok-schema';
 import TikTokWsClient from '@/lib/ws/lib/ws-client';
 import Config from '@/lib/config';
-import { RoomGiftInfo, RoomInfo, TikTokLiveConnectionOptions } from '@/types/client';
+import { DecodedData, RoomGiftInfo, RoomInfo, TikTokLiveConnectionOptions, WebSocketParams } from '@/types/client';
 import { validateAndNormalizeUniqueId } from '@/lib/utilities';
 import { RoomInfoResponse, TikTokWebClient } from '@/lib/web';
 import { EulerSigner } from '@/lib/web/lib/tiktok-signer';
@@ -73,7 +73,7 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
             preferredAgentIds: [],
             connectWithUniqueId: false,
             processInitialData: true,
-            fetchRoomInfoOnConnect: false,
+            fetchRoomInfoOnConnect: true,
             enableExtendedGiftInfo: false,
             enableRequestPolling: true,
             requestPollingIntervalMs: 1000,
@@ -228,11 +228,9 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
         // <Optional> Fetch Room Info
         if (this.options?.fetchRoomInfoOnConnect) {
             this._roomInfo = await this.fetchRoomInfo();
-
-            if (this._roomInfo.status === 4) {
-                throw new UserOfflineError('LIVE has ended');
+            if (this._roomInfo.data.status === 4) {
+                throw new UserOfflineError('The requested user isn\'t online :(');
             }
-
         }
 
         // <Optional> Fetch Gift Info
@@ -265,7 +263,7 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
         this.clientParams.internal_ext = webcastResponse.internalExt;
 
         // Connect to the WebSocket
-        const wsParams: Record<string, string> = {
+        const wsParams: WebSocketParams = {
             compress: 'gzip',
             room_id: this.roomId,
             internal_ext: webcastResponse.internalExt,
@@ -293,7 +291,6 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
      */
     public async fetchRoomId(uniqueId?: string): Promise<string> {
         let errors: any[] = [];
-
         uniqueId ||= this.uniqueId;
 
         // Method 1
@@ -469,7 +466,7 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
      * @returns Promise that will be resolved when the WebSocket connection is established
      * @protected
      */
-    protected async setupWebsocket(wsUrl: string, wsParams: Record<string, string>): Promise<TikTokWsClient> {
+    protected async setupWebsocket(wsUrl: string, wsParams: WebSocketParams): Promise<TikTokWsClient> {
         return new Promise<TikTokWsClient>((resolve, reject) => {
 
             // Instantiate the client
@@ -493,7 +490,8 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
             });
 
             wsClient.on('connectFailed', (err: any) => reject(`Websocket connection failed, ${err}`));
-            wsClient.on('webcastResponse', (msg: WebcastResponse) => this.processWebcastResponse(msg));
+            wsClient.on('webcastResponse', this.processWebcastResponse.bind(this));
+            wsClient.on('webSocketData', (data: Uint8Array) => this.emit(ControlEvent.WEBSOCKET_DATA, data));
             wsClient.on('messageDecodingFailed', (err: any) => this.handleError(err, 'Websocket message decoding failed'));
             const connectTimeout = setTimeout(() => reject('Websocket not responding'), 20_000);
         });
@@ -501,59 +499,77 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
 
     protected async processWebcastResponse(webcastResponse: WebcastResponse): Promise<void> {
 
-        // Emit Raw Data
-        webcastResponse.messages.forEach((
-            message) => this.emit(ControlEvent.RAW_DATA, message.type, message.binary)
-        );
+        for (const message of webcastResponse.messages) {
 
-        // Process and emit decoded data depending on the message type
-        for (let message of webcastResponse.messages) {
-            const messageData = message.decodedData || {} as any;
+            if (!message.decodedData) {
+                continue;
+            }
 
-            // Emit a decoded data event
+            // Emit the decoded data
             this.emit(
                 ControlEvent.DECODED_DATA,
                 message.type,
-                message.decodedData || {},
+                message.decodedData,
                 message.binary
             );
 
-            // Attempt to get it from the map
-            const basicEvent = WebcastEventMap[message.type];
-            if (basicEvent) {
-                this.emit(basicEvent, messageData);
-                return;
-            }
-
-            // Handle custom events
-            switch (message.type) {
-                case 'WebcastControlMessage':
-                    const controlMessage = messageData as WebcastControlMessage;
-                    if (controlMessage.action === ControlAction.CONTROL_ACTION_STREAM_SUSPENDED || controlMessage.action === ControlAction.CONTROL_ACTION_STREAM_ENDED) {
-                        this.emit(WebcastEvent.STREAM_END, { action: controlMessage.action });
-                        await this.disconnect();
-                    }
-                    break;
-                case 'WebcastGiftMessage':
-                    // Add extended gift info if option enabled
-                    if (Array.isArray(this.availableGifts) && messageData.giftId) {
-                        messageData.extendedGiftInfo = this.availableGifts.find((x) => x.id === messageData.giftId);
-                    }
-                    this.emit(WebcastEvent.GIFT, messageData);
-                    break;
-                case 'WebcastSocialMessage':
-                    this.emit(WebcastEvent.SOCIAL, messageData);
-                    if (messageData.displayType?.includes('follow')) {
-                        this.emit(WebcastEvent.FOLLOW, messageData);
-                    }
-                    if (messageData.displayType?.includes('share')) {
-                        this.emit(WebcastEvent.SHARE, messageData);
-                    }
-                    break;
+            // Process & emit decoded data depending on the message type
+            try {
+                await this.processDecodedData(message.decodedData);
+            } catch (ex) {
+                this.handleError(ex, 'Failed to process decoded data');
             }
 
         }
 
+    }
+
+    protected async processDecodedData({ data, type }: DecodedData): Promise<boolean | void> {
+
+        // Emit a decoded data event
+        switch (type) {
+
+            case 'WebcastSocialMessage':
+
+                // Then emit specific messages for the event type
+                if (data.event.eventDetails.displayType?.includes('follow')) {
+                    return this.emit(WebcastEvent.FOLLOW, data);
+                }
+
+                if (data.event.eventDetails.displayType?.includes('share')) {
+                    return this.emit(WebcastEvent.SHARE, data);
+                }
+
+                // First, emit the raw social message
+                return this.emit(WebcastEvent.SOCIAL, data);
+
+            case 'WebcastControlMessage':
+
+                // Send raw message
+                this.emit(WebcastEvent.CONTROL_MESSAGE, data);
+
+                if (data.action === ControlAction.CONTROL_ACTION_STREAM_ENDED || data.action === ControlAction.CONTROL_ACTION_STREAM_SUSPENDED) {
+                    this.emit(WebcastEvent.STREAM_END, { action: data.action });
+                    await this.disconnect();
+                }
+
+                return;
+
+            case 'WebcastGiftMessage':
+
+                // Add extended gift info if available
+                if (Array.isArray(this.availableGifts) && data.giftId) {
+                    data.extendedGiftInfo = this.availableGifts.find((x) => x.id === data.giftId);
+                }
+
+                return this.emit(WebcastEvent.GIFT, data);
+            default:
+
+                // Handle all other events
+                const basicEvent = WebcastEventMap[type];
+                return basicEvent && this.emit(basicEvent, data);
+
+        }
 
     }
 

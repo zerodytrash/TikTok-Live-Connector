@@ -1,8 +1,8 @@
 import { client as WebSocket, connection as WebSocketConnection, Message as WebSocketMessage } from 'websocket';
 import * as http from 'node:http';
 import { BinaryWriter } from '@bufbuild/protobuf/wire';
-import { DecodedWebcastWebsocketMessage } from '@/types/client';
-import { WebcastWebsocketAck } from '@/types/tiktok-schema';
+import { DecodedWebcastWebsocketMessage, WebSocketParams } from '@/types/client';
+import { HeartbeatFrame, WebcastWebsocketAck } from '@/types/tiktok-schema';
 import { deserializeWebSocketMessage } from '@/lib/utilities';
 import Config from '@/lib/config';
 import TypedEventEmitter from 'typed-emitter';
@@ -15,6 +15,7 @@ type EventMap = {
     messageDecodingFailed: (error: Error) => void;
     unknownResponse: (message: WebSocketMessage) => void;
     webcastResponse: (response: any) => void;
+    webSocketData: (data: Uint8Array) => void;
 };
 
 type TypedWebSocket = WebSocket & TypedEventEmitter<EventMap>;
@@ -30,7 +31,7 @@ export default class TikTokWsClient extends (WebSocket as WebSocketConstructor) 
     constructor(
         wsUrl: string,
         cookieJar: CookieJar,
-        protected readonly webSocketParams: Record<string, string>,
+        protected readonly webSocketParams: WebSocketParams,
         webSocketHeaders: Record<string, string>,
         webSocketOptions: http.RequestOptions,
         protected webSocketPingIntervalMs: number = 10000
@@ -46,10 +47,24 @@ export default class TikTokWsClient extends (WebSocket as WebSocketConstructor) 
     }
 
     protected onConnect(wsConnection: WebSocketConnection) {
+        this.sendHeartbeat();
         this.connection = wsConnection;
-        this.pingInterval = setInterval(() => this.sendPing(), this.webSocketPingIntervalMs);
+        this.pingInterval = setInterval(() => this.sendHeartbeat(), this.webSocketPingIntervalMs);
         this.connection.on('message', this.onMessage.bind(this));
         this.connection.on('close', this.onDisconnect.bind(this));
+    }
+
+    /**
+     * Send a message to the WebSocket server
+     * @param data The message to send
+     * @returns True if the message was sent, false otherwise
+     */
+    public sendBytes(data: Uint8Array): boolean {
+        if (this.connection) {
+            this.connection.sendBytes(Buffer.from(data));
+            return true;
+        }
+        return false;
     }
 
     protected onDisconnect() {
@@ -66,6 +81,9 @@ export default class TikTokWsClient extends (WebSocket as WebSocketConstructor) 
      */
     protected async onMessage(message: WebSocketMessage) {
 
+        // Emit WebSocket data
+        this.emit('webSocketData', message);
+
         // If the message is not binary, emit an unknown response
         if (message.type !== 'binary') {
             return this.emit('unknownResponse', message);
@@ -73,7 +91,7 @@ export default class TikTokWsClient extends (WebSocket as WebSocketConstructor) 
 
         //  If the message is binary, decode it
         try {
-            let decodedContainer: DecodedWebcastWebsocketMessage = await deserializeWebSocketMessage(message.binaryData);
+            const decodedContainer: DecodedWebcastWebsocketMessage = await deserializeWebSocketMessage(message.binaryData);
 
             // Always send an ACK for the message
             if (decodedContainer.id != null) {
@@ -81,10 +99,9 @@ export default class TikTokWsClient extends (WebSocket as WebSocketConstructor) 
             }
 
             // If the message is a WebcastResponse, emit it
-            if (decodedContainer.webcastResponse != null) {
+            if (decodedContainer.webcastResponse) {
                 this.emit('webcastResponse', decodedContainer.webcastResponse);
             }
-
         } catch (err) {
             this.emit('messageDecodingFailed', err);
         }
@@ -94,8 +111,10 @@ export default class TikTokWsClient extends (WebSocket as WebSocketConstructor) 
     /**
      * Static Keep-Alive ping
      */
-    protected sendPing() {
-        this.connection.sendBytes(Buffer.from('3A026862', 'hex'));
+    protected sendHeartbeat() {
+        const { roomId } = this.webSocketParams;
+        const container = HeartbeatFrame.fromPartial({ roomInfo: { roomId: roomId } });
+        this.sendBytes(HeartbeatFrame.encode(container).finish());
     }
 
     /**
@@ -113,7 +132,7 @@ export default class TikTokWsClient extends (WebSocket as WebSocketConstructor) 
     public close(): Promise<void> {
 
         return new Promise((resolve) => {
-            this.once("close", () => resolve());
+            this.once('close', () => resolve());
 
             // If connected, disconnect
             if (this.connection) {

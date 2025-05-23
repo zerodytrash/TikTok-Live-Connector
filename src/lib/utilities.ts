@@ -52,8 +52,10 @@ export function deserializeMessage<T extends keyof WebcastMessage>(
                 continue;
             }
 
-            const messageType = message.type as keyof WebcastEventMessage;
-            message.decodedData = deserializeMessage(messageType, Buffer.from(message.binary));
+            message.decodedData = {
+                type: message.type as keyof WebcastEventMessage,
+                data: deserializeMessage(message.type as keyof WebcastEventMessage, Buffer.from(message.binary))
+            } as any;
         }
     }
 
@@ -79,10 +81,9 @@ export async function deserializeWebSocketMessage(binaryMessage: Uint8Array): Pr
         webcastResponse = deserializeMessage('WebcastResponse', Buffer.from(rawWebcastWebSocketMessage.binary));
     }
 
-    return {
-        ...rawWebcastWebSocketMessage,
-        webcastResponse
-    };
+    const decodedContainer: DecodedWebcastWebsocketMessage = rawWebcastWebSocketMessage;
+    decodedContainer.webcastResponse = webcastResponse;
+    return decodedContainer;
 
 }
 
