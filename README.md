@@ -731,7 +731,7 @@ const connection = new TikTokLiveConnection(
 );
 
 // OR, set it afterwards
-connection.webClient.setSession('<account_session_id>', '<account_target_idc>');
+connection.webClient.cookieJar.setSession('<account_session_id>', '<account_target_idc>');
 
 // Connect, then send a chat!
 connection.connect().then(async () => {
