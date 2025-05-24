@@ -1,0 +1,2175 @@
+syntax = "proto3";
+import "enums.proto";
+
+// @Common
+message CommonMessageData {
+    string method = 1;
+    int64 msgId = 2;
+    int64 roomId = 3;
+    int64 createTime = 4;
+    int32 monitor = 5;
+    bool isShowMsg = 6;
+    string describe = 7;
+    Text displayText = 8;
+    int64 foldType = 9;
+    int64 anchorFoldType = 10;
+    int64 priorityScore = 11;
+    string logId = 12;
+    string msgProcessFilterK = 13;
+    string msgProcessFilterV = 14;
+    string fromIdc = 15;
+    string toIdc = 16;
+    repeated string filterMsgTagsList = 17;
+    LiveMessageSEI sei = 18;
+    LiveMessageID dependRootId = 19;
+    LiveMessageID dependId = 20;
+    int64 anchorPriorityScore = 21;
+    int64 roomMessageHeatLevel = 22;
+    int64 foldTypeForWeb = 23;
+    int64 anchorFoldTypeForWeb = 24;
+    int64 clientSendTime = 25;
+    IMDispatchStrategy dispatchStrategy = 26; // Enum
+
+    message LiveMessageSEI {
+        LiveMessageID uniqueId = 1;
+        int64 timestamp = 2;
+    }
+
+    message LiveMessageID {
+        string primaryId = 1;
+        string messageScene = 2;
+    }
+
+    enum IMDispatchStrategy {
+        IM_DISPATCH_STRATEGY_DEFAULT = 0;
+        IM_DISPATCH_STRATEGY_BYPASS_DISPATCH_QUEUE = 1;
+    }
+}
+
+// @Text
+message Text {
+    string displayType = 1;
+    string defaultPattern = 2;
+    TextFormat defaultFormat = 3;
+    repeated TextPiece piecesList = 4;
+
+    message TextPiece {
+        int32 type = 1;
+        TextFormat format = 2;
+        string stringValue = 11;
+        oneof textPieceType
+        {
+            TextPieceUser userValue = 21;
+            TextPieceGift giftValue = 22;
+        }
+        TextPiecePatternRef patternRefValue = 24;
+    }
+
+    message TextFormat {
+        string color = 1;
+        bool bold = 2;
+        bool italic = 3;
+        int32 weight = 4;
+        int32 italicAngle = 5;
+        int32 fontSize = 6;
+        bool useHeighLightColor = 7;
+        bool useRemoteClor = 8;
+    }
+
+    message TextPieceGift {
+        int32 giftId = 1;
+        PatternRef nameRef = 2;
+        ShowType showType = 3; // Enum
+        int64 colorId = 4;
+    }
+
+    message TextPiecePatternRef {
+        string key = 1;
+        string defaultPattern = 2;
+    }
+
+    message TextPieceUser {
+        User user = 1;
+        bool withColon = 2;
+    }
+
+    message PatternRef {
+        string key = 1;
+        string default_pattern = 2;
+    }
+
+    enum ShowType {
+        SHOW_TYPE_NORMAL = 0;
+        SHOW_TYPE_FADE_IN_OUT = 1;
+    }
+
+}
+
+// @Image
+message Image {
+    repeated string url = 1;
+    string m_uri = 2;
+    int32 height = 3;
+    int32 width = 4;
+    string avg_color = 5;
+    int32 image_type = 6;
+    string schema = 7;
+    Content content = 8;
+    bool is_animated = 9;
+
+    message Content {
+        string name = 1;
+        string font_color = 2;
+        int64 level = 3;
+    }
+}
+
+// @Badge
+message BadgeStruct {
+    BadgeDisplayType badge_display_type = 1; // Enum
+    BadgePriorityType badge_priority_type = 2;
+    BadgeSceneType badge_scene = 3;
+    Position position = 4;
+    DisplayStatus display_status = 5;
+    int64 greyed_by_client = 6;
+    BadgeExhibitionType exhibition_type = 7;
+    string schema_url = 10;
+    bool display = 11;
+    PrivilegeLogExtra log_extra = 12;
+    oneof badgeType
+    {
+        ImageBadge image = 20;
+        TextBadge text = 21;
+        StringBadge str = 22;
+        CombineBadge combine = 23;
+    }
+    bool is_customized = 24;
+
+    message CombineBadge {
+        int32 badge_display_type = 1;
+        Image icon = 2;
+        TextBadge text = 3;
+        string str = 4;
+        PaddingInfo padding = 5;
+        FontStyle font_style = 6;
+        ProfileCardPanel profile_card_panel = 7;
+        CombineBadgeBackground background = 11;
+        CombineBadgeBackground background_dark_mode = 12;
+        bool icon_auto_mirrored = 13;
+        bool bg_auto_mirrored = 14;
+        int32 public_screen_show_style = 15;
+        int32 personal_card_show_style = 16;
+        int32 rank_list_online_audience_show_style = 17;
+        int32 multi_guest_show_style = 18;
+        ArrowConfig arrow_config = 19;
+        PaddingInfo padding_new_font = 20;
+    }
+
+    message ArrowConfig {
+        Image icon = 1;
+    }
+
+    message ProfileContent {
+        bool useContent = 1;
+        repeated IconConfig iconList = 2;
+        NumberConfig numberConfig = 3;
+    }
+
+    message ProjectionConfig {
+        bool useProjection = 1;
+        Image icon = 2;
+    }
+
+    message NumberConfig {
+        int64 number = 1;
+        FontStyle fontStyle = 2;
+        CombineBadgeBackground background = 3;
+    }
+
+
+    message ProfileCardPanel {
+        bool useNewProfileCardStyle = 1;
+        //  BadgeTextPosition badgeTextPosition = 2; // Enum
+        ProjectionConfig projectionConfig = 3;
+        ProfileContent profileContent = 4;
+    }
+
+    message CombineBadgeBackground {
+        Image image = 1;
+        string backgroundColorCode = 2;
+        string borderColorCode = 3;
+    }
+
+    message ImageBadge {
+        BadgeDisplayType badge_display_type = 1;
+        Image image = 2;
+    }
+
+    message TextBadge {
+        BadgeDisplayType badge_display_type = 1;
+        string key = 2;
+        string default_pattern = 3;
+        repeated string pieces = 4;
+    }
+
+    message IconConfig {
+        Image icon = 1;
+        CombineBadgeBackground background = 2;
+    }
+
+    message StringBadge {
+        BadgeDisplayType badge_display_type = 1;
+        string str = 2;
+    }
+
+    //  enum DataCase {
+    //    DATA_NOT_SET = 0;
+    //    IMAGE = 20;
+    //    TEXT = 21;
+    //    STR = 22;
+    //    COMBINE = 23;
+    //  }
+
+    enum BadgeDisplayType {
+        BADGEDISPLAYTYPE_UNKNOWN = 0;
+        BADGEDISPLAYTYPE_IMAGE = 1;
+        BADGEDISPLAYTYPE_TEXT = 2;
+        BADGEDISPLAYTYPE_STRING = 3;
+        BADGEDISPLAYTYPE_COMBINE = 4;
+    }
+
+    enum BadgePriorityType {
+        BADGE_PRIORITY_TYPE_UNKNOWN = 0;
+        BADGE_PRIORITY_TYPE_STRONG_RELATION = 10;
+        BADGE_PRIORITY_TYPE_PLATFORM = 20;
+        BADGE_PRIORITY_TYPE_RELATION = 30;
+        BADGE_PRIORITY_TYPE_ACTIVITY = 40;
+        BADGE_PRIORITY_TYPE_RANK_LIST = 50;
+    }
+
+    enum BadgeSceneType {
+        BADGE_SCENE_TYPE_UNKNOWN = 0;
+        BADGE_SCENE_TYPE_ADMIN = 1;
+        BADGE_SCENE_TYPE_FIRST_RECHARGE = 2;
+        BADGE_SCENE_TYPE_FRIENDS = 3;
+        BADGE_SCENE_TYPE_SUBSCRIBER = 4;
+        BADGE_SCENE_TYPE_ACTIVITY = 5;
+        BADGE_SCENE_TYPE_RANK_LIST = 6;
+        BADGE_SCENE_TYPE_NEW_SUBSCRIBER = 7;
+        BADGE_SCENE_TYPE_USER_GRADE = 8;
+        BADGE_SCENE_TYPE_STATE_CONTROLLED_MEDIA = 9;
+        BADGE_SCENE_TYPE_FANS = 10;
+        BADGE_SCENE_TYPE_LIVE_PRO = 11;
+        BADGE_SCENE_TYPE_ANCHOR = 12;
+    }
+
+    enum DisplayStatus {
+        DISPLAY_STATUS_NORMAL = 0;
+        DISPLAY_STATUS_SHADOW = 1;
+    }
+
+    enum BadgeExhibitionType {
+        BADGE_EXHIBITION_TYPE_BADGE = 0;
+        BADGE_EXHIBITION_TYPE_IDENTITY_LABEL = 1;
+    }
+
+    enum Position {
+        POSITIONUNKNOWN = 0;
+        POSITIONLEFT = 1;
+        POSITIONRIGHT = 2;
+    }
+
+    message PaddingInfo {
+        bool use_specific = 1;
+        int32 middle_padding = 2;
+        int32 badge_width = 3;
+        int32 left_padding = 4;
+        int32 right_padding = 5;
+        int32 icon_top_padding = 6;
+        int32 icon_bottom_padding = 7;
+        HorizontalPaddingRule horizontal_padding_rule = 8;
+        VerticalPaddingRule vertical_padding_rule = 9;
+    }
+
+    enum HorizontalPaddingRule {
+        HORIZONTAL_PADDING_RULE_USE_MIDDLE_AND_WIDTH = 0;
+        HORIZONTAL_PADDING_RULE_USE_LEFT_AND_MIDDLE_AND_RIGHT = 1;
+    }
+
+    enum VerticalPaddingRule {
+        VERTICAL_PADDING_RULE_USE_DEFAULT = 0;
+        VERTICAL_PADDING_RULE_USE_TOP_AND_BOTTOM = 1;
+    }
+}
+
+// @Gift
+message Gift {
+
+    Image giftImage = 1;
+    string describe = 2;
+    int32 duration = 4;
+    int64 id = 5;
+    bool for_link_mic = 7;
+    bool combo = 10;
+    int32 giftType = 11;
+    int32 diamondCount = 12;
+    bool isDisplayedOnPanel = 13;
+    int64 primaryEffectId = 14;
+    Image giftLabelIcon = 15;
+    string giftName = 16;
+    Image icon = 21;
+    string goldEffect = 24;
+    Image previewImage = 47;
+    GiftPanelBanner giftPanelBanner = 48;
+    bool isBroadcastGift = 49;
+    bool isEffectBefview = 50;
+    bool isRandomGift = 51;
+    bool isBoxGift = 52;
+    bool canPutInGiftBox = 53;
+    GiftBoxInfo giftBoxInfo = 54;
+
+    message GiftPanelBanner {
+        Text display_text = 1;
+        Image left_icon = 2;
+        string schema_url = 3;
+        repeated string bg_colors = 5;
+        string banner_lynx_url = 6;
+        int32 banner_priority = 7;
+        string banner_lynx_extra = 8;
+        Image bg_image = 9;
+    }
+
+    message BatchGiftInfo {
+        bool can_batch_send = 1;
+        repeated int64 available_counts = 2;
+    }
+    message CrossScreenEffectInfo {
+        map<int64, int32> single_action_effect_ids = 1;
+        map<int64, int32> action_effect_ids = 2;
+        map<int64, int32> reaction_effect_ids = 3;
+    }
+    message GiftSponsorInfo {
+        int64 sponsor_id = 1;
+        int64 sponsor_count = 2;
+        int64 current_count = 3;
+        int64 left_count_to_sponsor = 4;
+        bool can_sponsor = 5;
+    }
+    message UGGiftStructInfo {
+        bool is_ug_gift = 1;
+        int64 ug_points_cost = 2;
+    }
+    message GiftSkin {
+        int64 gift_skin_id = 1;
+        string gift_skin_name = 2;
+        Image static_image = 3;
+        Image animated_image = 4;
+    }
+    message GiftText {
+        int64 gift_text_id = 1;
+        string gift_text_name = 2;
+    }
+    message GiftSkinToGiftTextsInfo {
+        int64 gift_skin_id = 1;
+        repeated int64 gift_text_ids = 2;
+    }
+    message GiftBoxInfo {
+        int64 capacity = 1;
+        bool is_primary_box = 2;
+        string scheme_url = 3;
+    }
+}
+
+
+
+// @User
+message User {
+    int64 userId = 1;
+    string nickname = 3;
+    string bioDescription = 5;
+    Image profilePicture = 9;
+    Image profilePictureMedium = 10;
+    Image profilePictureLarge = 11;
+    bool verified = 12;
+    int32 status = 15;
+    int64 createTime = 16;
+    int64 modifyTime = 17;
+    int32 secret = 18;
+    string share_qrcode_uri = 19;
+    repeated Image badgeImageList = 21;
+    FollowInfo followInfo = 22;
+    UserHonor user_honor = 23;
+    FansClubMember fans_club = 24;
+    BorderInfo border = 25;
+    string special_id = 26;
+    Image avatarBorder = 27;
+    Image medal = 28;
+    repeated Image user_badges = 29;
+    repeated Image new_user_badges = 30;
+    int32 top_vip_no = 31;
+    UserAttr user_attr = 32;
+    OwnRoom own_room = 33;
+    int64 pay_score = 34;
+    int64 fan_ticket_count = 35;
+    AnchorLevel anchor_info = 36;
+    LinkmicStatus link_mic_stats = 37;
+    string uniqueId = 38;
+    bool enable_show_commerce_sale = 39;
+    bool with_fusion_shop_entry = 40;
+    int64 pay_scores = 41;
+    AnchorLevel anchor_level = 42;
+    string verified_content = 43;
+    Author author_info = 44;
+    repeated User top_fans = 45;
+    string secUid = 46;
+    int32 user_role = 47;
+    ActivityInfo reward_info = 49;
+    Image personal_card = 52;
+    AuthenticationInfo authentication_info = 53;
+    repeated Image media_badge_image_list = 57;
+    repeated int64 commerce_webcast_config_ids = 60;
+    repeated BorderInfo borders = 61;
+    ComboBadgeInfo combo_badge_info = 62;
+    SubscribeInfo subscribe_info = 63;
+    repeated BadgeStruct badges = 64;
+    repeated int64 mint_type_label = 65;
+    FansClubInfo fans_club_info = 66;
+    bool allow_find_by_contacts = 1002;
+    bool allow_others_download_video = 1003;
+    bool allow_others_download_when_sharing_video = 1004;
+    bool allow_share_show_profile = 1005;
+    bool allow_show_in_gossip = 1006;
+    bool allow_show_my_action = 1007;
+    bool allow_strange_comment = 1008;
+    bool allow_unfollower_comment = 1009;
+    bool allow_use_linkmic = 1010;
+    Image avatar_jpg = 1012;
+    string background_img_url = 1013;
+    int32 block_status = 1016;
+    int32 comment_restrict = 1017;
+    string constellation = 1018;
+    int32 disable_ichat = 1019;
+    int64 enable_ichat_img = 1020;
+    int32 exp = 1021;
+    bool fold_stranger_chat = 1023;
+    int64 follow_status = 1024;
+    int32 ichat_restrict_type = 1027;
+    string id_str = 1028;
+    bool is_follower = 1029;
+    bool is_following = 1030;
+    bool need_profile_guide = 1031;
+    bool push_comment_status = 1033;
+    bool push_digg = 1034;
+    bool push_follow = 1035;
+    bool push_friend_action = 1036;
+    bool push_ichat = 1037;
+    bool push_status = 1038;
+    bool push_video_post = 1039;
+    bool push_video_recommend = 1040;
+    string verified_reason = 1043;
+    bool enable_car_management_permission = 1044;
+    repeated LiveEventInfo upcoming_event_list = 1045;
+    string scm_label = 1046;
+    EcommerceEntrance ecommerce_entrance = 1047;
+    bool is_block = 1048;
+    bool is_subscribe = 1090;
+    bool is_anchor_marked = 1091;
+
+    message LiveEventInfo {
+        int64 eventId = 1;
+        int64 startTime = 2;
+        int64 duration = 3;
+        string title = 4;
+        string description = 5;
+        bool hasSubscribed = 6;
+        bool isPaidEvent = 7;
+        int64 ticketAmount = 8;
+        int64 payMethod = 9; // @warning Enum not found, should be PayMethod
+
+
+        // @EventPayMethod
+        // webcast.data.LiveEventInfo
+        // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+        enum EventPayMethod {
+            EVENTPAYMETHODINVALID = 0;
+            EVENTPAYMETHODCOINS = 1;
+            EVENTPAYMETHODCASH = 2;
+        }
+
+
+        // @WalletPackage
+        // proto.webcast.data.LiveEventInfo
+        // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+        message WalletPackage {
+            string iapId = 1;
+            string usdPriceShow = 2;
+        }
+
+    }
+
+
+    // @ActivityInfo
+    // proto.webcast.data.User
+    // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+    message ActivityInfo {
+        Image badge = 1;
+        Image storytag = 2;
+    }
+
+
+
+    // @AnchorLevel
+    // proto.webcast.data.User
+    // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+    message AnchorLevel {
+        int64 level = 1;
+        int64 experience = 2;
+        int64 lowestExperienceThisLevel = 3;
+        int64 highestExperienceThisLevel = 4;
+        int64 taskStartExperience = 5;
+        int64 taskStartTime = 6;
+        int64 taskDecreaseExperience = 7;
+        int64 taskTargetExperience = 8;
+        int64 taskEndTime = 9;
+        Image profileDialogBg = 10;
+        Image profileDialogBgBack = 11;
+        Image stageLevel = 12;
+        Image smallIcon = 13;
+    }
+
+
+    // @AuthenticationInfo
+    // proto.webcast.data.User
+    // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+    message AuthenticationInfo {
+        string customVerify = 1;
+        string enterpriseVerifyReason = 2;
+        Image authenticationBadge = 3;
+    }
+
+
+    // @AuthorStats
+    // proto.webcast.data.User
+    // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+    message AuthorStats {
+        int64 videoTotalCount = 1;
+        int64 videoTotalPlayCount = 2;
+        int64 videoTotalShareCount = 3;
+        int64 videoTotalSeriesCount = 4;
+        int64 varietyShowPlayCount = 5;
+        int64 videoTotalFavoriteCount = 6;
+    }
+
+
+    // @Border
+    // proto.webcast.data.User
+    // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+    message Border {
+        Image icon = 1;
+        int64 level = 2;
+        string source = 3;
+        Image profileDecorationRibbon = 4;
+        string avatarBackgroundColor = 7;
+        string avatarBackgroundBorderColor = 8;
+    }
+
+
+    // @ComboBadgeInfo
+    // proto.webcast.data.User
+    // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+    message ComboBadgeInfo {
+        Image icon = 1;
+        int64 comboCount = 2;
+    }
+
+
+    // @EcommerceEntrance
+    // proto.webcast.data.User
+    // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+    message EcommerceEntrance {
+        EntranceType entranceType = 1; // Enum
+        CreatorType creatorType = 2; // Enum
+        string schema = 3;
+        ShopEntranceInfo shopEntranceInfo = 4;
+        ShowcaseEntranceInfo showcaseEntranceInfo = 5;
+
+
+        // @CreatorType
+        // webcast.data.User.EcommerceEntrance
+        // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+        enum CreatorType {
+            UNDEFINED = 0;
+            OFFICIAL = 1;
+            MARKET = 2;
+            NORMAL = 3;
+        }
+
+
+        // @EntranceType
+        // webcast.data.User.EcommerceEntrance
+        // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+        enum EntranceType {
+            PROFILE = 0;
+            SHOWCASE = 1;
+            SHOP = 2;
+        }
+
+
+        // @ShopEntranceInfo
+        // proto.webcast.data.User.EcommerceEntrance
+        // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+        message ShopEntranceInfo {
+            string shopId = 1;
+            string shopName = 2;
+            string shopRating = 3;
+            StoreLabel storeLabel = 4;
+            string formatSoldCount = 5;
+            int64 soldCount = 6;
+            int32 expRatePercentile = 7;
+            string expRateTopDisplay = 8;
+            int32 rateDisplayStyle = 9;
+            bool showRateNotApplicable = 10;
+
+
+            // @StoreLabel
+            // proto.webcast.data.User.EcommerceEntrance.ShopEntranceInfo
+            // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+            message StoreLabel {
+                StoreOfficialLabel officialLabel = 1;
+                bool isBytemall = 2;
+
+
+                // @StoreBrandLabelType
+                // webcast.data.User.EcommerceEntrance.ShopEntranceInfo.StoreLabel
+                // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+                enum StoreBrandLabelType {
+                    NONE = 0;
+                    OFFICIAL = 1;
+                    AUTHORIZED = 2;
+                    STORE_BRAND_LABEL_TYPE_BLUE_V = 3;
+                    STORE_BRAND_LABEL_TYPE_TOP_CHOICE = 4;
+                }
+
+
+                // @StoreOfficialLabel
+                // proto.webcast.data.User.EcommerceEntrance.ShopEntranceInfo.StoreLabel
+                // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+                message StoreOfficialLabel {
+                    ShopLabelImage labelImageLight = 1;
+                    ShopLabelImage labelImageDark = 2;
+                    int64 labelType = 3; // @warning Enum not found, should be LabelType
+                    string labelTypeStr = 4;
+
+
+                    // @ShopLabelImage
+                    // proto.webcast.data.User.EcommerceEntrance.ShopEntranceInfo.StoreLabel.StoreOfficialLabel
+                    // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+                    message ShopLabelImage {
+                        int32 height = 1;
+                        int32 width = 2;
+                        string minetype = 3;
+                        string thumbUri = 4;
+                        repeated string thumbUriList = 5;
+                        string uri = 6;
+                        repeated string urlList = 7;
+                        string color = 8;
+                    }
+
+                }
+
+            }
+
+        }
+
+
+        // @ShowcaseEntranceInfo
+        // proto.webcast.data.User.EcommerceEntrance
+        // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+        message ShowcaseEntranceInfo {
+            string formatSoldCount = 1;
+            int64 soldCount = 2;
+        }
+
+    }
+
+
+    // @FansClub
+    // proto.webcast.data.User
+    // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+    message FansClub {
+        FansClubData data = 1;
+
+
+        // @FansClubData
+        // proto.webcast.data.User.FansClub
+        // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+        message FansClubData {
+            string clubName = 1;
+            int32 level = 2;
+            UserFansClubStatus userFansClubStatus = 3; // Enum
+            repeated int64 availableGiftIdsList = 5;
+            int64 anchorId = 6;
+
+
+            // @BadgeIcon
+            // webcast.data.User.FansClub.FansClubData
+            // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+            enum BadgeIcon {
+                UNKNOWN = 0;
+                ICON = 1;
+                SMALLICON = 2;
+            }
+
+
+            // @UserFansClubStatus
+            // webcast.data.User.FansClub.FansClubData
+            // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+            enum UserFansClubStatus {
+                NOTJOINED = 0;
+                ACTIVE = 1;
+                INACTIVE = 2;
+            }
+
+        }
+
+
+        // @PreferntialType
+        // webcast.data.User.FansClub
+        // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+        enum PreferntialType {
+            PRESONALPROFILE = 0;
+            OTHERROOM = 1;
+        }
+
+    }
+
+
+    // @FansClubInfo
+    // proto.webcast.data.User
+    // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+    message FansClubInfo {
+        bool isSleeping = 1;
+        int64 fansLevel = 2;
+        int64 fansScore = 3;
+        Image badge = 4;
+        int64 fansCount = 5;
+        string fansClubName = 6;
+    }
+
+
+    // @FollowInfo
+    // proto.webcast.data.User
+    // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+    message FollowInfo {
+        int64 followingCount = 1;
+        int64 followerCount = 2;
+        int64 followStatus = 3;
+        int64 pushStatus = 4;
+    }
+
+
+    // @OwnRoom
+    // proto.webcast.data.User
+    // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+    message OwnRoom {
+        repeated int64 roomIdsList = 1;
+        repeated string roomIdsStrList = 2;
+    }
+
+
+    // @PayGrade
+    // proto.webcast.data.User
+    // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+    message PayGrade {
+        Image diamondIcon = 2;
+        string name = 3;
+        Image icon = 4;
+        string nextName = 5;
+        int64 level = 6;
+        Image nextIcon = 7;
+        string gradeDescribe = 13;
+        repeated GradeIcon gradeIconList = 14;
+        int64 screenChatType = 15;
+        Image imIcon = 16;
+        Image imIconWithLevel = 17;
+        Image liveIcon = 18;
+        Image newImIconWithLevel = 19;
+        Image newLiveIcon = 20;
+        int64 upgradeNeedConsume = 21;
+        string nextPrivileges = 22;
+        Image background = 23;
+        Image backgroundBack = 24;
+        int64 score = 25;
+        string gradeBanner = 1001;
+        Image profileDialogBg = 1002;
+        Image profileDialogBgBack = 1003;
+    }
+
+
+    // @SubscribeBadge
+    // proto.webcast.data.User
+    // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+    message SubscribeBadge {
+        Image originImg = 3;
+        Image previewImg = 4;
+    }
+
+
+    // @SubscribeInfo
+    // proto.webcast.data.User
+    // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+    message SubscribeInfo {
+        bool qualification = 1;
+        bool isSubscribe = 2;
+        SubscribeBadge badge = 3;
+        bool enableSubscription = 4;
+        int64 subscriberCount = 5;
+        bool isInGracePeriod = 6;
+        bool isSubscribedToAnchor = 7;
+        bool userGiftSubAuth = 9;
+        bool anchorGiftSubAuth = 10;
+    }
+
+
+    // @UserAttr
+    // proto.webcast.data.User
+    // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+    message UserAttr {
+        bool isMuted = 1;
+        bool isAdmin = 2;
+        bool isSuperAdmin = 3;
+        int64 muteDuration = 4;
+    }
+
+
+    // @UserStats
+    // proto.webcast.data.User
+    // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+    message UserStats {
+        int64 id = 1;
+        string idStr = 2;
+        int64 followingCount = 3;
+        int64 followerCount = 4;
+        int64 recordCount = 5;
+        int64 totalDuration = 6;
+        int64 dailyFanTicketCount = 7;
+        int64 dailyIncome = 8;
+        int64 itemCount = 9;
+        int64 favoriteItemCount = 10;
+        int64 diamondConsumedCount = 12;
+        int64 tuwenItemCount = 13;
+    }
+
+}
+
+// @Emote
+message Emote {
+    string emoteId = 1;
+    Image image = 2;
+    AuditStatus auditStatus = 3; // Enum
+    string uuid = 4;
+    EmoteType emoteType = 5; // Enum
+    ContentSource contentSource = 6; // Enum
+    EmotePrivateType emotePrivateType = 7; // Enum
+    string package_id = 8;
+    AuditInfo audit_info = 9;
+    RewardCondition reward_condition = 10;
+    EmoteUploadInfo emote_upload_info = 11;
+    int64 create_time = 12;
+    EmoteScene emote_scene = 13;
+
+    message AuditInfo {
+        int64 violation_id = 1;
+        AuditTaskType task_type = 2;
+
+        enum AuditTaskType {
+            AUDIT_TASK_TYPE_DEFAULT = 0;
+            AUDIT_TASK_TYPE_APPEAL = 1;
+        }
+    }
+
+    message EmoteUploadInfo {
+        int64 user_id = 1;
+        UserEmoteUploadSource emote_upload_source = 2;
+        User user_info = 3;
+        string user_id_str = 4;
+    }
+}
+
+// @PunishEventInfo
+message PunishEventInfo {
+    string punishType = 1;
+    string punishReason = 2;
+    string punishId = 3;
+    int64 violationUid = 4;
+    PunishTypeId punishTypeId = 5; // Enum
+    int64 duration = 6;
+    string punish_perception_code = 7;
+    string violation_uid_str = 9;
+    string show_reason = 10;
+}
+
+// @MsgFilter
+message MsgFilter {
+    bool isGifter = 1;
+    bool isSubscribedToAnchor = 2;
+}
+
+// @UserIdentity
+// proto.webcast.data
+message UserIdentity {
+    bool isGiftGiverOfAnchor = 1;
+    bool isSubscriberOfAnchor = 2;
+    bool isMutualFollowingWithAnchor = 3;
+    bool isFollowerOfAnchor = 4;
+    bool isModeratorOfAnchor = 5;
+    bool isAnchor = 6;
+}
+
+// @Goal
+// proto.webcast.data
+// C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+message LiveStreamGoal {
+    int64 id = 1;
+    int32 type = 2;
+    int32 status = 3;
+    repeated LiveStreamSubGoal sub_goals = 4;
+    string description = 5;
+    AuditStatus audit_status = 6;
+    int32 cycle_type = 7;
+    int64 start_time = 8;
+    int64 expire_time = 9;
+    int64 real_finish_time = 10;
+    repeated LiveStreamGoalContributor contributors = 11;
+    int32 contributors_length = 12;
+    string id_str = 13;
+    string audit_description = 14;
+    GoalStats stats = 15;
+    string goal_extra_info = 16;
+    int32 mode = 17;
+    AuditInfo audit_info = 18;
+    string challenge_type = 20;
+    bool is_uneditable = 21;
+
+    message AuditInfo {
+        int64 violation_id = 1;
+        int32 task_type = 2;
+    }
+
+    message LiveStreamSubGoal {
+        int32 type = 1;
+        int64 id = 2;
+        int64 progress = 3;
+        int64 target = 4;
+        LiveStreamSubGoalGift gift = 5;
+        string id_str = 6;
+        SubGoalPinInfo pin_info = 7;
+        int32 source = 8;
+        string recommended_text = 9;
+        string recommended_header = 10;
+
+        message SubGoalPinInfo {
+            int64 pin_start_time = 1;
+            int64 pin_end_time = 2;
+            int64 pin_ready_time = 3;
+        }
+    }
+
+    message LiveStreamSubGoalGift {
+        string name = 1;
+        Image icon = 2;
+        int64 diamond_count = 3;
+        int32 type = 4;
+    }
+
+    message LiveStreamGoalContributor {
+        int64 user_id = 1;
+        Image avatar = 2;
+        string display_id = 3;
+        int64 score = 4;
+        string user_id_str = 5;
+        bool in_room = 6;
+        bool is_friend = 7;
+        bool follow_by_owner = 9;
+        bool is_fist_contribute = 10;
+        repeated SubGoalContribution sub_goal_contributions = 11;
+
+        message SubGoalContribution {
+            string id = 1;
+            int64 contribution_count = 2;
+        }
+    }
+
+    message GoalStats {
+        int64 total_coins = 1;
+        int64 total_contributor = 2;
+        GoalComparison comparison = 3;
+        int64 total_new_fans = 4;
+
+        message GoalComparison {
+            int64 coins_incr = 1;
+            int64 contributor_incr = 2;
+        }
+    }
+}
+
+// @Indicator
+// proto.webcast.data
+// C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+message LiveStreamGoalIndicator {
+    string key = 1;
+    int32 op = 2;
+}
+
+
+// --- HANDMADE
+
+message Ranking {
+    string type = 1;
+    string label = 2;
+    TikTokColor color = 3;
+    repeated ValueLabel details = 4;
+}
+
+message TikTokColor {
+    string color = 1;
+    uint64 id = 4;
+    uint32 data1 = 6;
+}
+
+message ValueLabel {
+    uint32 data = 1;
+    string label = 2;
+    string label2 = 3;
+    string label3 = 11;
+}
+
+/*message MessageDetails {
+  uint32 data1 = 1;
+  TikTokColor color = 2;
+  string category = 11;
+  UserContainer user = 21;
+}*/
+
+/*message UserContainer {
+  User user = 1;
+  uint32 data1 = 2;
+}*/
+
+// Container for uint-Data
+/*message DataContainer {
+  uint64 data1 = 1;
+  uint32 data2 = 2;
+  uint32 data3 = 3;
+  uint32 data4 = 4;
+  uint32 data5 = 5;
+  uint32 data6 = 6;
+  uint32 data7 = 7;
+  uint32 data8 = 8;
+  uint32 data9 = 9;
+}*/
+
+message TimeStampContainer {
+    uint64 timestamp1 = 1;
+    uint64 timestamp2 = 2;
+    uint64 timestamp3 = 3;
+}
+
+/*message MemberMessageData {
+  string type = 1;
+  string label = 2;
+  TikTokColor color = 3;
+  repeated MessageDetails details = 4; // UserContainer-Data is empty
+}*/
+
+/*message LinkMicArmiesItems {
+  uint64 hostUserId = 1;
+  repeated LinkMicArmiesGroup battleGroups = 2;
+
+  message LinkMicArmiesGroup {
+    repeated User users = 1;
+    uint32 points = 2;
+  }
+}*/
+
+message PollStartContent {
+    int64 StartTime = 1;
+    int64 EndTime = 2;
+    repeated PollOptionInfo OptionList = 3;
+    string Title = 4;
+    User Operator = 5;
+}
+
+message PollEndContent {
+    PollEndType EndType = 1;
+    repeated PollOptionInfo OptionList = 2;
+    User Operator = 3;
+}
+
+message PollOptionInfo {
+    int32 Votes = 1;
+    string DisplayContent = 2;
+    int32 OptionIdx = 3;
+    repeated VoteUser VoteUserList = 4;
+}
+
+message VoteUser {
+    int64 UserId = 1;
+    string NickName = 2;
+    Image AvatarThumb = 3;
+}
+
+message PollUpdateVotesContent {
+    repeated PollOptionInfo OptionList = 2;
+}
+message UserFanTicket {
+    int64 UserId = 1;
+    int64 FanTicket = 2;
+    int64 MatchTotalScore = 3;
+    int32 MatchRank = 4;
+}
+
+message FanTicketRoomNoticeContent {
+    repeated UserFanTicket UserFanTicketList = 1;
+    int64 TotalLinkMicFanTicket = 2;
+    int64 MatchId = 3;
+    int64 EventTime = 4;
+    string FanTicketIconUrl = 5;
+    int64 play_id = 6;
+    PlayScene play_scene = 7;
+}
+
+message LinkerAcceptNoticeContent {
+    int64 fromUserId = 1;
+    int64 fromRoomId = 2;
+    int64 toUserId = 3;
+}
+
+message LinkerCancelContent {
+    int64 fromUserId = 1;
+    int64 toUserId = 2;
+    int64 cancelType = 3;
+    int64 actionId = 4;
+}
+
+message ListUser {
+    User user = 1;
+    int64 linkmicId = 2;
+    string linkmicIdStr = 3;
+    LinkmicRoleType linkStatus = 4;
+    LinkType linkType = 5;
+    int32 userPosition = 6;
+    LinkSilenceStatus silenceStatus = 7;
+    int64 modifyTime = 8;
+    int64 linkerId = 9;
+    LinkRoleType roleType = 10;
+}
+
+
+//it is just empty
+message LinkerCloseContent {
+
+}
+
+message LinkerCreateContent {
+    int64 ownerId = 1;
+    int64 ownerRoomId = 2;
+    int64 linkType = 3; // Assuming this is LinkType enum
+}
+
+message LinkerEnterContent {
+    repeated ListUser linkedUsersList = 1;
+    LinkmicMultiLiveEnum anchorMultiLiveEnum = 2;
+    MultiLiveAnchorPanelSettings anchorSettingInfo = 3;;
+}
+
+message LinkerInviteContent {
+    int64 fromUserId = 1;
+    int64 fromRoomId = 2;
+    string toRtcExtInfo = 3;
+    bool rtcJoinChannel = 4;
+    int64 vendor = 5;
+    string secFromUserId = 6;
+    string toLinkmicIdStr = 7;
+    User fromUser = 8;
+    int64 requiredMicIdx = 9;
+    map<int64, string> rtc_ext_info_map = 10;
+    LinkmicMultiLiveEnum multi_live_layout_enable = 11;
+    MultiLiveAnchorPanelSettings multi_live_setting = 12;
+    string from_linkmic_id_str = 13;
+    InviteTopHostInfo from_top_host_info = 16;
+    int64 action_id = 17;
+    repeated LinkmicUserInfo linked_users = 18;
+    PerceptionDialogInfo dialog_info = 19;
+    PunishEventInfo punish_event_info = 20;
+    int32 from_room_age_restricted = 21;
+    repeated CohostABTestSetting ab_test_setting = 23;
+    LinkerInviteMessageExtra linker_invite_msg_extra = 101;
+
+    message InviteTopHostInfo {
+        string rank_type = 1;
+        int64 top_index = 2;
+    }
+
+    message LinkmicUserInfo {
+        int64 user_id = 1;
+        string linkmic_id_str = 2;
+        int64 room_id = 3;
+        int64 linked_time = 4;
+    }
+
+    message PerceptionDialogInfo {
+        PerceptionDialogIconType icon_type = 1;
+        Text title = 2;
+        Text sub_title = 3;
+        Text advice_action_text = 4;
+        Text default_action_text = 5;
+        string violation_detail_url = 6;
+        Scene scene = 7;
+        int64 target_user_id = 8;
+        int64 target_room_id = 9;
+        int64 count_down_time = 10;
+        bool show_feedback = 11;
+        repeated PerceptionFeedbackOption feedback_options = 12;
+        int64 policy_tip = 13;
+        int32 appeal_popup = 14;
+
+        message PerceptionFeedbackOption {
+            int64 id = 1;
+            string content_key = 2;
+        }
+    }
+
+    message CohostABTestSetting {
+        int64 key = 1;
+        CohostABTestList value = 2;
+
+        message CohostABTestList {
+            repeated CohostABTest ab_test_list = 1;
+
+            message CohostABTest {
+                CohostABTestType ab_test_type = 1;
+                int64 group = 2;
+            }
+        }
+    }
+
+    message LinkerInviteMessageExtra {
+        int32 match_type = 1;
+        int32 invite_type = 2;
+        int32 sub_type = 3;
+        string theme = 4;
+        int32 duration = 5;
+        int32 layout = 6;
+        string tips = 7;
+        InviterRivalExtra inviter_rival_extra = 8;
+        repeated InviterRivalExtra other_rival_extra = 9;
+        CohostTopic topic_info = 10;
+        string algo_request_id = 11;
+
+        message InviterRivalExtra {
+            TextType text_type = 1;
+            string text = 2;
+            string label = 3;
+            int32 user_count = 4;
+            Image avatar_thumb = 5;
+            string display_id = 6;
+            AuthenticationInfo authentication_info = 7;
+            string nickname = 8;
+            int64 follow_status = 9;
+            Hashtag m_hashtag = 10;
+            int64 user_id = 12;
+            bool is_best_teammate = 13;
+            OptPairInfo opt_pair_info = 14;
+            int64 follower_count = 15;
+
+            message AuthenticationInfo {
+                string custom_verify = 1;
+                string enterprise_verify_reason = 2;
+                Image authentication_badge = 3;
+            }
+
+            message Hashtag {
+                int64 id = 1;
+                string title = 2;
+                Image image = 3;
+                HashtagNamespace namespace = 4;
+            }
+
+            message OptPairInfo {
+                int64 mapping_id = 1;
+                repeated OptPairUser display_user_list = 2;
+                OptPairStatus button_notice_type = 3;
+                int64 expected_time_sec = 4;
+                int64 opt_pair_type = 5;
+
+                message OptPairUser {
+                    User user = 1;
+                    int64 room_id = 2;
+                }
+            }
+        }
+    }
+}
+
+message CohostTopic {
+    int64 id = 1;
+    string title_key = 2;
+    string title_text = 3;
+    bool liked = 21;
+    int64 total_heat = 22;
+    int64 total_rivals = 23;
+    repeated Image rivals_avatar = 24;
+}
+
+message LinkerKickOutContent {
+    int64 fromUserId = 1;
+    KickoutReason kickoutReason = 2;
+}
+
+message LinkerLeaveContent {
+    int64 userId = 1;
+    string linkmicIdStr = 2;
+    int64 sendLeaveUid = 3;
+    int64 leaveReason = 4;
+}
+
+//Empty
+message LinkerLinkedListChangeContent {
+
+}
+//Empty
+message CohostListChangeContent {
+}
+
+
+message LinkerListChangeContent {
+    repeated ListUser linkedUsers = 1;
+    repeated ListUser appliedUsers = 2;
+    repeated ListUser connectingUsers = 3;
+}
+
+message LinkerMediaChangeContent {
+    GuestMicCameraManageOp op = 1;
+    int64 toUserId = 2;
+    int64 anchorId = 3;
+    int64 roomId = 4;
+    GuestMicCameraChangeScene changeScene = 5;
+    LinkerMediaChangeOperator operator_info = 7;
+
+    message LinkerMediaChangeOperator {
+        int64 user_id = 1;
+        LinkMicUserAdminType operator_type = 2;
+        string nick_name = 3;
+        string display_id = 4;
+    }
+}
+
+//Empty
+message LinkerMicIdxUpdateContent {
+
+}
+
+message LinkerMuteContent {
+    int64 userId = 1;
+    MuteStatus status = 2;
+}
+
+message LinkerRandomMatchContent {
+    User user = 1;
+    int64 roomId = 2;
+    int64 inviteType = 3;
+    string matchId = 4;
+    int64 innerChannelId = 5;
+}
+
+message LinkerReplyContent {
+    int64 fromUserId = 1;
+    int64 fromRoomId = 2;
+    LinkmicInfo fromUserLinkmicInfo = 3;
+    int64 toUserId = 4;
+    LinkmicInfo toUserLinkmicInfo = 5;
+    int64 linkType = 6;
+    int64 replyStatus = 7;
+    LinkerSetting linkerSetting = 8;
+    User fromUser = 9;
+    User toUser = 10;
+
+    message LinkmicInfo {
+        string accessKey = 1;
+        int64 linkMicId = 2;
+        bool joinable = 3;
+        int32 confluenceType = 4;
+        string rtcExtInfo = 5;
+        string rtcAppId = 6;
+        string rtcAppSign = 7;
+        string linkmicIdStr = 8;
+        int64 vendor = 9;
+    }
+}
+
+message LinkerSetting {
+    int64 MaxMemberLimit = 1;
+    int64 LinkType = 2;
+    Scene Scene = 3;
+    int64 OwnerUserId = 4;
+    int64 OwnerRoomId = 5;
+    int64 Vendor = 6;
+}
+
+message LinkerSysKickOutContent {
+    int64 userId = 1;
+    string linkmicIdStr = 2;
+}
+
+message LinkmicUserToastContent {
+    int64 userId = 1;
+    int64 roomId = 2;
+    Text displayText = 3;
+    int64 leaved_user_id = 4;
+}
+
+message LinkerUpdateUserContent {
+    int64 fromUserId = 1;
+    int64 toUserId = 2;
+    map<string, string> update_info = 3;
+}
+
+message LinkerUpdateUserSettingContent {
+    MultiLiveAnchorPanelSettings multi_live_anchor_panel_settings = 1;
+}
+
+//Empty
+message LinkerWaitingListChangeContent {
+
+}
+
+
+message MultiLiveAnchorPanelSettings {
+    int64 userId = 1;
+    int64 layout = 2;
+    int64 fixMicNum = 3;
+    int64 allowRequestFromUser = 4;
+    int64 allowRequestFromFollowerOnly = 5;
+    LinkmicApplierSortSetting applierSortSetting = 7;
+    int64 applier_sort_gift_score_threshold = 8;
+    int32 allow_request_from_friends = 9;
+    int32 allow_request_from_followers = 10;
+    int32 allow_request_from_others = 11;
+    int32 enable_show_multi_guest_layout = 12;
+}
+
+
+message Player {
+    int64 roomId = 1;
+    int64 userId = 2;
+}
+
+message AllListUser {
+    repeated LinkLayerListUser linkedList = 2;
+    repeated LinkLayerListUser appliedList = 3;
+    repeated LinkLayerListUser invitedList = 4;
+    repeated LinkLayerListUser readyList = 5;
+}
+
+message LinkLayerListUser {
+    User user = 1;
+    int64 linkmicId = 2;
+    Position pos = 3;
+    int64 linkedTimeNano = 4;
+    string appVersion = 5;
+    int64 magicNumber1 = 7;
+}
+
+message Position {
+    int32 type = 1;
+    LinkPosition link = 2;
+}
+
+message LinkPosition {
+    int32 position = 1;
+    int32 opt = 2;
+}
+
+message GroupPlayer {
+    int64 channelId = 1;
+    User user = 2;
+}
+
+message DSLConfig {
+    int32 sceneVersion = 1;
+    string layoutId = 2;
+}
+
+message GroupChannelAllUser {
+    int64 groupChannelId = 1;
+    repeated GroupChannelUser userList = 2;
+    int64 content_version = 3;
+}
+
+message GroupChannelUser {
+    int64 channelId = 1;
+    GroupStatus status = 2;
+    TextType type = 3;
+    AllListUser allUser = 4;
+    int64 joinTime = 5;
+    int64 linkedTime = 6;
+    GroupPlayer ownerUser = 7;
+    string group_linkmic_id = 8;
+}
+
+message RTCExtraInfo {
+    RTCEngineConfig liveRtcEngineConfig = 1;
+    repeated RTCLiveVideoParam liveRtcVideoParamList = 2;
+    RTCBitrateMap rtcBitrateMap = 3;
+    int32 rtcFps = 4;
+    RTCMixBase rtc_mix_base = 5;
+    ByteRTCExtInfo byte_rtc_ext_info = 6;
+    RTCInfoExtra rtc_info_extra = 7;
+    string rtcBusinessId = 8;
+    RTCOther rtc_other = 9;
+    int32 interactClientType = 10;
+
+    message RTCMixBase {
+        int32 bitrate = 1;
+    }
+
+    message ByteRTCExtInfo {
+        int32 default_signaling = 1;
+    }
+
+    message RTCInfoExtra {
+        string version = 1;
+    }
+
+    message RTCOther {
+        int32 trans_coding_second = 1;
+    }
+
+    message RTCEngineConfig {
+        string rtcAppId = 1;
+        string rtcUserId = 2;
+        string rtcToken = 3;
+        int64 rtcChannelId = 4;
+    }
+
+    message RTCLiveVideoParam {
+        int32 strategyId = 1;
+        RTCVideoParam params = 2;
+    }
+
+    message RTCVideoParam {
+        int32 width = 1;
+        int32 height = 2;
+        int32 fps = 3;
+        int32 bitrateKbps = 4;
+    }
+
+    message RTCBitrateMap {
+        int32 xx1 = 1;
+        int32 xx2 = 2;
+        int32 xx3 = 3;
+        int32 xx4 = 4;
+    }
+}
+
+message CreateChannelContent {
+    Player  owner = 1;
+    string ownerLinkMicId = 2;
+}
+
+message ListChangeContent {
+    int32 list_change_type = 1;
+    AllListUser user_list = 2;
+    repeated string linked_user_ui_positions = 3;
+    repeated ContentPosition content_pos = 4;
+}
+
+message ContentPosition {
+    string content_i_d = 1;
+    ContentPositionType content_type = 2;
+    MicPositionData pos = 3;
+    string content_linkmic_i_d = 4;
+    int64 start_time_nano = 5;
+}
+
+message MicPositionData {
+    int32 type = 1;
+    LinkPosition link_position = 2;
+}
+
+message MultiLiveContent {
+    ApplyBizContent applyBizContent = 1;
+    InviteBizContent inviteBizContent = 2;
+    ReplyBizContent replyBizContent = 3;
+    PermitBizContent permitBizContent = 4;
+    JoinDirectBizContent joinDirectBizContent = 5;
+    KickOutBizContent kickOutBizContent = 6;
+
+    message ApplyBizContent {
+        User user = 1;
+    }
+
+    message JoinDirectBizContent {
+        int64 reply_im_msg_id = 1;
+        MultiGuestOutsideRoomInviteSource outside_room_invite_source = 2;
+    }
+
+    message InviteBizContent {
+        MultiLiveAnchorPanelSettings anchorSettingInfo = 1;
+        ContentInviteSource inviteSource = 2;
+        User operatorUserInfo = 3;
+        LinkMicUserAdminType operatorLinkAdminType = 4;
+        User inviteeUserInfo = 5;
+        LinkmicShareRevenueSetting share_revenue_setting = 6;
+    }
+
+    message ReplyBizContent {
+        int32 linkType = 1;
+        int32 isTurnOffInvitation = 2;
+        User replyUserInfo = 3;
+    }
+
+    message PermitBizContent {
+        MultiLiveAnchorPanelSettings anchorSettingInfo = 1;
+        int64 expireTimestamp = 2;
+        User operatorUserInfo = 3;
+        LinkMicUserAdminType operatorLinkAdminType = 4;
+        LinkUserType link_user_type = 5;
+    }
+
+    message KickOutBizContent {
+        User operatorUserInfo = 1;
+        LinkMicUserAdminType operatorLinkAdminType = 2;
+        User kickPlayerUserInfo = 3;
+    }
+
+}
+
+message InviteContent {
+    Player  invitor = 1;
+    RTCExtraInfo inviteeRtcExtInfo = 2;
+    string invitorLinkMicId = 3;
+    string inviteeLinkMicId = 4;
+    bool isOwner = 5;
+    Position pos = 6;
+    DSLConfig dsl = 7;
+    User invitee = 8;
+    User operator = 9;
+}
+
+
+// @ApplyContent
+// proto.webcast.im
+// C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+message ApplyContent {
+    Player  applier = 1;
+    string applierLinkMicId = 2;
+}
+
+
+// @PermitApplyContent
+// proto.webcast.im
+// C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+message PermitApplyContent {
+    Player  permiter = 1;
+    string permiterLinkMicId = 2;
+    Position applierPos = 3;
+    ReplyStatus replyStatus = 4; // Enum
+    DSLConfig dsl = 5;
+    User applier = 6;
+    User operator = 7;
+    string applierLinkMicId = 8;
+}
+
+
+// @ReplyInviteContent
+// proto.webcast.im
+// C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+message ReplyInviteContent {
+    Player  invitee = 1;
+    ReplyStatus replyStatus = 2;
+    string inviteeLinkMicId = 3;
+    Position inviteePos = 4;
+    Player  inviteOperatorUser = 5;
+    repeated string linked_user_ui_positions = 6;
+    repeated PosIdentity ui_pos = 7;
+}
+
+
+// @KickOutContent
+// proto.webcast.im
+// C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+message KickOutContent {
+    Player  offliner = 1;
+    KickoutReason kickoutReason = 2;
+    repeated string linked_user_ui_positions = 3;
+    repeated PosIdentity ui_pos = 4;
+}
+
+message PosIdentity {
+    PosIdentityType type = 1;
+    string value = 2;
+}
+
+
+// @CancelApplyContent
+// proto.webcast.im
+// C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+message CancelApplyContent {
+    Player  applier = 1;
+    string applierLinkMicId = 2;
+}
+
+
+// @CancelInviteContent
+// proto.webcast.im
+// C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+message CancelInviteContent {
+    Player  invitor = 1;
+    string invitorLinkMicId = 2;
+    string inviteeLinkMicId = 3;
+    int64 inviteSeqId = 4;
+    Player  invitee = 5;
+}
+
+
+// @LeaveContent
+// proto.webcast.im
+// C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+message LeaveContent {
+    Player  leaver = 1;
+    int64 leaveReason = 2;
+    repeated string linked_user_ui_positions = 3;
+    repeated PosIdentity ui_pos = 4;
+}
+
+
+// @FinishChannelContent
+// proto.webcast.im
+// C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+message FinishChannelContent {
+    Player  owner = 1;
+    int64 finishReason = 2;
+}
+
+
+// @JoinDirectContent
+// proto.webcast.im
+// C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+message JoinDirectContent {
+    LinkLayerListUser joiner = 1;
+    AllListUser allUsers = 2;
+}
+
+
+// @LeaveJoinGroupContent
+// proto.webcast.im
+// C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+message LeaveJoinGroupContent {
+    GroupPlayer operator = 1;
+    int64 groupChannelId = 2;
+    string leaveSource = 3;
+    repeated string linked_user_ui_positions = 4;
+}
+
+
+// @PermitJoinGroupContent
+// proto.webcast.im
+message PermitJoinGroupContent {
+    GroupPlayer approver = 1;
+    AgreeStatus agreeStatus = 2;
+    JoinType type = 3;
+    repeated RTCExtraInfo groupExtInfoList = 4;
+    GroupChannelAllUser groupUser = 5;
+    MigrationDetails migration_details = 6;
+    repeated string linked_user_ui_positions = 7;
+}
+
+message MigrationDetails {
+    bool is_migrate = 1;
+    int64 source_group_channel_id = 2;
+    int64 target_group_channel_id = 3;
+}
+
+
+// @CancelJoinGroupContent
+// proto.webcast.im
+message CancelJoinGroupContent {
+    repeated GroupPlayer leaverList = 1;
+    GroupPlayer operator = 2;
+    JoinType type = 3;
+    GroupChannelAllUser group_user = 4;
+}
+
+
+
+message P2PGroupChangeContent {
+    repeated RTCExtraInfo groupExtInfoList = 1;
+    GroupChannelAllUser groupUser = 2;
+    MigrationDetails migration_details = 3;
+    repeated ContentPosition content_pos = 4;
+}
+
+message GroupChangeContent {
+    GroupChannelAllUser group_user = 1;
+    repeated string linked_user_ui_positions = 2;
+}
+
+
+message BusinessContent {
+    int64 overLength = 1;
+    MultiLiveContent multiLiveContent = 100;
+    CohostContent cohostContent = 200;
+
+    message CohostContent {
+        JoinGroupBizContent joinGroupBizContent = 1;
+        PermitJoinGroupBizContent permit_join_group_biz_content = 2;
+        ListChangeBizContent list_change_biz_content = 11;
+    }
+
+    message PermitJoinGroupBizContent {
+        ReplyStatus reply_status = 1;
+        SourceType source_type = 2;
+    }
+
+    message ListChangeBizContent {
+        map<int64, CohostUserInfo> user_infos = 1;
+        repeated VirtualWaitingUser waiting_users = 2;
+
+        message VirtualWaitingUser {
+            int64 user_id = 1;
+            int64 timestamp = 2;
+            repeated Image avatars = 3;
+        }
+    }
+
+    message CohostUserInfo {
+        int64 permission_type = 1;
+        SourceType source_type = 2;
+        bool is_low_version = 3;
+        int64 best_teammate_uid = 4;
+        bool has_topic_perm = 5;
+        CohostStreamConfig stream_config = 6;
+        bool in_different_invite_type_control_group = 7;
+        string nickname = 11;
+        string display_id = 12;
+        Image avatar_thumb = 13;
+        int64 follow_status = 14;
+        string user_id_str = 15;
+
+        message CohostStreamConfig {
+            string screen_share_stream_id = 1;
+        }
+    }
+
+    message JoinGroupBizContent {
+        int32 fromRoomAgeRestricted = 1;
+        Tag fromTag = 2;
+        PerceptionDialogInfo dialog = 3;
+        PunishEventInfo punishInfo = 4;
+        CohostTopic topic_info = 5;
+        string algo_request_id = 6;
+        CohostLayoutMode cohost_layout_mode = 7;
+        TagV2 tag = 8;
+        RivalsGameTag game_tag = 9;
+        string new_user_education = 11;
+        JoinGroupMessageExtra joinGroupMsgExtra = 101;
+
+        message RivalsGameTag {
+            int64 tag_id = 1;
+            string tag_display_text = 2;
+        }
+
+        message TagV2 {
+            TagClassification tag_classification = 1;
+            int32 tag_type = 2;
+            string tag_value = 3;
+            string starling_key = 4;
+            SecondDegreeRelationContent second_degree_relation_content = 10;
+            int64 cohost_history_day = 11;
+            SimilarInterestContent similar_interest_content = 12;
+
+            message UserInfo {
+                int64 user_id = 1;
+                string nick_name = 2;
+                Image avatar_thumb = 3;
+            }
+            message SecondDegreeRelationContent {
+                repeated UserInfo related_users = 1;
+                int64 total_related_user_cnt = 2;
+            }
+            message SimilarInterestContent {
+                int64 content_id = 1;
+                string display_text = 2;
+            }
+        }
+    }
+
+    message Tag {
+        int32 tagType = 1;
+        string tagValue = 2;
+        string tagText = 3;
+    }
+
+    message PerceptionDialogInfo {
+        int64 iconType = 1; // @warning Enum not found, should be IconType
+        Text title = 2;
+        Text subTitle = 3;
+        Text adviceActionText = 4;
+        Text defaultActionText = 5;
+        string violationDetailUrl = 6;
+        int32 scene = 7;
+        int64 targetUserId = 8;
+        int64 targetRoomId = 9;
+        int64 countDownTime = 10;
+        bool showFeedback = 11;
+        repeated PerceptionFeedbackOption feedbackOptionsList = 12;
+        int64 policyTip = 13;
+    }
+
+    message PerceptionFeedbackOption {
+        int64 id = 1;
+        string contentKey = 2;
+    }
+
+    message JoinGroupMessageExtra {
+        int64 sourceType = 1;
+        RivalExtra extra = 2;
+        repeated RivalExtra otherUsersList = 3;
+
+
+        // @RivalExtra
+        // proto.webcast.im.JoinGroupMessageExtra
+        // C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+        message RivalExtra {
+            int64 userCount = 4;
+            Image avatarThumb = 5;
+            string displayId = 6;
+            AuthenticationInfo authenticationInfo = 7;
+            string nickname = 8;
+            int64 followStatus = 9;
+            Hashtag hashtag = 10;
+            TopHostInfo topHostInfo = 11;
+            int64 userId = 12;
+            bool isBestTeammate = 13;
+
+            message AuthenticationInfo {
+                string customVerify = 1;
+                string enterpriseVerifyReason = 2;
+                Image authenticationBadge = 3;
+            }
+        }
+    }
+    message Hashtag {
+        int64 id = 1;
+        string title = 2;
+        Image image = 3;
+        HashtagNamespace namespace = 4;
+    }
+
+    message TopHostInfo {
+        string rankType = 1;
+        int64 topIndex = 2;
+    }
+}
+
+message JoinGroupContent {
+    GroupChannelAllUser groupUser = 1;
+    GroupPlayer joinUser = 2;
+    JoinType type = 3;
+    repeated RTCExtraInfo group_ext_info = 4;
+}
+
+message PrivilegeLogExtra {
+    string data_version = 1;
+    string privilege_id = 2;
+    string privilege_version = 3;
+    string privilege_order_id = 4;
+    string level = 5;
+}
+
+message FontStyle {
+    int32 font_size = 1;
+    int32 font_width = 2;
+    string font_color = 3;
+    string border_color = 4;
+}
+
+message UserHonor {
+    int64 total_diamond = 1;
+    Image diamond_icon = 2;
+    string current_honor_name = 3;
+    Image current_honor_icon = 4;
+    string next_honor_name = 5;
+    int32 level = 6;
+    Image next_honor_icon = 7;
+    int64 current_diamond = 9;
+    int64 this_grade_min_diamond = 10;
+    int64 this_grade_max_diamond = 11;
+    string grade_describe = 13;
+    repeated GradeIcon grade_icon_list = 14;
+    int64 screen_chat_type = 15;
+    Image im_icon = 16;
+    Image im_icon_with_level = 17;
+    Image live_icon = 18;
+    Image new_im_icon_with_level = 19;
+    Image new_live_icon = 20;
+    int64 upgrade_need_consume = 21;
+    string next_privileges = 22;
+    Image profile_dialog_bg = 23;
+    Image profile_dialog_back_bg = 24;
+    int64 score = 25;
+    string grade_banner = 1001;
+}
+
+// @GradeIcon
+// proto.webcast.data.User.PayGrade
+// C:\Users\ja\RiderProjects\TikTokProBufferGenerator\Application\output\sources\test.js
+message GradeIcon {
+    Image icon = 1;
+    int64 iconDiamond = 2;
+    int64 level = 3;
+    string levelStr = 4;
+}
+
+message BorderInfo {
+    Image icon = 1;
+    int64 level = 2;
+    string source = 3;
+    Image profile_decoration_ribbon = 4;
+    PrivilegeLogExtra border_log_extra = 5;
+    PrivilegeLogExtra ribbon_log_extra = 6;
+    string avatar_background_color = 7;
+    string avatar_background_border_color = 8;
+}
+
+message FansClubMember {
+    FansClubData data = 1;
+    map<int32, FansClubData> prefer_data = 2;
+}
+
+message FansClubData {
+    string club_name = 1;
+    int32 level = 2;
+    int32 user_fans_club_status = 3;
+    UserBadge badge = 4;
+    repeated int64 available_gift_ids = 5;
+    int64 anchor_id = 6;
+
+    message UserBadge {
+        map<int32, Image> icons = 1;
+        string title = 2;
+    }
+}
+
+message Author {
+    int64 video_total_count = 1;
+    int64 video_total_play_count = 2;
+    int64 video_total_favorite_count = 6;
+}
+
+message PublicAreaCommon {
+    Image userLabel = 1;
+    int64 userConsumeInRoom = 2;
+}
+
+message PublicAreaMessageCommon {
+    int64 scroll_gap_count = 1;
+    int64 anchor_scroll_gap_count = 2;
+    bool release_to_scroll_area = 3;
+    bool anchor_release_to_scroll_area = 4;
+    bool is_anchor_marked = 5;
+    CreatorSuccessInfo creator_success_info = 6;
+    PortraitInfo portrait_info = 7;
+    UserInteractionInfo user_interaction_info = 8;
+    int64 admin_fold_type = 9;
+
+    message TagItem {
+        TagType tag_type = 1;
+        Text tag_text = 2;
+    }
+    message Topic {
+        TopicActionType topic_action_type = 1;
+        Text topic_text = 2;
+        Text topic_tips = 3;
+    }
+    message CreatorSuccessInfo {
+        repeated TagItem tags = 1;
+        Topic topic = 2;
+    }
+    message UserMetrics {
+        UserMetricsType type = 1;
+        string metrics_value = 2;
+    }
+    message PortraitTag {
+        string tag_id = 1;
+        int64 priority = 2;
+        string show_value = 3;
+        string show_args = 4;
+    }
+    message PortraitInfo {
+        repeated UserMetrics user_metrics = 1;
+        repeated PortraitTag portrait_tag = 2;
+    }
+    message UserInteractionInfo {
+        int64 like_cnt = 1;
+        int64 comment_cnt = 2;
+        int64 share_cnt = 3;
+    }
+}
+
+message GiftModeMeta {
+    int64 gift_id = 1;
+    string gift_name_key = 2;
+    Image gift_icon_image = 3;
+    Text gift_mode_desc = 4;
+}
+
+message BattleTeamUser {
+    int64 user_id = 1;
+    int64 score = 2;
+    string user_id_str = 3;
+}
+
+message BattleSetting {
+    int64 battle_id = 1;
+    int64 start_time_ms = 2;
+    int32 duration = 3;
+    int64 channel_id = 4;
+    int32 status = 5;
+    BattleInviteType invite_type = 6;
+    GiftModeMeta gift_mode_meta = 7;
+    BattleType battle_type = 8;
+    int64 extra_duration_second = 9;
+    int64 end_time_ms = 10;
+}
+
+message BattleTeamUserArmies {
+    int64 team_id = 1;
+    repeated BattleTeamUser team_users = 2;
+    int64 team_total_score = 3;
+    BattleUserArmies user_armies = 4;
+    int64 host_rank = 5;
+}
+
+message BattleUserArmies {
+    repeated BattleUserArmy user_army = 1;
+    int64 host_score = 2;
+    string anchor_id_str = 3;
+}
+
+message BattleUserArmy {
+    int64 user_id = 1;
+    int64 score = 2;
+    string nickname = 3;
+    Image avatar_thumb = 4;
+    int64 diamond_score = 5;
+    string user_id_str = 6;
+}
+
+message HighScoreControlCfg {
+    bool normal_control_applied = 1;
+    int64 threshold = 2;
+    repeated int64 origin_display_to_user_list = 3;
+}
