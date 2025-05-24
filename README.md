@@ -319,7 +319,7 @@ connection.on(ControlEvent.CONNECTED, () => console.log("Connected!"));
 - [`ControleEvent.ERROR`](#error) or `"error"`
 - [`ControlEvent.WEBSOCKET_DATA`](#websocketdata) or `"websocketData"`
 
-### 1.X.X Message Events:
+### Message Events:
 
 - [`WebcastEvent.CHAT`](#chat) or `"chat"`
 - [`WebcastEvent.GIFT`](#gift) or `"gift"`
