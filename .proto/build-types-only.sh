@@ -1,6 +1,10 @@
+
+echo "Building Protobuf Typedefs ONLY"
+cd ./src
+
 protoc \
   --plugin=protoc-gen-ts_proto=$(npx which protoc-gen-ts_proto) \
-  --ts_proto_out=./types \
+  --ts_proto_out=../types_dist \
   --ts_proto_opt=forceLong=string \
   --ts_proto_opt=env=browser \
   --ts_proto_opt=esModuleInterop=true \
