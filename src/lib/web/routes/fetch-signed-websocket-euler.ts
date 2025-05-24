@@ -10,13 +10,13 @@ import {
 } from '@/types/errors';
 import Config from '@/lib/config';
 import { deserializeMessage } from '@/lib';
-import { WebcastResponse } from '@/types/tiktok-schema';
 import { FetchSignedWebSocketParams } from '@/types/client';
+import { ProtoMessageFetchResult } from '@/types';
 
 
 export type FetchSignedWebSocketFromEulerRouteParams = FetchSignedWebSocketParams;
 
-export class FetchSignedWebSocketFromEulerRoute extends Route<FetchSignedWebSocketFromEulerRouteParams, WebcastResponse> {
+export class FetchSignedWebSocketFromEulerRoute extends Route<FetchSignedWebSocketFromEulerRouteParams, ProtoMessageFetchResult> {
 
     async call(
         {
@@ -26,7 +26,7 @@ export class FetchSignedWebSocketFromEulerRoute extends Route<FetchSignedWebSock
             sessionId,
             ttTargetIdc
         }: FetchSignedWebSocketFromEulerRouteParams
-    ): Promise<WebcastResponse> {
+    ): Promise<ProtoMessageFetchResult> {
 
         if (!roomId && !uniqueId) {
             throw new FetchSignedWebSocketIdentityParameterError(
@@ -131,7 +131,7 @@ export class FetchSignedWebSocketFromEulerRoute extends Route<FetchSignedWebSock
 
         this.webClient.cookieJar.processSetCookieHeader(response.headers['x-set-tt-cookie'] || '');
         this.webClient.roomId = response.headers['x-room-id'] || this.webClient.roomId;
-        return deserializeMessage('WebcastResponse', Buffer.from(response.data));
+        return deserializeMessage('ProtoMessageFetchResult', Buffer.from(response.data));
     }
 
 }

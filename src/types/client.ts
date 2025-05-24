@@ -1,5 +1,5 @@
-import * as tikTokSchema from './tiktok-schema';
-import { MessageFns, WebcastResponse, WebcastWebsocketMessage } from './tiktok-schema';
+import * as tikTokSchema from './tiktok/webcast';
+import { MessageFns, ProtoMessageFetchResult, WebcastPushFrame } from './tiktok/webcast';
 import { AxiosRequestConfig } from 'axios';
 import * as http from 'node:http';
 
@@ -26,7 +26,7 @@ export type TikTokLiveConnectionOptions = {
     wsClientOptions: http.RequestOptions;
 
     // Override the default websocket provider
-    signedWebSocketProvider?: (props: FetchSignedWebSocketParams) => Promise<WebcastResponse>
+    signedWebSocketProvider?: (props: FetchSignedWebSocketParams) => Promise<ProtoMessageFetchResult>
 }
 
 
@@ -50,8 +50,8 @@ export type WebcastHttpClientConfig = {
     signApiKey?: string;
 }
 
-export type DecodedWebcastWebsocketMessage = WebcastWebsocketMessage & {
-    webcastResponse?: any;
+export type DecodedWebcastPushFrame = WebcastPushFrame & {
+    protoMessageFetchResult?: ProtoMessageFetchResult;
 }
 
 
@@ -77,9 +77,6 @@ export interface IWebcastConfig {
 
 }
 
-export interface IWebcastDeserializeConfig {
-    skipMessageTypes: string[];
-}
 
 type ExtractMessageType<T> = T extends MessageFns<infer U> ? U : never;
 
@@ -89,16 +86,18 @@ export type WebcastMessage = {
     ExtractMessageType<typeof tikTokSchema[K]>;
 };
 
+type HasCommon<T> = T extends { common: any } ? T : never;
+
+
 // Top-Level Messages
 export type WebcastEventMessage = {
-    [K in keyof WebcastMessage as
-        K extends `Webcast${string}`
-            ? K extends `${string}_${string}`
-                ? never
-                : K
-            : never
-    ]: WebcastMessage[K];
+    [K in keyof WebcastMessage as HasCommon<WebcastMessage[K]> extends never ? never : K]: WebcastMessage[K];
 };
+
+
+export interface IWebcastDeserializeConfig {
+    skipMessageTypes: (keyof WebcastEventMessage)[];
+}
 
 
 export type DecodedData = {
@@ -108,8 +107,8 @@ export type DecodedData = {
     }
 }[keyof WebcastEventMessage];
 
-declare module '@/types/tiktok-schema' {
-    export interface Message {
+declare module '@/types/tiktok/webcast' {
+    export interface BaseProtoMessage {
         decodedData?: DecodedData;
     }
 

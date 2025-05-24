@@ -9,12 +9,6 @@ class ConnectError extends Error {
 export class InvalidUniqueIdError extends Error {
 }
 
-export class ExtractRoomIdError extends Error {
-    constructor(public readonly errors: Error[], ...args: any[]) {
-        super();
-    }
-}
-
 export class FetchIsLiveError extends Error {
     constructor(public readonly errors: Error[], ...args: any[]) {
         super();

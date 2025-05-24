@@ -1,8 +1,8 @@
 import { client as WebSocket, connection as WebSocketConnection, Message as WebSocketMessage } from 'websocket';
 import * as http from 'node:http';
 import { BinaryWriter } from '@bufbuild/protobuf/wire';
-import { DecodedWebcastWebsocketMessage, WebSocketParams } from '@/types/client';
-import { HeartbeatFrame, WebcastWebsocketAck } from '@/types/tiktok-schema';
+import { DecodedWebcastPushFrame, WebSocketParams } from '@/types/client';
+import { HeartbeatFrame, WebSocketAckMessage } from '@/types/tiktok/webcast';
 import { deserializeWebSocketMessage } from '@/lib/utilities';
 import Config from '@/lib/config';
 import TypedEventEmitter from 'typed-emitter';
@@ -14,7 +14,7 @@ type EventMap = {
     close: () => void;
     messageDecodingFailed: (error: Error) => void;
     unknownResponse: (message: WebSocketMessage) => void;
-    webcastResponse: (response: any) => void;
+    protoMessageFetchResult: (response: any) => void;
     webSocketData: (data: Uint8Array) => void;
 };
 
@@ -91,16 +91,16 @@ export default class TikTokWsClient extends (WebSocket as WebSocketConstructor) 
 
         //  If the message is binary, decode it
         try {
-            const decodedContainer: DecodedWebcastWebsocketMessage = await deserializeWebSocketMessage(message.binaryData);
+            const decodedContainer: DecodedWebcastPushFrame = await deserializeWebSocketMessage(message.binaryData);
 
             // Always send an ACK for the message
             if (decodedContainer.id != null) {
                 this.sendAck(decodedContainer.id);
             }
 
-            // If the message is a WebcastResponse, emit it
-            if (decodedContainer.webcastResponse) {
-                this.emit('webcastResponse', decodedContainer.webcastResponse);
+            // If the message is a protoMessageFetchResult, emit it
+            if (decodedContainer.protoMessageFetchResult) {
+                this.emit('protoMessageFetchResult', decodedContainer.protoMessageFetchResult);
             }
         } catch (err) {
             this.emit('messageDecodingFailed', err);
@@ -122,7 +122,7 @@ export default class TikTokWsClient extends (WebSocket as WebSocketConstructor) 
      * @param id The message id to acknowledge
      */
     protected sendAck(id: string): void {
-        const ackMessage: BinaryWriter = WebcastWebsocketAck.encode({ type: 'ack', id });
+        const ackMessage: BinaryWriter = WebSocketAckMessage.encode({ type: 'ack', id });
         this.connection.sendBytes(Buffer.from(ackMessage.finish()));
     }
 

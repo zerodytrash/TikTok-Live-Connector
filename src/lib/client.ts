@@ -8,7 +8,6 @@ import {
 
 import TypedEventEmitter from 'typed-emitter';
 import { EventEmitter } from 'node:events';
-import { ControlAction, WebcastResponse } from '@/types/tiktok-schema';
 import TikTokWsClient from '@/lib/ws/lib/ws-client';
 import Config from '@/lib/config';
 import { DecodedData, RoomGiftInfo, RoomInfo, TikTokLiveConnectionOptions, WebSocketParams } from '@/types/client';
@@ -16,17 +15,19 @@ import { validateAndNormalizeUniqueId } from '@/lib/utilities';
 import { RoomInfoResponse, TikTokWebClient } from '@/lib/web';
 import { EulerSigner } from '@/lib/web/lib/tiktok-signer';
 import {
+    ClientEventMap,
     ConnectState,
     ControlEvent,
-    EventMap,
     TikTokLiveConnectionState,
     WebcastEvent,
     WebcastEventMap
 } from '@/types/events';
 import { IWebcastRoomChatPayload, IWebcastRoomChatRouteResponse } from '@eulerstream/euler-api-sdk';
+import { ProtoMessageFetchResult } from '@/types';
+import { ControlAction } from '@/types/tiktok/enums';
 
 
-export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventEmitter<EventMap>) {
+export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventEmitter<ClientEventMap>) {
 
     // Public properties
     public webClient: TikTokWebClient;
@@ -239,7 +240,7 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
         }
 
         // <Required> Fetch initial room info. Let the user specify their own backend for signing, if they don't want to use Euler
-        const webcastResponse: WebcastResponse = await (this.options.signedWebSocketProvider || this.webClient.fetchSignedWebSocketFromEuler)(
+        const protoMessageFetchResult: ProtoMessageFetchResult = await (this.options.signedWebSocketProvider || this.webClient.fetchSignedWebSocketFromEuler)(
             {
                 roomId: (roomId || !this.options.connectWithUniqueId) ? this.roomId : undefined,
                 uniqueId: this.options.connectWithUniqueId ? this.uniqueId : undefined,
@@ -250,28 +251,28 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
 
         // <Optional> Process the initial data
         if (this.options?.processInitialData) {
-            await this.processWebcastResponse(webcastResponse);
+            await this.processProtoMessageFetchResult(protoMessageFetchResult);
         }
 
         // If we didn't receive a cursor
-        if (!webcastResponse.cursor) {
+        if (!protoMessageFetchResult.cursor) {
             throw new InvalidResponseError('Missing cursor in initial fetch response.');
         }
 
         // Update client parameters
-        this.clientParams.cursor = webcastResponse.cursor;
-        this.clientParams.internal_ext = webcastResponse.internalExt;
+        this.clientParams.cursor = protoMessageFetchResult.cursor;
+        this.clientParams.internal_ext = protoMessageFetchResult.internalExt;
 
         // Connect to the WebSocket
         const wsParams: WebSocketParams = {
             compress: 'gzip',
             room_id: this.roomId,
-            internal_ext: webcastResponse.internalExt,
-            cursor: webcastResponse.cursor
+            internal_ext: protoMessageFetchResult.internalExt,
+            cursor: protoMessageFetchResult.cursor,
+            ...protoMessageFetchResult.wsParams
         };
 
-        webcastResponse.wsParams.forEach((wsParam) => wsParams[wsParam.name] = wsParam.value);
-        this.wsClient = await this.setupWebsocket(webcastResponse.wsUrl, wsParams);
+        this.wsClient = await this.setupWebsocket(protoMessageFetchResult.wsUrl, wsParams);
         this.emit(ControlEvent.WEBSOCKET_CONNECTED, this.wsClient);
 
     }
@@ -490,16 +491,16 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
             });
 
             wsClient.on('connectFailed', (err: any) => reject(`Websocket connection failed, ${err}`));
-            wsClient.on('webcastResponse', this.processWebcastResponse.bind(this));
+            wsClient.on('protoMessageFetchResult', this.processProtoMessageFetchResult.bind(this));
             wsClient.on('webSocketData', (data: Uint8Array) => this.emit(ControlEvent.WEBSOCKET_DATA, data));
             wsClient.on('messageDecodingFailed', (err: any) => this.handleError(err, 'Websocket message decoding failed'));
             const connectTimeout = setTimeout(() => reject('Websocket not responding'), 20_000);
         });
     }
 
-    protected async processWebcastResponse(webcastResponse: WebcastResponse): Promise<void> {
+    protected async processProtoMessageFetchResult(protoMessageFetchResult: ProtoMessageFetchResult): Promise<void> {
 
-        for (const message of webcastResponse.messages) {
+        for (const message of protoMessageFetchResult.messages) {
 
             if (!message.decodedData) {
                 continue;
@@ -510,7 +511,7 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
                 ControlEvent.DECODED_DATA,
                 message.type,
                 message.decodedData,
-                message.binary
+                message.payload
             );
 
             // Process & emit decoded data depending on the message type
@@ -531,12 +532,11 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
 
             case 'WebcastSocialMessage':
 
-                // Then emit specific messages for the event type
-                if (data.event.eventDetails.displayType?.includes('follow')) {
+                if (data.common.displayText.displayType?.includes('follow')) {
                     return this.emit(WebcastEvent.FOLLOW, data);
                 }
 
-                if (data.event.eventDetails.displayType?.includes('share')) {
+                if (data.common.displayText.displayType?.includes('share')) {
                     return this.emit(WebcastEvent.SHARE, data);
                 }
 

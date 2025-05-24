@@ -1,4 +1,4 @@
-import { WebcastControlMessage, WebcastResponse } from '@/types/tiktok-schema';
+import { ProtoMessageFetchResult, WebcastControlMessage } from '@/types/tiktok/webcast';
 import { EventEmitter } from 'node:events';
 import { simplifyObject } from '@/lib/_legacy/data-converter';
 import { TikTokLiveConnection } from '@/lib';
@@ -10,17 +10,17 @@ import { ControlEvent, WebcastEvent } from '@/types/events';
  */
 export class WebcastPushConnection extends (TikTokLiveConnection as new (...args: any[]) => EventEmitter & TikTokLiveConnection) {
 
-    protected async processWebcastResponse(webcastResponse: WebcastResponse): Promise<void> {
+    protected async processProtoMessageFetchResult(fetchResult: ProtoMessageFetchResult): Promise<void> {
 
-        webcastResponse.messages.forEach((message) => {
-            this.emit(ControlEvent.RAW_DATA, message.type, message.binary);
+        fetchResult.messages.forEach((message) => {
+            this.emit(ControlEvent.RAW_DATA, message.type, message.payload);
         });
 
         // Process and emit decoded data depending on the message type
-        webcastResponse.messages
+        fetchResult.messages
             .forEach((message) => {
                 let simplifiedObj = simplifyObject(message.decodedData.data || {});
-                this.emit(ControlEvent.DECODED_DATA, message.type, simplifiedObj, message.binary);
+                this.emit(ControlEvent.DECODED_DATA, message.type, simplifiedObj, message.payload);
 
                 switch (message.type) {
                     case 'WebcastControlMessage':

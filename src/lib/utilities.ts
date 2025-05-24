@@ -1,7 +1,7 @@
-import * as tikTokSchema from '@/types/tiktok-schema';
-import { MessageFns, WebcastResponse, WebcastWebsocketMessage } from '@/types/tiktok-schema';
+import * as tikTokSchema from '@/types/tiktok/webcast';
+import { MessageFns, ProtoMessageFetchResult, WebcastPushFrame } from '@/types/tiktok/webcast';
 import {
-    DecodedWebcastWebsocketMessage,
+    DecodedWebcastPushFrame,
     IWebcastDeserializeConfig,
     WebcastEventMessage,
     WebcastMessage
@@ -39,12 +39,12 @@ export function deserializeMessage<T extends keyof WebcastMessage>(
 
     const messageFn: MessageFns<WebcastMessage[T]> | undefined = tikTokSchema[protoName as string];
     if (!messageFn) throw new InvalidSchemaNameError(`Invalid schema name: ${protoName}`);
-    const webcastResponse: WebcastMessage[T] = messageFn.decode(binaryMessage);
+    const deserializedMessage: WebcastMessage[T] = messageFn.decode(binaryMessage);
 
-    // Handle WebcastResponse nested messages
-    if (protoName === 'WebcastResponse') {
-        for (const message of (webcastResponse as WebcastResponse).messages || []) {
-            if (WebcastDeserializeConfig.skipMessageTypes.includes(message.type)) {
+    // Handle ProtoMessageFetchResult nested messages
+    if (protoName === 'ProtoMessageFetchResult') {
+        for (const message of (deserializedMessage as ProtoMessageFetchResult).messages || []) {
+            if (WebcastDeserializeConfig.skipMessageTypes.includes(message.type as keyof WebcastEventMessage)) {
                 continue;
             }
 
@@ -54,20 +54,21 @@ export function deserializeMessage<T extends keyof WebcastMessage>(
 
             message.decodedData = {
                 type: message.type as keyof WebcastEventMessage,
-                data: deserializeMessage(message.type as keyof WebcastEventMessage, Buffer.from(message.binary))
+                data: deserializeMessage(message.type as keyof WebcastEventMessage, Buffer.from(message.payload))
             } as any;
+
         }
     }
 
-    return webcastResponse;
+    return deserializedMessage;
 }
 
 
-export async function deserializeWebSocketMessage(binaryMessage: Uint8Array): Promise<DecodedWebcastWebsocketMessage> {
+export async function deserializeWebSocketMessage(binaryMessage: Uint8Array): Promise<DecodedWebcastPushFrame> {
     // Websocket messages are in a container which contains additional data
     // Message type 'msg' represents a normal WebcastResponse
-    const rawWebcastWebSocketMessage = WebcastWebsocketMessage.decode(binaryMessage);
-    let webcastResponse: WebcastResponse | undefined = undefined;
+    const rawWebcastWebSocketMessage = WebcastPushFrame.decode(binaryMessage);
+    let protoMessageFetchResult: ProtoMessageFetchResult | undefined = undefined;
 
     if (rawWebcastWebSocketMessage.type === 'msg') {
         let binary: Uint8Array = rawWebcastWebSocketMessage.binary;
@@ -78,11 +79,11 @@ export async function deserializeWebSocketMessage(binaryMessage: Uint8Array): Pr
             rawWebcastWebSocketMessage.binary = await unzip(binary);
         }
 
-        webcastResponse = deserializeMessage('WebcastResponse', Buffer.from(rawWebcastWebSocketMessage.binary));
+        protoMessageFetchResult = deserializeMessage('ProtoMessageFetchResult', Buffer.from(rawWebcastWebSocketMessage.binary));
     }
 
-    const decodedContainer: DecodedWebcastWebsocketMessage = rawWebcastWebSocketMessage;
-    decodedContainer.webcastResponse = webcastResponse;
+    const decodedContainer: DecodedWebcastPushFrame = rawWebcastWebSocketMessage;
+    decodedContainer.protoMessageFetchResult = protoMessageFetchResult;
     return decodedContainer;
 
 }
