@@ -72,7 +72,6 @@ users.
 - [Properties](#properties)
 - [Events](#events)
 - [Examples](#examples)
-- [Contributing](#contributing)
 
 ## Getting Started
 
@@ -318,8 +317,9 @@ connection.on(ControlEvent.CONNECTED, () => console.log("Connected!"));
 - [`ControleEvent.DECODED_DATA`](#decodeddata) or `"decodedData"`
 - [`ControleEvent.WEBSOCKET_CONNECTED`](#websocketconnected) or `"websocketConnected"`
 - [`ControleEvent.ERROR`](#error) or `"error"`
+- [`ControlEvent.WEBSOCKET_DATA`](#websocketdata) or `"websocketData"`
 
-### Message Events:
+### 1.X.X Message Events:
 
 - [`WebcastEvent.CHAT`](#chat) or `"chat"`
 - [`WebcastEvent.GIFT`](#gift) or `"gift"`
@@ -339,6 +339,25 @@ connection.on(ControlEvent.CONNECTED, () => console.log("Connected!"));
 - [`WebcastEvent.EMOTE`](#emote) or `"emote"`
 - [`WebcastEvent.FOLLOW`](#follow) or `"follow"`
 - [`WebcastEvent.SHARE`](#share) or `"share"`
+- [`WebcastEvent.GOAL_UPDATE`](#goalupdate) or `"goalUpdate"`
+- [`WebcastEvent.ROOM_MESSAGE`](#roommessage) or `"roomMessage"`
+- [`WebcastEvent.CAPTION_MESSAGE`](#captionmessage) or `"captionMessage"`
+- [`WebcastEvent.IM_DELETE`](#imdelete) or `"imDelete"`
+- [`WebcastEvent.IN_ROOM_BANNER`](#inroombanner) or `"inRoomBanner"`
+- [`WebcastEvent.RANK_UPDATE`](#rankupdate) or `"rankUpdate"`
+- [`WebcastEvent.POLL_MESSAGE`](#pollmessage) or `"pollMessage"`
+- [`WebcastEvent.RANK_TEXT`](#ranktext) or `"rankText"`
+- [`WebcastEvent.LINK_MIC_BATTLE_PUNISH_FINISH`](#linkmicbattlepunishfinish) or `"linkMicBattlePunishFinish"`
+- [`WebcastEvent.LINK_MIC_BATTLE_TASK`](#linkmicbattletask) or `"linkMicBattleTask"`
+- [`WebcastEvent.LINK_MIC_FAN_TICKET_METHOD`](#linkmicfanticketmethod) or `"linkMicFanTicketMethod"`
+- [`WebcastEvent.LINK_MIC_METHOD`](#linkmicmethod) or `"linkMicMethod"`
+- [`WebcastEvent.UNAUTHORIZED_MEMBER`](#unauthorizedmember) or `"unauthorizedMember"`
+- [`WebcastEvent.OEC_LIVE_SHOPPING`](#oecliveshopping) or `"oecLiveShopping"`
+- [`WebcastEvent.MSG_DETECT`](#msgdetect) or `"msgDetect"`
+- [`WebcastEvent.LINK_MESSAGE`](#linkmessage) or `"linkMessage"`
+- [`WebcastEvent.ROOM_VERIFY`](#roomverify) or `"roomVerify"`
+- [`WebcastEvent.LINK_LAYER`](#linklayer) or `"linkLayer"`
+- [`WebcastEvent.ROOM_PIN`](#roompin) or `"roomPin"`
 
 ## Control Events
 
@@ -352,8 +371,6 @@ client.on(
     (state: TikTokLiveConnectionState) => console.log('Hurray! Connected!', state)
 );
 ```
-
-
 
 ### `disconnected`
 
@@ -411,6 +428,13 @@ connection.on(ControlEvent.WEBSOCKET_CONNECTED, (client: TikTokWsClient) => {
 });
 ```
 
+### `websocketdata`
+
+Triggered every time a WebSocket message arrives. This is the same as the `rawData` event but the binary object is
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
 ### `error`
 
 General error event. You should handle this.
@@ -433,8 +457,6 @@ connection.on(WebcastEvent.MEMBER, (data: WebcastMemberMessage) => {
 });
 ```
 
-
-
 ### `chat`
 
 Triggered every time a new chat comment arrives.
@@ -444,8 +466,6 @@ connection.on(WebcastEvent.CHAT, (data: WebcastChatMessage) => {
     console.log(`${data.uniqueId} -> ${data.comment}`);
 });
 ```
-
-
 
 ### `gift`
 
@@ -471,8 +491,6 @@ connection.on(WebcastEvent.GIFT, (event: WebcastGiftMessage) => {
 });
 ```
 
-
-
 ### `roomUser`
 
 Triggered every time a statistic message arrives. This message currently contains the viewer count and a top gifter
@@ -483,8 +501,6 @@ connection.on(WebcastEvent.ROOM_USER, data => {
     console.log(`Viewer Count: ${data.viewerCount}`);
 });
 ```
-
-
 
 ### `like`
 
@@ -497,8 +513,6 @@ connection.on(WebcastEvent.LIKE, data => {
 });
 ```
 
-
-
 ### `social`
 
 Triggered every time someone shares the stream or follows the host.
@@ -508,8 +522,6 @@ connection.on(WebcastEvent.SOCIAL, data => {
     console.log('social event data:', data);
 });
 ```
-
-
 
 ### `emote`
 
@@ -521,8 +533,6 @@ connection.on(WebcastEvent.EMOTE, (data: WebcastEmoteChatMessage) => {
 });
 ```
 
-
-
 ### `envelope`
 
 Triggered every time someone sends a treasure chest.
@@ -532,8 +542,6 @@ connection.on(WebcastEvent.ENVELOPE, data => {
     console.log('envelope received', data);
 });
 ```
-
-
 
 ### `questionNew`
 
@@ -545,8 +553,6 @@ connection.on(WebcastEvent.QUESTION_NEW, data => {
 });
 ```
 
-
-
 ### `linkMicBattle`
 
 Triggered every time a battle starts.
@@ -556,8 +562,6 @@ connection.on(WebcastEvent.LINK_MIC_BATTLE, (data) => {
     console.log(`New Battle: ${data.battleUsers[0].uniqueId} VS ${data.battleUsers[1].uniqueId}`);
 });
 ```
-
-
 
 ### `linkMicArmies`
 
@@ -570,8 +574,6 @@ connection.on(WebcastEvent.LINK_MIC_ARMIES, (data) => {
 });
 ```
 
-
-
 ### `liveIntro`
 
 Triggered when a live intro message appears.
@@ -582,8 +584,6 @@ connection.on(WebcastEvent.LIVE_INTRO, (msg) => {
 });
 ```
 
-
-
 ### `subscribe`
 
 Triggers when a user creates a subscription.
@@ -593,8 +593,6 @@ connection.on(WebcastEvent.SUBSCRIBE, (data) => {
     console.log(data.uniqueId, 'subscribed!');
 });
 ```
-
-
 
 ### Custom Events
 
@@ -610,8 +608,6 @@ connection.on(WebcastEvent.FOLLOW, (data) => {
 });
 ```
 
-
-
 ### `share`
 
 Triggers when a user shares the stream. Based on `social` event.
@@ -622,7 +618,136 @@ connection.on(WebcastEvent.SHARE, (data) => {
 })
 ```
 
+### `goalUpdate`
 
+Triggered when a channel goal is updated.
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
+### `roomMessage`
+
+No information available.
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
+### `captionMessage`
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
+### `imDelete`
+
+Triggered when a message is deleted in the chat.
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
+### `inRoomBanner`
+
+Triggered when a banner is shown in the room.
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
+### `rankUpdate`
+
+Triggered when a ranking update is received.
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
+### `pollMessage`
+
+Triggered when a poll-related message is sent in the room.
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
+### `rankText`
+
+Triggered when text related to rankings is displayed.
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
+### `linkMicBattlePunishFinish`
+
+Triggered when a link mic battle punishment is finished.
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
+### `linkMicBattleTask`
+
+Triggered when a new task is issued during a link mic battle.
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
+### `linkMicFanTicketMethod`
+
+Triggered when a fan ticket-related method is invoked during a link mic session.
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
+### `linkMicMethod`
+
+Triggered when a link mic method is used.
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
+### `unauthorizedMember`
+
+Triggered when an unauthorized member tries to perform a restricted action.
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
+### `oecLiveShopping`
+
+Triggered when a live shopping event occurs.
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
+### `msgDetect`
+
+Triggered when the system detects a message for moderation or other purposes.
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
+### `linkMessage`
+
+Triggered during a link mic session for various communication purposes.
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
+### `roomVerify`
+
+Triggered when the system performs room verification.
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
+### `linkLayer`
+
+Triggered when a new link mic layer is added or updated.
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
+
+### `roomPin`
+
+Triggered when a message is pinned in the chat room.
+
+> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
+> add one!
 
 ## Examples
 
@@ -689,8 +814,10 @@ const connection = new TikTokLiveConnection('@username', {
 You can connect to the TikTok LIVE with a specific account. To do so, log into your browser & into TikTok.
 Then, simply extract the `sessionid` and `tt-target-idc` cookies. **Both** are needed to connect.
 
-One is your account's session token (keep this secret!), and the other is the datacenter the account is located in. This tells TikTok where to look for your session, and is based
-on your region (i.e. EU and NA will have different cookies, but all NA users will have the same cookie, such as `useast1a`).
+One is your account's session token (keep this secret!), and the other is the datacenter the account is located in. This
+tells TikTok where to look for your session, and is based
+on your region (i.e. EU and NA will have different cookies, but all NA users will have the same cookie, such
+as `useast1a`).
 
 ```ts
 import { TikTokLiveConnection } from 'tiktok-live-connector';
