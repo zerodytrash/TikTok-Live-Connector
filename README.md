@@ -634,6 +634,8 @@ No information available.
 
 ### `captionMessage`
 
+No information available.
+
 > No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
 > add one!
 
