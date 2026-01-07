@@ -67,6 +67,7 @@
         "prettier": "2.5.1",
         "ts-proto": "^2.6.1",
         "tsc-alias": "^1.8.15",
+        "tsx": "^4.21.0",
         "typescript": "^4.8.2"
     }
 }

@@ -9,6 +9,7 @@ import {
     WebcastEnvelopeMessage,
     WebcastGiftMessage,
     WebcastGoalUpdateMessage,
+    WebcastGroupLiveMemberNotifyMessage,
     WebcastHourlyRankMessage,
     WebcastImDeleteMessage,
     WebcastInRoomBannerMessage,
@@ -93,6 +94,10 @@ export enum WebcastEvent {
 
     // Added 2.0.8-beta1
     SUPER_FAN = 'superFan',
+
+    //my custome event
+    LIVEMEMBER = 'liveMember',
+    COMPETITION = 'competition',
 }
 
 
@@ -160,6 +165,10 @@ export type ClientEventMap = {
     [WebcastEvent.ROOM_VERIFY]: EventHandler<RoomVerifyMessage>,
     [WebcastEvent.LINK_LAYER]: EventHandler<WebcastLinkLayerMessage>,
     [WebcastEvent.ROOM_PIN]: EventHandler<WebcastRoomPinMessage>,
+
+    //my custom event
+    [WebcastEvent.LIVEMEMBER]: EventHandler<WebcastGroupLiveMemberNotifyMessage>,
+    [WebcastEvent.COMPETITION]: EventHandler<WebcastGroupLiveMemberNotifyMessage>
 };
 
 export const WebcastEventMap: Record<BasicWebcastEventMessage, keyof ClientEventMap> = {
@@ -199,7 +208,11 @@ export const WebcastEventMap: Record<BasicWebcastEventMessage, keyof ClientEvent
     'WebcastLinkMessage': WebcastEvent.LINK_MESSAGE,
     'RoomVerifyMessage': WebcastEvent.ROOM_VERIFY,
     'WebcastLinkLayerMessage': WebcastEvent.LINK_LAYER,
-    'WebcastRoomPinMessage': WebcastEvent.ROOM_PIN
+    'WebcastRoomPinMessage': WebcastEvent.ROOM_PIN,
+
+    //my custome event
+    'WebcastGroupLiveMemberNotifyMessage': WebcastEvent.LIVEMEMBER,
+    'WebcastCompetitionMessage': WebcastEvent.COMPETITION
 };
 
 

@@ -1599,3 +1599,37 @@ message WebcastImEnterRoomMessage {
     string filter_welcome_msg = 9; // "0"
     bool is_anchor_continue_keep_msg = 10; // 0
 }
+
+message WebcastGroupLiveMemberNotifyMessage {
+  WebcastMessageEvent event = 1;
+  repeated LiveMember liveMembers = 3; 
+}
+
+message WebcastCompetitionMessage {
+  WebcastMessageEvent event = 1;
+  uint32 status = 3;
+  optional MemberCompetition memberCompetition = 105;
+  message MemberCompetition {
+    repeated MemberCompetitionDetails memberCompetitionDetails = 1;
+  }
+  optional InitCompetition initCompetition = 102;
+  message InitCompetition {
+    MemberInitCompetition memberInitCompetition = 2;
+    message MemberInitCompetition {
+      repeated MemberInitCompetitionDetails memberInitCompetitionDetails = 3;
+      message MemberInitCompetitionDetails {
+        LiveMember competitor = 2;
+      }
+    }
+  }
+  optional EndCompetition endCompetition = 104;
+  message EndCompetition {
+    repeated MemberCompetitionDetails memberCompetitionDetails = 2;
+  }  
+}
+
+message MemberCompetitionDetails {
+  uint64 userId = 1;
+  uint64 score = 3;
+  optional uint32 winningStatus = 4;
+}

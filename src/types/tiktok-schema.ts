@@ -41309,3 +41309,234 @@ export interface MessageFns<T> {
   encode(message: T, writer?: BinaryWriter): BinaryWriter;
   decode(input: BinaryReader | Uint8Array, length?: number): T;
 }
+
+// ===========================================================================
+//  CUSTOM PATCH: LiveMember & Competition Messages
+// ===========================================================================
+
+/** @LiveMember */
+export interface LiveMember {
+  userId: string;
+  nickname: string;
+  profilePicture: Image | undefined;
+}
+
+function createBaseLiveMember(): LiveMember {
+  return { userId: "0", nickname: "", profilePicture: undefined };
+}
+
+export const LiveMember: MessageFns<LiveMember> = {
+  encode(message: LiveMember, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.userId !== "0") {
+      writer.uint32(8).int64(message.userId);
+    }
+    if (message.nickname !== "") {
+      writer.uint32(26).string(message.nickname);
+    }
+    if (message.profilePicture !== undefined) {
+      Image.encode(message.profilePicture, writer.uint32(34).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): LiveMember {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseLiveMember();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 8) break;
+          message.userId = reader.int64().toString();
+          continue;
+        case 3:
+          if (tag !== 26) break;
+          message.nickname = reader.string();
+          continue;
+        case 4:
+          if (tag !== 34) break;
+          message.profilePicture = Image.decode(reader, reader.uint32());
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) break;
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+/** @WebcastGroupLiveMemberNotifyMessage */
+export interface WebcastGroupLiveMemberNotifyMessage {
+  common: CommonMessageData | undefined;
+  liveMembers: LiveMember[];
+}
+
+function createBaseWebcastGroupLiveMemberNotifyMessage(): WebcastGroupLiveMemberNotifyMessage {
+  return { common: undefined, liveMembers: [] };
+}
+
+export const WebcastGroupLiveMemberNotifyMessage: MessageFns<WebcastGroupLiveMemberNotifyMessage> = {
+  encode(message: WebcastGroupLiveMemberNotifyMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.common !== undefined) {
+      CommonMessageData.encode(message.common, writer.uint32(10).fork()).join();
+    }
+    for (const v of message.liveMembers) {
+      LiveMember.encode(v!, writer.uint32(26).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): WebcastGroupLiveMemberNotifyMessage {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseWebcastGroupLiveMemberNotifyMessage();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 10) break;
+          message.common = CommonMessageData.decode(reader, reader.uint32());
+          continue;
+        case 3:
+          if (tag !== 26) break;
+          message.liveMembers.push(LiveMember.decode(reader, reader.uint32()));
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) break;
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+/** @MemberCompetitionDetails */
+export interface MemberCompetitionDetails {
+  userId: string;
+  score: string;
+  winningStatus: number;
+}
+
+function createBaseMemberCompetitionDetails(): MemberCompetitionDetails {
+  return { userId: "0", score: "0", winningStatus: 0 };
+}
+
+export const MemberCompetitionDetails: MessageFns<MemberCompetitionDetails> = {
+  encode(message: MemberCompetitionDetails, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.userId !== "0") {
+      writer.uint32(8).int64(message.userId);
+    }
+    if (message.score !== "0") {
+      writer.uint32(24).int64(message.score);
+    }
+    if (message.winningStatus !== 0) {
+      writer.uint32(32).uint32(message.winningStatus);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MemberCompetitionDetails {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMemberCompetitionDetails();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.userId = reader.int64().toString();
+          continue;
+        case 3:
+          message.score = reader.int64().toString();
+          continue;
+        case 4:
+          message.winningStatus = reader.uint32();
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) break;
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+/** @WebcastCompetitionMessage */
+export interface WebcastCompetitionMessage {
+  common: CommonMessageData | undefined;
+  status: number;
+  memberCompetition: WebcastCompetitionMessage_MemberCompetition | undefined;
+}
+
+export interface WebcastCompetitionMessage_MemberCompetition {
+  memberCompetitionDetails: MemberCompetitionDetails[];
+}
+
+function createBaseWebcastCompetitionMessage(): WebcastCompetitionMessage {
+  return { common: undefined, status: 0, memberCompetition: undefined };
+}
+
+function createBaseWebcastCompetitionMessage_MemberCompetition(): WebcastCompetitionMessage_MemberCompetition {
+  return { memberCompetitionDetails: [] };
+}
+
+export const WebcastCompetitionMessage_MemberCompetition: MessageFns<WebcastCompetitionMessage_MemberCompetition> = {
+  encode(message: WebcastCompetitionMessage_MemberCompetition, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.memberCompetitionDetails) {
+      MemberCompetitionDetails.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+  decode(input: BinaryReader | Uint8Array, length?: number): WebcastCompetitionMessage_MemberCompetition {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseWebcastCompetitionMessage_MemberCompetition();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.memberCompetitionDetails.push(MemberCompetitionDetails.decode(reader, reader.uint32()));
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) break;
+      reader.skip(tag & 7);
+    }
+    return message;
+  }
+};
+
+export const WebcastCompetitionMessage: MessageFns<WebcastCompetitionMessage> = {
+  encode(message: WebcastCompetitionMessage, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.common !== undefined) {
+      CommonMessageData.encode(message.common, writer.uint32(10).fork()).join();
+    }
+    if (message.status !== 0) {
+      writer.uint32(24).uint32(message.status);
+    }
+    if (message.memberCompetition !== undefined) {
+      WebcastCompetitionMessage_MemberCompetition.encode(message.memberCompetition, writer.uint32(842).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): WebcastCompetitionMessage {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseWebcastCompetitionMessage();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.common = CommonMessageData.decode(reader, reader.uint32());
+          continue;
+        case 3:
+          message.status = reader.uint32();
+          continue;
+        case 105:
+          message.memberCompetition = WebcastCompetitionMessage_MemberCompetition.decode(reader, reader.uint32());
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) break;
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
