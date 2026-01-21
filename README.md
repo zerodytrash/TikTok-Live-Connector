@@ -1,4 +1,4 @@
-# TikTok-Live-Connector
+# live
 
 A Node.js library to receive live stream events such as comments and gifts in realtime
 from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal Webcast push service.
