@@ -128,7 +128,12 @@ message Image {
 
 // @Badge
 message BadgeStruct {
-    BadgeDisplayType badge_display_type = 1; // Enum
+
+    // BadgeDisplayType badge_display_type = 1; // Enum
+    // ^ Removed due to an issue (and also generally not necessary)
+    // Essentially, occasionally TikTok will send this as a string instead of enum val -> pm_mt_badeg_notes_profile1
+    // This of course breaks serialization, inconsistently.
+
     BadgePriorityType badge_priority_type = 2;
     BadgeSceneType badge_scene = 3;
     Position position = 4;
