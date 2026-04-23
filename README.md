@@ -305,6 +305,7 @@ connection.on(ControlEvent.CONNECTED, () => console.log("Connected!"));
 - [`WebcastEvent.LINK_MIC_ARMIES`](#linkmicarmies) or `"linkMicArmies"`
 - [`WebcastEvent.LIVE_INTRO`](#liveintro) or `"liveIntro"`
 - [`WebcastEvent.SUPER_FAN`](#superfan) or `"superFan"`
+- [`WebcastEvent.SUPER_FAN_JOIN`](#superfanjoin) or `"superFanJoin"`
 - [`WebcastEvent.FOLLOW`](#follow) or `"follow"`
 - [`WebcastEvent.SHARE`](#share) or `"share"`
 - [`WebcastEvent.STREAM_END`](#streamend) or `"streamEnd"`
@@ -329,7 +330,6 @@ connection.on(ControlEvent.CONNECTED, () => console.log("Connected!"));
 - [`WebcastEvent.ROOM_VERIFY`](#roomverify) or `"roomVerify"`
 - [`WebcastEvent.LINK_LAYER`](#linklayer) or `"linkLayer"`
 - [`WebcastEvent.ROOM_PIN`](#roompin) or `"roomPin"`
-- [`WebcastEvent.SUPER_FAN`](#superfan) or `"superFan"`
 - [`WebcastEvent.SUPER_FAN_BOX`](#superfanbox) or `"superFanBox"`
 
 ## Control Events
@@ -690,6 +690,21 @@ Triggers when a user becomes a Super Fan.
 
 ```ts
 connection.on(WebcastEvent.SUPER_FAN, (data) => {
+    if (data.content?.defaultPattern) {
+        console.log(data.content.defaultPattern);
+    }
+    if (data.commonBarrageContent?.defaultPattern) {
+        console.log(data.commonBarrageContent.defaultPattern);
+    }
+});
+```
+
+### `superFanJoin`
+
+Triggers when an existing Super Fan joins the live.
+
+```ts
+connection.on(WebcastEvent.SUPER_FAN_JOIN, (data) => {
     if (data.content?.defaultPattern) {
         console.log(data.content.defaultPattern);
     }
