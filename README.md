@@ -22,11 +22,6 @@ and [Battles](#linkmicbattle) can be tracked.
 > An example project is available
 > at https://tiktok-chat-reader.zerody.one/ - [View Source](https://github.com/zerodytrash/TikTok-Chat-Reader)
 
-> [!WARNING]
-> This JavaScript library is intended for use in [Node.js](https://nodejs.org/) environments. If you want to process or
-> display the data in the browser (client-side), you need to transfer the data from the Node.js environment to the
-> browser. You can build a WebSocket server, or use the [Euler WebSocket API](https://www.eulerstream.com/docs/sign-server/websockets) to handle this for you.
-
 ### Do you prefer other programming languages?
 
 - **Python** rewrite: [TikTokLive](https://github.com/isaackogan/TikTokLive)
