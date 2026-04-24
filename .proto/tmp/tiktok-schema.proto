@@ -128,7 +128,19 @@ message Image {
 
 // @Badge
 message BadgeStruct {
-    BadgeDisplayType badge_display_type = 1; // Enum
+
+    //     enum BadgeDisplayType {
+    //        BADGEDISPLAYTYPE_UNKNOWN = 0;
+    //        BADGEDISPLAYTYPE_IMAGE = 1;
+    //        BADGEDISPLAYTYPE_TEXT = 2;
+    //        BADGEDISPLAYTYPE_STRING = 3;
+    //        BADGEDISPLAYTYPE_COMBINE = 4;
+    //    }
+    // BadgeDisplayType badge_display_type = 1; // Enum
+    // ^ Removed due to an issue (and also generally not necessary)
+    // Essentially, occasionally TikTok will send this as a string instead of enum val -> pm_mt_badeg_notes_profile1
+    // This of course breaks serialization, inconsistently. (March 22, 2026)
+
     BadgePriorityType badge_priority_type = 2;
     BadgeSceneType badge_scene = 3;
     Position position = 4;
@@ -203,12 +215,10 @@ message BadgeStruct {
     }
 
     message ImageBadge {
-        BadgeDisplayType badge_display_type = 1;
         Image image = 2;
     }
 
     message TextBadge {
-        BadgeDisplayType badge_display_type = 1;
         string key = 2;
         string default_pattern = 3;
         repeated string pieces = 4;
@@ -220,7 +230,6 @@ message BadgeStruct {
     }
 
     message StringBadge {
-        BadgeDisplayType badge_display_type = 1;
         string str = 2;
     }
 
@@ -231,14 +240,6 @@ message BadgeStruct {
     //    STR = 22;
     //    COMBINE = 23;
     //  }
-
-    enum BadgeDisplayType {
-        BADGEDISPLAYTYPE_UNKNOWN = 0;
-        BADGEDISPLAYTYPE_IMAGE = 1;
-        BADGEDISPLAYTYPE_TEXT = 2;
-        BADGEDISPLAYTYPE_STRING = 3;
-        BADGEDISPLAYTYPE_COMBINE = 4;
-    }
 
     enum BadgePriorityType {
         BADGE_PRIORITY_TYPE_UNKNOWN = 0;
@@ -4496,10 +4497,9 @@ message WebcastRoomPinMessage {
     string ec_streamer_key = 36;
 }
 
-/*message WebcastSystemMessage {
-  CommonMessageData common = 1;
-  string message = 2;
-}*/
+message WebcastSystemMessage {
+    string message = 2;
+}
 
 message WebcastLinkMessage {
     CommonMessageData common = 1;
