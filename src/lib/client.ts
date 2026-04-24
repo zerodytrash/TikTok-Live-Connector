@@ -42,6 +42,28 @@ type SendMessageOptions = {
     oauthToken?: string;
 };
 
+function resolveSuperFanBarrageEvent(data: {
+    content?: { displayType?: string } | undefined;
+    commonBarrageContent?: { displayType?: string } | undefined;
+}): WebcastEvent.SUPER_FAN | WebcastEvent.SUPER_FAN_JOIN | null {
+    const displayTypes = [
+        data.content?.displayType,
+        data.commonBarrageContent?.displayType,
+    ]
+        .filter((value): value is string => typeof value === 'string' && value.length > 0)
+        .map((value) => value.toLowerCase());
+
+    if (displayTypes.some((value) => value.includes('ttlive_superfan_commentnotif_superfanjoined'))) {
+        return WebcastEvent.SUPER_FAN_JOIN;
+    }
+
+    if (displayTypes.some((value) => value.includes('ttlive_superfan_commentnotif_someonebecamesuperfan'))) {
+        return WebcastEvent.SUPER_FAN;
+    }
+
+    return null;
+}
+
 
 export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventEmitter<ClientEventMap>) {
 
@@ -606,8 +628,11 @@ export class TikTokLiveConnection extends (EventEmitter as new () => TypedEventE
 
                 return this.emit(WebcastEvent.GIFT, data);
             case 'WebcastBarrageMessage':
-                if (data.content?.displayType?.toLowerCase().includes('ttlive_superfan')) {
-                    this.emit(WebcastEvent.SUPER_FAN, data);
+                {
+                    const superFanEvent = resolveSuperFanBarrageEvent(data);
+                    if (superFanEvent) {
+                        this.emit(superFanEvent, data);
+                    }
                 }
 
                 return this.emit(WebcastEvent.BARRAGE, data);
