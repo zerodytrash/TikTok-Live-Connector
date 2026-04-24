@@ -227,6 +227,7 @@ export enum EnvelopeBusinessType {
   BusinessTypePlatformMerch = 5,
   BusinessTypeEoYDiamond = 6,
   BusinessTypeFanClubGtM = 7,
+  BusinessTypeSuperFanBox = 19,
   UNRECOGNIZED = -1,
 }
 

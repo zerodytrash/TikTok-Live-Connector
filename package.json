@@ -48,7 +48,7 @@
     "dependencies": {
         "@bufbuild/protobuf": "^2.2.5",
         "@eulerstream/euler-api-sdk": "0.2.0-beta1",
-        "axios": "^1.12.2",
+        "axios": "^1.15.0",
         "callable-instance": "^2.0.0",
         "protobufjs": "^6.11.2",
         "tiktok-live-proto": "^0.1.0",

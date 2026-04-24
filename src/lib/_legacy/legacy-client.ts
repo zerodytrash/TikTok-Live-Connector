@@ -1,4 +1,8 @@
-import { BaseProtoMessage, ProtoMessageFetchResult, WebcastControlMessage } from '@/types/tiktok-schema';
+import {
+    BaseProtoMessage,
+    ProtoMessageFetchResult,
+    WebcastControlMessage
+} from '@/types/tiktok-schema';
 import { EventEmitter } from 'node:events';
 import { simplifyObject } from '@/lib/_legacy/data-converter';
 import { TikTokLiveConnection } from '@/lib';
@@ -77,8 +81,23 @@ export class WebcastPushConnection extends (TikTokLiveConnection as new (...args
                     case 'WebcastEmoteChatMessage':
                         this.emit(WebcastEvent.EMOTE, simplifiedObj);
                         break;
+                    case 'WebcastBarrageMessage':
+                        this.emit(WebcastEvent.BARRAGE, simplifiedObj);
+                        if (
+                            simplifiedObj.content?.displayType?.toLowerCase()?.includes('ttlive_superfan')
+                            || simplifiedObj.displayType?.toLowerCase()?.includes('ttlive_superfan')
+                        ) {
+                            this.emit(WebcastEvent.SUPER_FAN, simplifiedObj);
+                        }
+                        break;
                     case 'WebcastEnvelopeMessage':
                         this.emit(WebcastEvent.ENVELOPE, simplifiedObj);
+                        if (
+                            simplifiedObj.displayType?.toLowerCase()?.includes('ttlive_superfanbox')
+                            || simplifiedObj.envelopeInfo?.businessType === 19
+                        ) {
+                            this.emit(WebcastEvent.SUPER_FAN_BOX, simplifiedObj);
+                        }
                         break;
                 }
             });
@@ -86,4 +105,3 @@ export class WebcastPushConnection extends (TikTokLiveConnection as new (...args
 
 
 }
-

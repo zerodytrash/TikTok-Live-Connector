@@ -140,3 +140,6 @@ publish.ts
 pnpm-lock.yaml
 test-decoding.ts
 unzip-test.ts
+
+# macOS
+.DS_Store

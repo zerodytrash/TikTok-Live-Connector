@@ -284,13 +284,12 @@ connection.on(ControlEvent.CONNECTED, () => console.log("Connected!"));
 
 ### Control Events:
 
-- [`ControleEvent.CONNECTED`](#connected) or `"connected"`
-- [`ControleEvent.DISCONNECTED`](#disconnected) or `"disconnected"`
-- [`ControleEvent.STREAM_END`](#streamend) or `"streamEnd"`
-- [`ControleEvent.RAW_DATA`](#rawdata) or `"rawData"`
-- [`ControleEvent.DECODED_DATA`](#decodeddata) or `"decodedData"`
-- [`ControleEvent.WEBSOCKET_CONNECTED`](#websocketconnected) or `"websocketConnected"`
-- [`ControleEvent.ERROR`](#error) or `"error"`
+- [`ControlEvent.CONNECTED`](#connected) or `"connected"`
+- [`ControlEvent.DISCONNECTED`](#disconnected) or `"disconnected"`
+- [`ControlEvent.RAW_DATA`](#rawdata) or `"rawData"`
+- [`ControlEvent.DECODED_DATA`](#decodeddata) or `"decodedData"`
+- [`ControlEvent.WEBSOCKET_CONNECTED`](#websocketconnected) or `"websocketConnected"`
+- [`ControlEvent.ERROR`](#error) or `"error"`
 - [`ControlEvent.WEBSOCKET_DATA`](#websocketdata) or `"websocketData"`
 
 ### Message Events:
@@ -305,14 +304,12 @@ connection.on(ControlEvent.CONNECTED, () => console.log("Connected!"));
 - [`WebcastEvent.LINK_MIC_BATTLE`](#linkmicbattle) or `"linkMicBattle"`
 - [`WebcastEvent.LINK_MIC_ARMIES`](#linkmicarmies) or `"linkMicArmies"`
 - [`WebcastEvent.LIVE_INTRO`](#liveintro) or `"liveIntro"`
-- [`WebcastEvent.SUBSCRIBE`](#subscribe) or `"subscribe"`
+- [`WebcastEvent.SUPER_FAN`](#superfan) or `"superFan"`
 - [`WebcastEvent.FOLLOW`](#follow) or `"follow"`
 - [`WebcastEvent.SHARE`](#share) or `"share"`
 - [`WebcastEvent.STREAM_END`](#streamend) or `"streamEnd"`
 - [`WebcastEvent.ROOM_USER`](#roomuser) or `"roomUser"`
 - [`WebcastEvent.EMOTE`](#emote) or `"emote"`
-- [`WebcastEvent.FOLLOW`](#follow) or `"follow"`
-- [`WebcastEvent.SHARE`](#share) or `"share"`
 - [`WebcastEvent.GOAL_UPDATE`](#goalupdate) or `"goalUpdate"`
 - [`WebcastEvent.ROOM_MESSAGE`](#roommessage) or `"roomMessage"`
 - [`WebcastEvent.CAPTION_MESSAGE`](#captionmessage) or `"captionMessage"`
@@ -332,6 +329,8 @@ connection.on(ControlEvent.CONNECTED, () => console.log("Connected!"));
 - [`WebcastEvent.ROOM_VERIFY`](#roomverify) or `"roomVerify"`
 - [`WebcastEvent.LINK_LAYER`](#linklayer) or `"linkLayer"`
 - [`WebcastEvent.ROOM_PIN`](#roompin) or `"roomPin"`
+- [`WebcastEvent.SUPER_FAN`](#superfan) or `"superFan"`
+- [`WebcastEvent.SUPER_FAN_BOX`](#superfanbox) or `"superFanBox"`
 
 ## Control Events
 
@@ -340,9 +339,12 @@ connection.on(ControlEvent.CONNECTED, () => console.log("Connected!"));
 Triggered when the connection is successfully established.
 
 ```ts
-client.on(
-    WebcastEvent.CONNECTED,
-    (state: TikTokLiveConnectionState) => console.log('Hurray! Connected!', state)
+connection.on(
+    ControlEvent.CONNECTED,
+    (state: TikTokLiveConnectionState) => {
+        console.log(`Hurray! Connected to roomId ${state.roomId}`);
+        console.log(`Room info loaded: ${Boolean(state.roomInfo)}`);
+    }
 );
 ```
 
@@ -352,20 +354,10 @@ Triggered when the connection gets disconnected. In that case you can call `conn
 Note that you should wait a little bit before attempting a reconnect to to avoid being rate-limited.
 
 ```ts
-connection.on(ControlEvent.DISCONNECTED, () => console.log('Disconnected :('));
-```
-
-### `streamEnd`
-
-Triggered when the live stream gets terminated by the host. Will also trigger the [`disconnected`](#disconnected) event.
-
-```ts
-connection.on(ControlEvent.STREAM_END, ({ action }: { action: ControlAction }) => {
-    if (action === ControlAction.CONTROL_ACTION_STREAM_ENDED) {
-        console.log('Stream ended by user');
-    }
-    if (action === ControlAction.CONTROL_ACTION_STREAM_SUSPENDED) {
-        console.log('Stream ended by platform moderator (ban)');
+connection.on(ControlEvent.DISCONNECTED, ({ code, reason }) => {
+    console.log(`Disconnected :(${code})`);
+    if (reason) {
+        console.log(`Reason: ${reason}`);
     }
 });
 ```
@@ -398,24 +390,27 @@ Will be triggered as soon as a WebSocket connection is established. The WebSocke
 
 ```ts
 connection.on(ControlEvent.WEBSOCKET_CONNECTED, (client: TikTokWsClient) => {
-    console.log('WebSocket Client:', websocketClient.connection);
+    console.log('WebSocket open:', client.open);
 });
 ```
 
-### `websocketdata`
+### `websocketData`
 
 Triggered every time a WebSocket message arrives. This is the same as the `rawData` event but the binary object is
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(ControlEvent.WEBSOCKET_DATA, (data: Uint8Array) => {
+    console.log(`WebSocket bytes: ${data.length}`);
+});
+```
 
 ### `error`
 
 General error event. You should handle this.
 
 ```ts
-connection.on(ControlEvent.ERROR, err => {
-    console.error('Error!', err);
+connection.on(ControlEvent.ERROR, ({ info, exception }) => {
+    console.error('Error!', info, exception);
 });
 ```
 
@@ -427,7 +422,18 @@ Triggered every time a new viewer joins the live stream.
 
 ```ts
 connection.on(WebcastEvent.MEMBER, (data: WebcastMemberMessage) => {
-    console.log(`${data.uniqueId} joins the stream!`);
+    const uniqueId = data.user?.uniqueId;
+    const nickname = data.user?.nickname;
+    if (uniqueId) {
+        console.log(`User uniqueId: ${uniqueId}`);
+    }
+    if (nickname) {
+        console.log(`User nickname: ${nickname}`);
+    }
+    if (uniqueId || nickname) {
+        console.log('User joined the stream!');
+    }
+    console.log(`Viewers: ${data.memberCount}`);
 });
 ```
 
@@ -437,7 +443,17 @@ Triggered every time a new chat comment arrives.
 
 ```ts
 connection.on(WebcastEvent.CHAT, (data: WebcastChatMessage) => {
-    console.log(`${data.uniqueId} -> ${data.comment}`);
+    const uniqueId = data.user?.uniqueId;
+    const nickname = data.user?.nickname;
+    if (uniqueId) {
+        console.log(`User uniqueId: ${uniqueId}`);
+    }
+    if (nickname) {
+        console.log(`User nickname: ${nickname}`);
+    }
+    if (data.comment) {
+        console.log(`Comment: ${data.comment}`);
+    }
 });
 ```
 
@@ -454,13 +470,28 @@ you enable the [`enableExtendedGiftInfo`](#params-and-options) option.
 > with `repeatEnd`:`true`. Therefore, the event should be handled as follows:
 
 ```ts
-connection.on(WebcastEvent.GIFT, (event: WebcastGiftMessage) => {
-    if (data.giftType === 1 && !data.repeatEnd) {
+connection.on(WebcastEvent.GIFT, (data: WebcastGiftMessage) => {
+    const giftType = data.giftDetails?.giftType;
+    const giftName = data.giftDetails?.giftName;
+    const uniqueId = data.user?.uniqueId;
+    const nickname = data.user?.nickname;
+
+    if (giftType === 1 && !data.repeatEnd) {
         // Streak in progress => show only temporary
-        console.log(`${data.uniqueId} is sending gift ${data.giftName} x${data.repeatCount}`);
+        console.log('Gift streak in progress');
     } else {
         // Streak ended or non-streakable gift => process the gift with final repeat_count
-        console.log(`${data.uniqueId} has sent gift ${data.giftName} x${data.repeatCount}`);
+        console.log('Gift streak ended or non-streakable gift');
+    }
+    if (uniqueId) {
+        console.log(`User uniqueId: ${uniqueId}`);
+    }
+    if (nickname) {
+        console.log(`User nickname: ${nickname}`);
+    }
+    console.log(`GiftId: ${data.giftId}, repeatCount: ${data.repeatCount}`);
+    if (giftName) {
+        console.log(`Gift name: ${giftName}`);
     }
 });
 ```
@@ -473,6 +504,17 @@ list.
 ```ts
 connection.on(WebcastEvent.ROOM_USER, data => {
     console.log(`Viewer Count: ${data.viewerCount}`);
+    const topGifter = data.ranksList[0];
+    if (topGifter?.user) {
+        const uniqueId = topGifter.user.uniqueId;
+        const nickname = topGifter.user.nickname;
+        if (uniqueId) {
+            console.log(`Top gifter uniqueId: ${uniqueId} (${topGifter.coinCount})`);
+        }
+        if (nickname) {
+            console.log(`Top gifter nickname: ${nickname} (${topGifter.coinCount})`);
+        }
+    }
 });
 ```
 
@@ -483,7 +525,15 @@ by TikTok.
 
 ```ts
 connection.on(WebcastEvent.LIKE, data => {
-    console.log(`${data.uniqueId} sent ${data.likeCount} likes, total likes: ${data.totalLikeCount}`);
+    const uniqueId = data.user?.uniqueId;
+    const nickname = data.user?.nickname;
+    if (uniqueId) {
+        console.log(`User uniqueId: ${uniqueId}`);
+    }
+    if (nickname) {
+        console.log(`User nickname: ${nickname}`);
+    }
+    console.log(`Likes: ${data.likeCount}, total likes: ${data.totalLikeCount}`);
 });
 ```
 
@@ -493,7 +543,20 @@ Triggered every time someone shares the stream or follows the host.
 
 ```ts
 connection.on(WebcastEvent.SOCIAL, data => {
-    console.log('social event data:', data);
+    if (data.action) {
+        console.log(`Social action: ${data.action}`);
+    }
+    const uniqueId = data.user?.uniqueId;
+    const nickname = data.user?.nickname;
+    if (uniqueId) {
+        console.log(`User uniqueId: ${uniqueId}`);
+    }
+    if (nickname) {
+        console.log(`User nickname: ${nickname}`);
+    }
+    if (data.shareType || data.shareTarget) {
+        console.log(`Share type: ${data.shareType}, share target: ${data.shareTarget}`);
+    }
 });
 ```
 
@@ -503,7 +566,18 @@ Triggered every time a subscriber sends an emote (sticker).
 
 ```ts
 connection.on(WebcastEvent.EMOTE, (data: WebcastEmoteChatMessage) => {
-    console.log('emote received', data);
+    const uniqueId = data.user?.uniqueId;
+    const nickname = data.user?.nickname;
+    if (uniqueId) {
+        console.log(`User uniqueId: ${uniqueId}`);
+    }
+    if (nickname) {
+        console.log(`User nickname: ${nickname}`);
+    }
+    const emoteId = data.emoteList[0]?.emoteId;
+    if (emoteId) {
+        console.log(`Emote id: ${emoteId}`);
+    }
 });
 ```
 
@@ -513,7 +587,16 @@ Triggered every time someone sends a treasure chest.
 
 ```ts
 connection.on(WebcastEvent.ENVELOPE, data => {
-    console.log('envelope received', data);
+    const envelope = data.envelopeInfo;
+    if (envelope) {
+        if (envelope.envelopeId) {
+            console.log(`Envelope ${envelope.envelopeId}`);
+        }
+        if (envelope.sendUserName) {
+            console.log(`From: ${envelope.sendUserName}`);
+        }
+        console.log(`Diamonds: ${envelope.diamondCount}, People: ${envelope.peopleCount}`);
+    }
 });
 ```
 
@@ -523,7 +606,18 @@ Triggered every time someone asks a new question via the question feature.
 
 ```ts
 connection.on(WebcastEvent.QUESTION_NEW, data => {
-    console.log(`${data.uniqueId} asks ${data.questionText}`);
+    const question = data.details?.questionText;
+    if (question) {
+        console.log(`Question: ${question}`);
+    }
+    const uniqueId = data.details?.user?.uniqueId;
+    const nickname = data.details?.user?.nickname;
+    if (uniqueId) {
+        console.log(`Asked by (uniqueId): ${uniqueId}`);
+    }
+    if (nickname) {
+        console.log(`Asked by (nickname): ${nickname}`);
+    }
 });
 ```
 
@@ -533,7 +627,13 @@ Triggered every time a battle starts.
 
 ```ts
 connection.on(WebcastEvent.LINK_MIC_BATTLE, (data) => {
-    console.log(`New Battle: ${data.battleUsers[0].uniqueId} VS ${data.battleUsers[1].uniqueId}`);
+    const participants = Object.values(data.anchorInfo)
+        .map(info => info.user?.displayId || info.user?.nickName)
+        .filter(Boolean);
+    console.log(`New Battle ${data.battleId}`);
+    if (participants.length) {
+        console.log(`Participants: ${participants.join(' VS ')}`);
+    }
 });
 ```
 
@@ -544,7 +644,8 @@ suported the group.
 
 ```ts
 connection.on(WebcastEvent.LINK_MIC_ARMIES, (data) => {
-    console.log('linkMicArmies', data);
+    console.log(`Battle ${data.battleId}: gift ${data.giftId} x${data.giftCount}`);
+    console.log(`Total diamonds: ${data.totalDiamondCount}`);
 });
 ```
 
@@ -554,7 +655,32 @@ Triggered when a live intro message appears.
 
 ```ts
 connection.on(WebcastEvent.LIVE_INTRO, (msg) => {
-    console.log(msg);
+    const uniqueId = msg.host?.uniqueId;
+    const nickname = msg.host?.nickname;
+    if (uniqueId) {
+        console.log(`Host uniqueId: ${uniqueId}`);
+    }
+    if (nickname) {
+        console.log(`Host nickname: ${nickname}`);
+    }
+    if (msg.description) {
+        console.log(`Description: ${msg.description}`);
+    }
+});
+```
+
+### `streamEnd`
+
+Triggered when the live stream gets terminated by the host. Will also trigger the [`disconnected`](#disconnected) event.
+
+```ts
+connection.on(WebcastEvent.STREAM_END, ({ action }: { action: ControlAction }) => {
+    if (action === ControlAction.CONTROL_ACTION_STREAM_ENDED) {
+        console.log('Stream ended by user');
+    }
+    if (action === ControlAction.CONTROL_ACTION_STREAM_SUSPENDED) {
+        console.log('Stream ended by platform moderator (ban)');
+    }
 });
 ```
 
@@ -564,7 +690,22 @@ Triggers when a user becomes a Super Fan.
 
 ```ts
 connection.on(WebcastEvent.SUPER_FAN, (data) => {
-    console.log('A user became a superfan!');
+    if (data.content?.defaultPattern) {
+        console.log(data.content.defaultPattern);
+    }
+    if (data.commonBarrageContent?.defaultPattern) {
+        console.log(data.commonBarrageContent.defaultPattern);
+    }
+});
+```
+
+### `superFanBox`
+
+Triggers when a user sends a Super Fan Box.
+
+```ts
+connection.on(WebcastEvent.SUPER_FAN_BOX, (data) => {
+    console.log('A Super Fan Box was sent!', data.envelopeInfo);
 });
 ```
 
@@ -578,7 +719,14 @@ Triggers when a user follows the streamer. Based on `social` event.
 
 ```ts
 connection.on(WebcastEvent.FOLLOW, (data) => {
-    console.log(data.uniqueId, 'followed!');
+    const uniqueId = data.user?.uniqueId;
+    const nickname = data.user?.nickname;
+    if (uniqueId) {
+        console.log(`${uniqueId} followed!`);
+    }
+    if (nickname) {
+        console.log(`${nickname} followed!`);
+    }
 });
 ```
 
@@ -588,7 +736,14 @@ Triggers when a user shares the stream. Based on `social` event.
 
 ```ts
 connection.on(WebcastEvent.SHARE, (data) => {
-    console.log(data.uniqueId, "shared the stream!");
+    const uniqueId = data.user?.uniqueId;
+    const nickname = data.user?.nickname;
+    if (uniqueId) {
+        console.log(`${uniqueId} shared the stream!`);
+    }
+    if (nickname) {
+        console.log(`${nickname} shared the stream!`);
+    }
 })
 ```
 
@@ -596,134 +751,325 @@ connection.on(WebcastEvent.SHARE, (data) => {
 
 Triggered when a channel goal is updated.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.GOAL_UPDATE, (data: WebcastGoalUpdateMessage) => {
+    const goalDescription = data.goal?.description;
+    const contributor = data.contributorDisplayId || data.contributorIdStr || data.contributorId;
+    if (goalDescription) {
+        console.log(`Goal update: ${goalDescription}`);
+    }
+    if (contributor) {
+        console.log(`Contributor: ${contributor}, count: ${data.contributeCount}, score: ${data.contributeScore}`);
+    }
+});
+```
 
 ### `roomMessage`
 
 No information available.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.ROOM_MESSAGE, (data: WebcastRoomMessage) => {
+    if (data.content) {
+        console.log(`Room message: ${data.content}`);
+    }
+    if (data.source) {
+        console.log(`Source: ${data.source}`);
+    }
+    console.log(`Scene: ${data.scene}`);
+});
+```
 
 ### `captionMessage`
 
 No information available.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.CAPTION_MESSAGE, (data: WebcastCaptionMessage) => {
+    if (data.content.length) {
+        const lines = data.content.map(c => `[${c.lang}] ${c.content}`).join(' ');
+        console.log(`Caption (${data.timestampMs}): ${lines}`);
+    }
+});
+```
 
 ### `imDelete`
 
 Triggered when a message is deleted in the chat.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.IM_DELETE, (data: WebcastImDeleteMessage) => {
+    if (data.deleteMsgIdsList.length) {
+        console.log(`Deleted messages: ${data.deleteMsgIdsList.join(', ')}`);
+    }
+    if (data.deleteUserIdsList.length) {
+        console.log(`Deleted users: ${data.deleteUserIdsList.join(', ')}`);
+    }
+});
+```
 
 ### `inRoomBanner`
 
 Triggered when a banner is shown in the room.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.IN_ROOM_BANNER, (data: WebcastInRoomBannerMessage) => {
+    if (data.jsonData) {
+        console.log('Banner payload:', data.jsonData);
+    }
+});
+```
 
 ### `rankUpdate`
 
 Triggered when a ranking update is received.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.RANK_UPDATE, (data: WebcastRankUpdateMessage) => {
+    console.log(`Rank updates: ${data.updatesList.length}`);
+    const firstUpdate = data.updatesList[0];
+    if (firstUpdate) {
+        console.log(`Rank type: ${firstUpdate.rankType}, owner rank: ${firstUpdate.ownerRank}`);
+    }
+});
+```
 
 ### `pollMessage`
 
 Triggered when a poll-related message is sent in the room.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.POLL_MESSAGE, (data: WebcastPollMessage) => {
+    const title = data.pollBasicInfo?.title;
+    if (title) {
+        console.log(`Poll: ${title}`);
+    }
+    if (data.pollBasicInfo?.timeRemain) {
+        console.log(`Time remaining: ${data.pollBasicInfo.timeRemain}`);
+    }
+});
+```
 
 ### `rankText`
 
 Triggered when text related to rankings is displayed.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.RANK_TEXT, (data: WebcastRankTextMessage) => {
+    if (data.ownerIdxBeforeUpdate || data.ownerIdxAfterUpdate) {
+        console.log(`Rank change: ${data.ownerIdxBeforeUpdate} -> ${data.ownerIdxAfterUpdate}`);
+    }
+    if (data.selfGetBadgeMsg?.defaultPattern) {
+        console.log(`Self badge text: ${data.selfGetBadgeMsg.defaultPattern}`);
+    }
+});
+```
 
 ### `linkMicBattlePunishFinish`
 
 Triggered when a link mic battle punishment is finished.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.LINK_MIC_BATTLE_PUNISH_FINISH, (data: WebcastLinkMicBattlePunishFinish) => {
+    console.log(`Battle punish finished: ${data.battleId}`);
+    console.log(`Reason: ${data.reason}, channel: ${data.channelId}`);
+});
+```
 
 ### `linkMicBattleTask`
 
 Triggered when a new task is issued during a link mic battle.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.LINK_MIC_BATTLE_TASK, (data: WebcastLinkmicBattleTaskMessage) => {
+    console.log(`Battle task (${data.battleId}) type: ${data.battleTaskMessageType}`);
+    if (data.taskUpdate) {
+        console.log(`Progress: ${data.taskUpdate.taskProgress}`);
+    }
+    if (data.taskSettle) {
+        console.log(`Result: ${data.taskSettle.taskResult}`);
+    }
+});
+```
 
 ### `linkMicFanTicketMethod`
 
 Triggered when a fan ticket-related method is invoked during a link mic session.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.LINK_MIC_FAN_TICKET_METHOD, (data: WebcastLinkMicFanTicketMethod) => {
+    const notice = data.FanTicketRoomNotice;
+    if (notice) {
+        console.log(`Total fan tickets: ${notice.TotalLinkMicFanTicket}`);
+        console.log(`Users in notice: ${notice.UserFanTicketList.length}`);
+    }
+});
+```
 
 ### `linkMicMethod`
 
 Triggered when a link mic method is used.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.LINK_MIC_METHOD, (data: WebcastLinkMicMethod) => {
+    console.log(`LinkMic messageType: ${data.messageType}`);
+    if (data.channelId || data.userId || data.toUserId) {
+        console.log(`Channel: ${data.channelId}, user: ${data.userId}, toUser: ${data.toUserId}`);
+    }
+});
+```
 
 ### `unauthorizedMember`
 
 Triggered when an unauthorized member tries to perform a restricted action.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.UNAUTHORIZED_MEMBER, (data: WebcastUnauthorizedMemberMessage) => {
+    console.log(`Unauthorized member action: ${data.action}`);
+    if (data.nickName) {
+        console.log(`Nickname: ${data.nickName}`);
+    }
+    if (data.enterText?.defaultPattern) {
+        console.log(`Enter text: ${data.enterText.defaultPattern}`);
+    }
+});
+```
 
 ### `oecLiveShopping`
 
 Triggered when a live shopping event occurs.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.OEC_LIVE_SHOPPING, (data: WebcastOecLiveShoppingMessage) => {
+    const shop = data.shopData;
+    if (shop) {
+        if (shop.title || shop.priceString) {
+            console.log(`Product: ${shop.title} (${shop.priceString})`);
+        }
+        if (shop.shopName || shop.shopUrl) {
+            console.log(`Shop: ${shop.shopName}, URL: ${shop.shopUrl}`);
+        }
+    }
+});
+```
 
 ### `msgDetect`
 
 Triggered when the system detects a message for moderation or other purposes.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.MSG_DETECT, (data: WebcastMsgDetectMessage) => {
+    console.log(`Detect type: ${data.detectType}, triggerBy: ${data.triggerBy}`);
+    if (data.triggerCondition?.uplinkDetectWebSocket !== undefined) {
+        console.log(`WebSocket detect: ${data.triggerCondition.uplinkDetectWebSocket}`);
+    }
+    if (data.timeInfo?.apiRecvTimeMs) {
+        console.log(`API recv time: ${data.timeInfo.apiRecvTimeMs}`);
+    }
+});
+```
 
 ### `linkMessage`
 
 Triggered during a link mic session for various communication purposes.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.LINK_MESSAGE, (data: WebcastLinkMessage) => {
+    console.log(`Link message type: ${data.MessageType}, scene: ${data.Scene}`);
+    if (data.InviteContent) {
+        console.log(`Invite from ${data.InviteContent.fromUserId}`);
+        if (data.InviteContent.actionId) {
+            console.log(`Action: ${data.InviteContent.actionId}`);
+        }
+    }
+    if (data.ReplyContent) {
+        console.log(`Reply status: ${data.ReplyContent.replyStatus}`);
+        if (data.ReplyContent.fromUserId || data.ReplyContent.toUserId) {
+            console.log(`From ${data.ReplyContent.fromUserId} to ${data.ReplyContent.toUserId}`);
+        }
+    }
+});
+```
 
 ### `roomVerify`
 
 Triggered when the system performs room verification.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.ROOM_VERIFY, (data: RoomVerifyMessage) => {
+    console.log(`Room verify: ${data.noticeType}`);
+    console.log(`Action: ${data.action}, closeRoom: ${data.closeRoom}`);
+    if (data.content) {
+        console.log(`Content: ${data.content}`);
+    }
+});
+```
 
 ### `linkLayer`
 
 Triggered when a new link mic layer is added or updated.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.LINK_LAYER, (data: WebcastLinkLayerMessage) => {
+    console.log(`LinkLayer type: ${data.messageType}, channel: ${data.channelId}, scene: ${data.scene}`);
+    if (data.inviteContent) {
+        if (data.inviteContent.inviteeLinkMicId) {
+            console.log(`Invite linkMicId: ${data.inviteContent.inviteeLinkMicId}`);
+        }
+    }
+    if (data.createChannelContent) {
+        if (data.createChannelContent.ownerLinkMicId) {
+            console.log(`Owner linkMicId: ${data.createChannelContent.ownerLinkMicId}`);
+        }
+    }
+});
+```
 
 ### `roomPin`
 
 Triggered when a message is pinned in the chat room.
 
-> No example is available yet. Create a [pull request](https://github.com/zerodytrash/TikTok-Live-Connector/pulls) to
-> add one!
+```ts
+connection.on(WebcastEvent.ROOM_PIN, (data: WebcastRoomPinMessage) => {
+    const operatorUniqueId = data.operator?.uniqueId;
+    const operatorNickname = data.operator?.nickname;
+    if (operatorUniqueId) {
+        console.log(`Pinned by (uniqueId): ${operatorUniqueId}`);
+    }
+    if (operatorNickname) {
+        console.log(`Pinned by (nickname): ${operatorNickname}`);
+    }
+    if (data.method) {
+        console.log(`Pin method: ${data.method}`);
+    }
+
+    const chatText = data.chatMessage?.comment;
+    const giftName = data.giftMessage?.giftDetails?.giftName;
+    const socialAction = data.socialMessage?.action;
+    const memberUniqueId = data.memberMessage?.user?.uniqueId;
+    const memberNickname = data.memberMessage?.user?.nickname;
+    const likeCount = data.likeMessage?.likeCount;
+
+    if (chatText) {
+        console.log(`Pinned chat: ${chatText}`);
+    }
+    if (giftName) {
+        console.log(`Pinned gift: ${giftName}`);
+    }
+    if (socialAction) {
+        console.log(`Pinned social action: ${socialAction}`);
+    }
+    if (memberUniqueId) {
+        console.log(`Pinned member (uniqueId): ${memberUniqueId}`);
+    }
+    if (memberNickname) {
+        console.log(`Pinned member (nickname): ${memberNickname}`);
+    }
+    if (typeof likeCount === 'number') {
+        console.log(`Pinned like count: ${likeCount}`);
+    }
+});
+```
 
 ## Examples
 
