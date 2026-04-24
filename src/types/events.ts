@@ -35,7 +35,7 @@ import {
     WebcastSocialMessage,
     WebcastSystemMessage,
     WebcastUnauthorizedMemberMessage
-} from '@/types//tiktok-schema';
+} from 'tiktok-live-proto/v2';
 import { DecodedWebcastPushFrame, RoomGiftInfo, RoomInfo, WebcastEventMessage } from '@/types/client';
 import TikTokWsClient from '@/lib/ws/lib/ws-client';
 

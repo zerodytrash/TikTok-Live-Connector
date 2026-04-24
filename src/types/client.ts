@@ -1,6 +1,6 @@
 import { AxiosRequestConfig } from 'axios';
-import * as tikTokSchema from '@/types/tiktok-schema';
-import { MessageFns, ProtoMessageFetchResult, WebcastPushFrame } from '@/types/tiktok-schema';
+import * as tikTokSchema from 'tiktok-live-proto/v2';
+import { MessageFns, ProtoMessageFetchResult, WebcastPushFrame } from 'tiktok-live-proto/v2';
 import { ClientOptions } from 'ws';
 
 // Authentication options: either sessionId + ttTargetIdc, oauthToken, or nothing
@@ -134,7 +134,7 @@ export type DecodedData = {
     }
 }[keyof WebcastEventMessage];
 
-declare module '@/types/tiktok-schema' {
+declare module 'tiktok-live-proto/v2' {
     export interface BaseProtoMessage {
         decodedData?: DecodedData;
         decodeError?: any;
