@@ -4,8 +4,11 @@
     ],
     "compilerOptions": {
         "allowJs": true,
-        "moduleResolution": "NodeNext",
-        "module": "NodeNext",
+        "moduleResolution": "Bundler",
+        "module": "ESNext",
+        "target": "ES2022",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
         "declaration": true,
         "outDir": "dist",
         "declarationMap": true,

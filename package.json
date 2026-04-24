@@ -4,6 +4,7 @@
     "description": "Node.js library to receive live stream chat events like comments and gifts from TikTok LIVE.",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
+    "type": "module",
     "files": [
         "dist"
     ],
@@ -11,8 +12,9 @@
         "node": ">=20.0.0"
     },
     "scripts": {
-        "build": "npm run build:copy-package && tsc && tsc-alias",
-        "build:copy-package": "cpx package.json dist && cpx LICENSE dist"
+        "build": "tsdown && npm run build:copy-package",
+        "build:copy-package": "cpx package.json dist && cpx LICENSE dist",
+        "typecheck": "tsc --noEmit"
     },
     "repository": {
         "type": "git",
@@ -67,7 +69,7 @@
         "https-proxy-agent": "^7.0.6",
         "prettier": "2.5.1",
         "ts-proto": "^2.6.1",
-        "tsc-alias": "^1.8.15",
-        "typescript": "^4.8.2"
+        "tsdown": "^0.21.0",
+        "typescript": "^5.6.0"
     }
 }
