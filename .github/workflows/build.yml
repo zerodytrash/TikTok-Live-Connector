@@ -1,0 +1,98 @@
+name: "Build (TypeScript): Reusable build workflow"
+
+on:
+  workflow_call:
+    inputs:
+      bump:
+        description: 'Version bump type'
+        required: true
+        type: string
+      dry_run:
+        description: 'If true, skip publish/tag and commit only src/version.ts'
+        required: false
+        type: boolean
+        default: true
+    outputs:
+      version:
+        description: 'The bumped package version'
+        value: ${{ jobs.build.outputs.version }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Verify npm version
+        run: npm --version
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Bump version
+        run: npm version ${{ inputs.bump }} --no-git-tag-version
+
+      - name: Read new version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Write src/version.ts
+        run: |
+          printf 'export const VERSION: string = "%s";\n' "${{ steps.version.outputs.version }}" > src/version.ts
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Commit src/version.ts (dry-run only)
+        if: ${{ inputs.dry_run }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/version.ts
+          if git diff --cached --quiet; then
+            echo "No changes to src/version.ts"
+          else
+            git commit -m "chore: update src/version.ts to v${{ steps.version.outputs.version }} [skip ci]"
+            git push
+          fi
+
+      - name: Publish to npm
+        if: ${{ !inputs.dry_run }}
+        run: npm publish --access public
+        working-directory: dist
+
+      - name: Commit release
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json pnpm-lock.yaml src/version.ts
+          git commit -m "chore: release tiktok-live-connector v${{ steps.version.outputs.version }} [skip ci]"
+          git push
+
+      - name: Create git tag
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git tag "v${{ steps.version.outputs.version }}"
+          git push origin "v${{ steps.version.outputs.version }}"
+
+      - name: Summary
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "### Dry-run completed for tiktok-live-connector@${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### Published tiktok-live-connector@${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          fi

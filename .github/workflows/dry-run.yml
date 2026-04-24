@@ -1,0 +1,25 @@
+name: "Dry Run (TypeScript): Build without Publish"
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump type'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
+
+permissions:
+  contents: write
+
+jobs:
+  dry-run:
+    uses: ./.github/workflows/build.yml
+    permissions:
+      contents: write
+    with:
+      bump: ${{ inputs.bump }}
+      dry_run: true

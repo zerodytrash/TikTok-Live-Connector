@@ -1,6 +1,6 @@
 {
     "name": "tiktok-live-connector",
-    "version": "2.1.1-beta1",
+    "version": "2.2.0-beta1",
     "description": "Node.js library to receive live stream chat events like comments and gifts from TikTok LIVE.",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -11,7 +11,7 @@
         "node": ">=20.0.0"
     },
     "scripts": {
-        "build": "tsx update-version.ts && npm run build:copy-package && tsc && tsc-alias",
+        "build": "npm run build:copy-package && tsc && tsc-alias",
         "build:copy-package": "cpx package.json dist && cpx LICENSE dist"
     },
     "repository": {
@@ -51,6 +51,7 @@
         "axios": "^1.12.2",
         "callable-instance": "^2.0.0",
         "protobufjs": "^6.11.2",
+        "tiktok-live-proto": "^0.1.0",
         "typed-emitter": "^2.1.0",
         "ws": "^8.18.2"
     },

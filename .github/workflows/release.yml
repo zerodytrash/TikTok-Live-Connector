@@ -1,0 +1,37 @@
+name: "Release (TypeScript): Build & Publish to npm"
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Version bump type'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  check-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce main branch
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Release must be triggered from the main branch, got ${{ github.ref }}"
+          exit 1
+
+  release:
+    needs: check-branch
+    uses: ./.github/workflows/build.yml
+    permissions:
+      contents: write
+      id-token: write
+    with:
+      bump: ${{ inputs.bump }}
+      dry_run: false

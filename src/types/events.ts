@@ -33,6 +33,7 @@ import {
     WebcastRoomPinMessage,
     WebcastRoomUserSeqMessage,
     WebcastSocialMessage,
+    WebcastSystemMessage,
     WebcastUnauthorizedMemberMessage
 } from '@/types//tiktok-schema';
 import { DecodedWebcastPushFrame, RoomGiftInfo, RoomInfo, WebcastEventMessage } from '@/types/client';
@@ -69,7 +70,8 @@ export enum WebcastEvent {
     CONTROL_MESSAGE = 'controlMessage',
     BARRAGE = 'barrage',
 
-    // New Events - Added 2.0.4
+    // New Events - Added >=2.0.4
+    SYSTEM = 'system',
     HOURLY_RANK = 'hourlyRank',
     GOAL_UPDATE = 'goalUpdate',
     ROOM_MESSAGE = 'roomMessage',
@@ -141,6 +143,7 @@ export type ClientEventMap = {
     [WebcastEvent.HOURLY_RANK]: EventHandler<WebcastHourlyRankMessage>,
 
     // New Message Events - Added 2.0.4
+    [WebcastEvent.SYSTEM]: EventHandler<WebcastSystemMessage>,
     [WebcastEvent.GOAL_UPDATE]: EventHandler<WebcastGoalUpdateMessage>,
     [WebcastEvent.ROOM_MESSAGE]: EventHandler<WebcastRoomMessage>,
     [WebcastEvent.CAPTION_MESSAGE]: EventHandler<WebcastCaptionMessage>,
@@ -179,6 +182,7 @@ export const WebcastEventMap: Record<BasicWebcastEventMessage, keyof ClientEvent
     'WebcastBarrageMessage': WebcastEvent.BARRAGE,
 
     // New Events - Added 2.0.4
+    'WebcastSystemMessage': WebcastEvent.SYSTEM,
     'WebcastHourlyRankMessage': WebcastEvent.HOURLY_RANK,
     'WebcastGoalUpdateMessage': WebcastEvent.GOAL_UPDATE,
     'WebcastRoomMessage': WebcastEvent.ROOM_MESSAGE,
