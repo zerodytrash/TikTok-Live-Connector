@@ -1,6 +1,6 @@
 import { BinaryWriter } from '@bufbuild/protobuf/wire';
 import { DecodedWebcastPushFrame, WebSocketParams } from '@/types/client';
-import { createBaseWebcastPushFrame, deserializeWebSocketMessage } from '@/lib/utilities';
+import { createBaseWebcastPushFrame, deserializeWebSocketMessage, randomLongString } from '@/lib/utilities';
 import Config from '@/lib/config';
 import TypedEventEmitter from 'typed-emitter';
 import CookieJar from '@/lib/web/lib/cookie-jar';
@@ -25,6 +25,7 @@ export default class TikTokWsClient extends (WebSocket as TypedWebSocket) {
     // Incremental sequence ID for messages, goes up for each heartbeat sent, starts at 1
     // Important for mobile compatibility
     protected seqId: number = 1;
+    protected enterUniqueId: string | null = null;
 
     constructor(
         wsUrl: string,
@@ -142,6 +143,10 @@ export default class TikTokWsClient extends (WebSocket as TypedWebSocket) {
     public switchRooms(roomId: string): void {
         this.seqId = 1;
 
+        // nextLong(1, Long.MAX_VALUE) to prevent cross-room bleeding (client generates, server echoes back)
+        // Via Android APK
+        this.enterUniqueId = randomLongString();
+
         const imEnterRoomMessage: BinaryWriter = WebcastImEnterRoomMessage.encode(
             {
                 roomId: roomId,
@@ -151,7 +156,7 @@ export default class TikTokWsClient extends (WebSocket as TypedWebSocket) {
                 identity: 'audience',
                 cursor: '',
                 accountType: '0',
-                enterUniqueId: '', // Device id, i think
+                enterUniqueId: this.enterUniqueId,
                 filterWelcomeMsg: '0',
                 isAnchorContinueKeepMsg: false
             }
