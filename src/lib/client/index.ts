@@ -38,6 +38,7 @@ import { RoomGiftsResponse } from '@/lib/web/routes/base/fetch-room-gifts';
 import { getWebSocketConfigDefaults } from '@/lib/ws';
 import { SignConfig } from '@/lib/web/routes/euler/config';
 
+export { HandleError } from './utilities';
 
 export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
 
@@ -492,7 +493,7 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
                 if (this._wsClientInstance === wsClient) {
                     this._wsClientInstance = null;
                 }
-                clearTimeout(connectTimeout)
+                clearTimeout(connectTimeout);
                 reject(err);
             };
 
