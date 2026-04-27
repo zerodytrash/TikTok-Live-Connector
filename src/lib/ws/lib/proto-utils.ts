@@ -1,5 +1,5 @@
-import * as tikTokSchema from '@/types/tiktok-schema';
-import { MessageFns, ProtoMessageFetchResult, WebcastPushFrame } from '@/types/tiktok-schema';
+import * as tikTokSchema from 'tiktok-live-proto/v2';
+import { MessageFns, ProtoMessageFetchResult, WebcastPushFrame } from 'tiktok-live-proto/v2';
 import {
     DecodedWebcastPushFrame,
     IWebcastDeserializeConfig,
@@ -9,7 +9,6 @@ import {
 import * as zlib from 'node:zlib';
 import * as util from 'node:util';
 import { InvalidSchemaNameError, InvalidUniqueIdError, SchemaDecodeError } from '@/types/errors';
-import { DevicePreset } from '@/lib/config';
 import { base64Encode, BinaryWriter } from '@bufbuild/protobuf/wire';
 
 const unzip = util.promisify(zlib.unzip);
@@ -102,42 +101,30 @@ export async function deserializeWebSocketMessage(binaryMessage: Uint8Array): Pr
 
 }
 
-export function validateAndNormalizeUniqueId(uniqueId: string) {
+/**
+ * Validates and normalizes the uniqueId (username) input for TikTok live room information retrieval.
+ * It ensures that the input is a string and extracts the username from various possible formats, such as full URLs or with/without '@' symbol. If the input is invalid, it throws an error with a descriptive message.
+ *
+ * @param uniqueId Input value representing the unique identifier (username) of a TikTok user. This can be in various formats, such as a plain username, a full TikTok URL, or with an '@' symbol.
+ */
+export function validateAndNormalizeUniqueId(uniqueId: unknown): string {
     if (typeof uniqueId !== 'string') {
         throw new InvalidUniqueIdError('Missing or invalid value for \'uniqueId\'. Please provide the username from TikTok URL.');
     }
 
     // Support full URI
-    uniqueId = uniqueId.replace('https://www.tiktok.com/', '');
-    uniqueId = uniqueId.replace('/live', '');
-    uniqueId = uniqueId.replace('@', '');
-    uniqueId = uniqueId.trim();
-    return uniqueId;
+    return uniqueId.replace('https://www.tiktok.com/', '')
+        .replace('/live', '')
+        .replace('@', '')
+        .trim();
 }
 
 
-export function userAgentToDevicePreset(userAgent: string): DevicePreset {
-    const firstSlash = userAgent.indexOf('/');
-    const browserName = userAgent.substring(0, firstSlash);
-    const browserVersion = userAgent.substring(firstSlash + 1);
-
-    return {
-        user_agent: userAgent,
-        browser_name: browserName,
-        browser_version: browserVersion,
-        browser_platform: userAgent.includes('Macintosh') ? 'MacIntel' : 'Win32',
-        os: userAgent.includes('Macintosh') ? 'mac' : 'windows'
-    };
-}
-
-export function generateDeviceId() {
-    let digits = '';
-    for (let i = 0; i < 19; i++) {
-        digits += Math.floor(Math.random() * 10);
-    }
-    return digits;
-}
-
+/**
+ * Create a base WebcastPushFrame with default values, allowing overrides for specific fields. This is useful for testing or constructing messages without needing to specify every field.
+ *
+ * @param overrides Overrides to apply to the default WebcastPushFrame. Fields not included in the overrides will be set to default values that typically indicate "not set" (e.g., "0" for numeric fields, empty buffer for payload).
+ */
 export function createBaseWebcastPushFrame(overrides: Partial<WebcastPushFrame>): BinaryWriter {
     // Basically, we need to set it to "0" so that it DOES NOT send the field(s)
     const undefinedNum: string = '0';
@@ -152,7 +139,7 @@ export function createBaseWebcastPushFrame(overrides: Partial<WebcastPushFrame>)
             logId: undefinedNum,
             payloadEncoding: 'pb',
             payloadType: 'msg',
-            payload: new Uint8Array(),
+            payload: Buffer.from([]),
             service: undefinedNum,
             method: undefinedNum,
             headers: {},
@@ -162,11 +149,3 @@ export function createBaseWebcastPushFrame(overrides: Partial<WebcastPushFrame>)
 
 }
 
-export function randomLongString() {
-    const bytes = crypto.getRandomValues(new Uint8Array(8));
-    bytes[0] &= 0x7F; // clear sign bit → positive
-    let val = 0n;
-    for (const b of bytes) val = (val << 8n) | BigInt(b);
-    if (val === 0n) val = 1n; // minimum 1
-    return val.toString();
-}
