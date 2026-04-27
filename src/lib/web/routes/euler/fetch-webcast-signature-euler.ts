@@ -6,7 +6,7 @@ import { WebcastHttpEulerRouteArgs } from '@/types/route';
 import { EulerFetchRoute } from '@/lib/web/routes/routes';
 import { LIBRARY_IDENTITY } from '@/lib/web/routes/euler/config';
 
-// External-facing params type consumed by `WebcastHttpClient.signatureProvider` — does not include `apiClient`.
+// External-facing params type consumed by `WebcastHttpClient.signatureProvider`. Does not include `apiClient`.
 export type WebcastSignerParams = {
     url: string | URL,
     method: SignTikTokUrlBodyMethodEnum,
@@ -22,12 +22,15 @@ export type FetchWebcastSignatureFromEulerRouteParams = WebcastHttpEulerRouteArg
  * signed URL and token bundle the caller needs to make the request.
  *
  * Strips known signature parameters (X-Bogus, X-Gnarly, msToken) from the input URL before signing.
+ * If `webClient.cookieJar` already holds a `sessionid` and `tt-target-idc` pair, both are forwarded
+ * to the sign server so the resulting signature is bound to that session.
  *
  * @param apiClient The Euler Stream API client used to issue the sign request.
- * @param url       The original TikTok URL (string or `URL`) to sign.
- * @param method    HTTP method the signed URL will be used with.
+ * @param webClient The HTTP client whose cookie jar provides any optional session bundle.
+ * @param url The original TikTok URL (string or `URL`) to sign.
+ * @param method HTTP method the signed URL will be used with.
  * @param userAgent User-Agent string the signed request will use.
- * @param session   Optional cookie session; if provided, `sessionId` requires `ttTargetIdc`.
+ * @param options Optional axios request overrides forwarded to the SDK call.
  */
 export const fetchWebcastSignatureFromEulerRoute = createRoute<FetchWebcastSignatureFromEulerRouteParams, WebcastSignerResponse>(
     EulerFetchRoute.FETCH_WEBCAST_SIGNATURE,

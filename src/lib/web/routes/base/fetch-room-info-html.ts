@@ -6,9 +6,8 @@ import { WebcastHttpRouteArgs } from '@/types/route';
 
 
 /**
- * Dynamically extracts room information from the HTML content of a TikTok user's live page.
- * This route is used as a fallback method to retrieve room information when API endpoints are unavailable or blocked.
- * It looks for the SIGI_STATE JSON data embedded in the HTML, which contains various details about the live room and user information.
+ * Mutable configuration for `fetchRoomInfoFromHtmlRoute`. Override `extractionPattern`
+ * if TikTok ever changes the markup wrapping the SIGI_STATE JSON blob.
  */
 export const RoomInfoFromHtmlRouteConfig = {
     extractionPattern: /<script id="SIGI_STATE" type="application\/json">(.*?)<\/script>/

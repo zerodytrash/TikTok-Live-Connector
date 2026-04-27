@@ -7,10 +7,11 @@ export type RoomGiftsRouteParams = WebcastHttpRouteArgs<{ roomId?: string }>;
 export type RoomGiftsResponse = any;
 
 /**
- * Fetches room information for a given roomId. If roomId is not provided, it will attempt to use the roomId from the webClient context.
+ * Fetches the list of gifts available in a TikTok LIVE room. If `roomId` is not provided, the
+ * `roomId` currently set on the `webClient` is used.
  *
  * @param webClient The HTTP client instance to use for the request.
- * @param roomId The ID of the room to fetch information for. Optional if the webClient has a roomId context.
+ * @param roomId The ID of the room whose gift list to fetch. Optional if the webClient has a roomId context.
  */
 export const fetchRoomGiftsRoute = createRoute<RoomGiftsRouteParams, RoomGiftsResponse>(
     BaseFetchRoute.FETCH_ROOM_GIFTS,

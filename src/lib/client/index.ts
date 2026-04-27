@@ -53,27 +53,24 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
     protected _availableGifts: RoomGiftsResponse | null = null;
     protected _connectState: ConnectState = ConnectState.DISCONNECTED;
 
-
     /**
-     * Create a new TikTokLiveConnection instance
+     * Create a new TikTokLiveConnection instance.
      *
-     * @param {string} uniqueId TikTok username (from URL)
-     * @param {object} [options] Connection options
-     * @param {boolean} [options[].authenticateWs=false] Authenticate the WebSocket connection using the session ID from the "sessionid" cookie
-     * @param {boolean} [options[].processInitialData=true] Process the initital data which includes messages of the last minutes
-     * @param {boolean} [options[].fetchRoomInfoOnConnect=false] Fetch the room info (room status, streamer info, etc.) on connect (will be returned when calling connect())
-     * @param {boolean} [options[].enableExtendedGiftInfo=false] Enable this option to get extended information on 'gift' events like gift name and cost
-     * @param {boolean} [options[].enableRequestPolling=true] Use request polling if no WebSocket upgrade is offered. If `false` an exception will be thrown if TikTok does not offer a WebSocket upgrade.
-     * @param {number} [options[].requestPollingIntervalMs=1000] Request polling interval if WebSocket is not used
-     * @param {string} [options[].sessionId=null] The session ID from the "sessionid" cookie is required if you want to send automated messages in the chat.
-     * @param {object} [options[].webClientParams={}] Custom client params for Webcast API
-     * @param {object} [options[].webClientHeaders={}] Custom request headers for got
-     * @param {object} [options[].websocketHeaders={}] Custom request headers for websocket.client
-     * @param {object} [options[].webClientOptions={}] Custom request options for got. Here you can specify an `agent` (e.g. an hpagent proxy agent) and a `timeout` for example.
-     * @param {object} [options[].websocketOptions={}] Custom request options for websocket.client. Here you can specify an `agent` to use a proxy and a `timeout` value for example.
-     * @param {boolean} [options[].connectWithUniqueId=false] Connect to the live stream using the unique ID instead of the room ID. If `true`, the room ID will be fetched from the TikTok API.
-     * @param {boolean} [options[].logFetchFallbackErrors=false] Log errors when falling back to the API or Euler source
-     * @param {function} [options[].signedWebSocketProvider] Custom function to fetch the signed WebSocket URL. If not specified, the default function will be used.
+     * @param uniqueId TikTok username (with or without leading `@`, or a full `https://www.tiktok.com/@user/live` URL).
+     * @param options Connection options.
+     * @param options.signApiKey Optional Euler Stream API key. If provided, written to the global `SignConfig.apiKey` before the underlying Euler client is created. Ignored when `eulerApiInstance` is also passed.
+     * @param options.eulerApiInstance Optional pre-built Euler Stream API client. Takes precedence over `signApiKey`.
+     * @param options.session Authenticated session bundle. Pass `session.cookie` to seed the cookie jar with `sessionid` and `tt-target-idc`, and/or `session.oAuthToken` to send an OAuth token to the sign server. Required when `authenticateWs` or `useMobile` is true.
+     * @param options.authenticateWs Forward the session cookies / OAuth token to the sign server so the WebSocket is authenticated. Defaults to false.
+     * @param options.useMobile Use the mobile WebSocket flow. Implies `authenticateWs: true` and requires `session.cookie`. Defaults to false.
+     * @param options.processInitialData Decode and emit the message batch returned in the initial sign response. Defaults to true.
+     * @param options.fetchRoomInfoOnConnect Fetch room info during connect, throwing `UserOfflineError` if the streamer is not live. Defaults to true.
+     * @param options.enableExtendedGiftInfo Fetch the room gift list during connect so `WebcastGiftMessage` events carry an `extendedGiftInfo` field. Defaults to false.
+     * @param options.clientPresets Pre-built device, screen, and location presets. Defaults to a freshly randomized set from `getRandomPresets()`.
+     * @param options.webClientOptions Extra `got` options applied to the HTTP client (proxy agent, timeouts, etc.). Headers and search params from this object are merged with the defaults; transport-only fields are passed through.
+     * @param options.wsClientOptions Extra `ws` options applied to the WebSocket client.
+     * @param options.webConfigOverrides Partial overrides for the resolved `WebcastWebConfigDefaults` used by the HTTP client.
+     * @param options.wsConfigOverrides Partial overrides for the resolved `WebcastWebSocketConfigDefaults` used by the WebSocket client.
      */
     constructor(
         public readonly uniqueId: string,
@@ -476,17 +473,6 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
                 }
             }
         );
-
-        console.log(
-            {
-                roomId: roomId,
-                baseUrl: wsUrl,
-                wsParams: wsParams,
-                wsHeaders: {
-                    Cookie: await this.webClient.cookieJar.getCookieString()
-                }
-            }
-        )
 
         // Create the connect promise
         const connectPromise = new Promise<void>((resolve, reject) => {
