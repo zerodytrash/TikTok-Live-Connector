@@ -3,7 +3,8 @@
         "src/**/*"
     ],
     "compilerOptions": {
-        "allowJs": true,
+        "allowJs": false,
+        "strictNullChecks": true,
         "moduleResolution": "Bundler",
         "module": "ESNext",
         "target": "ES2022",
