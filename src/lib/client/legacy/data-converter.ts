@@ -4,13 +4,12 @@ import {
     User,
     WebcastChatMessage,
     WebcastEmoteChatMessage,
-    WebcastEventMessage,
-    WebcastGiftMessage,
     WebcastLinkMicBattle,
     WebcastQuestionNewMessage,
     WebcastRoomUserSeqMessage,
     WebcastSubEmote
-} from '@/types';
+} from 'tiktok-live-proto/v2';
+import { WebcastEventMessage } from '@/types';
 
 
 /**
@@ -24,11 +23,13 @@ export function simplifyObject(
 ): WebcastEventMessage & Record<string, any> {
 
     // Utility function for modifying types easily
+    // @ts-ignore
     const simplify = <T extends any>(fn: (object: T & Record<string, any>) => any): T & Record<string, any> => fn(originalObject as T);
 
     if (originalObject.user) {
         originalObject = simplify<{ user: User }>((webcastObject) => {
             Object.assign(webcastObject, getUserAttributes(webcastObject.user));
+            // @ts-ignore
             delete webcastObject.user;
             return webcastObject;
         });
@@ -39,6 +40,7 @@ export function simplifyObject(
             Object.assign(webcastObject, webcastObject.common.displayText);
             delete webcastObject.common.displayText;
             Object.assign(webcastObject, webcastObject.common);
+            // @ts-ignore
             delete webcastObject.common;
             return webcastObject;
         });
@@ -56,6 +58,7 @@ export function simplifyObject(
         case 'WebcastRoomUserSeqMessage': {
             originalObject = simplify<WebcastRoomUserSeqMessage>((webcastObject) => {
                 webcastObject.topViewers = getTopViewerAttributes(webcastObject.ranksList);
+                // @ts-ignore
                 delete webcastObject.ranksList;
                 return webcastObject;
             });
@@ -67,6 +70,7 @@ export function simplifyObject(
 
                 Object.values(webcastObject.anchorInfo).forEach((anchor) => {
                     if (anchor.user) {
+                        // @ts-ignore
                         battleUsers.push(getUserAttributes(anchor.user));
                     }
                 });
@@ -115,7 +119,7 @@ export function simplifyObject(
                     try {
                         webcastObject.monitorExtra = JSON.parse(webcastObject.monitorExtra);
                     } catch (err) {
-                        console.warn("Failed to parse monitorExtra JSON:", err);
+                        console.warn('Failed to parse monitorExtra JSON:', err);
                     }
                 }
 
@@ -127,8 +131,8 @@ export function simplifyObject(
             originalObject = simplify<WebcastChatMessage & { emotes: WebcastSubEmote & any }>((webcastObject) => {
                 webcastObject.emotes = webcastObject.emotes.map((emote: WebcastSubEmote) => (
                     {
-                        emoteId: emote.emote.emoteId,
-                        emoteImageUrl: emote.emote.image.imageUrl,
+                        emoteId: emote.emote?.emoteId,
+                        emoteImageUrl: emote.emote?.image?.imageUrl,
                         placeInComment: emote.placeInComment
                     }
                 ));
@@ -141,7 +145,7 @@ export function simplifyObject(
                 webcastObject.emotes = webcastObject.emoteList.map((emote: Emote) => (
                     {
                         emoteId: emote.emoteId,
-                        emoteImageUrl: emote.image.url[0]
+                        emoteImageUrl: emote.image?.url[0]
                     }
                 ));
                 return webcastObject;
@@ -221,6 +225,7 @@ export function mapBadges(badges) {
 
             if (Array.isArray(innerBadges.badges)) {
                 innerBadges.badges.forEach((badge) => {
+                    // @ts-ignore
                     simplifiedBadges.push(Object.assign({ badgeSceneType }, badge));
                 });
             }
@@ -228,6 +233,7 @@ export function mapBadges(badges) {
             if (Array.isArray(innerBadges.imageBadges)) {
                 innerBadges.imageBadges.forEach((badge) => {
                     if (badge && badge.image && badge.image.url) {
+                        // @ts-ignore
                         simplifiedBadges.push({
                             type: 'image',
                             badgeSceneType,
@@ -239,6 +245,7 @@ export function mapBadges(badges) {
             }
 
             if (innerBadges.privilegeLogExtra?.level && innerBadges.privilegeLogExtra?.level !== '0') {
+                // @ts-ignore
                 simplifiedBadges.push({
                     type: 'privilege',
                     privilegeId: innerBadges.privilegeLogExtra.privilegeId,

@@ -9,26 +9,47 @@ class ConnectError extends Error {
 export class InvalidUniqueIdError extends Error {
 }
 
-export class FetchIsLiveError extends Error {
-    constructor(public readonly errors: Error[], ...args: any[]) {
-        super();
-    }
+type InvalidResponseErrorConfig = {
+    routeId: string;
+    requestErr?: Error
+}
+
+type InvalidRequestErrorConfig = {
+    routeId: string;
 }
 
 
 export class InvalidResponseError extends Error {
     constructor(
-        message: string,
-        public readonly requestErr: Error = undefined
+        public readonly config: InvalidResponseErrorConfig,
+        ...args: any[]
     ) {
-        super(message);
-        this.name = 'InvalidResponseError';
+        super(`[${config.routeId}] `, ...args);
     }
 }
 
-export class MissingRoomIdError extends Error {
+type InvalidResponseCompositeErrorConfig = {
+    routeId: string;
+    requestErrs?: Error[]
 }
 
+export class InvalidResponseCompositeError extends Error {
+    constructor(
+        public readonly config: InvalidResponseCompositeErrorConfig,
+        ...args: any[]
+    ) {
+        super(...args);
+    }
+}
+
+export class InvalidRequestError extends Error {
+    constructor(
+        public readonly config: InvalidRequestErrorConfig,
+        ...args: any[]
+    ) {
+        super(`[${config.routeId}] `, ...args);
+    }
+}
 
 export class AlreadyConnectingError extends ConnectError {
 }
@@ -37,6 +58,10 @@ export class AlreadyConnectedError extends ConnectError {
 }
 
 export class UserOfflineError extends ConnectError {
+}
+
+export class ConnectTimeoutError extends ConnectError {
+
 }
 
 export class InvalidSchemaNameError extends Error {
@@ -63,8 +88,6 @@ export enum ErrorReason {
     AUTHENTICATED_WS = 'Authenticated WS'
 }
 
-export class FetchSignedWebSocketIdentityParameterError extends Error {
-}
 
 export class SignAPIError extends TikTokLiveError {
     public reason: ErrorReason;
@@ -77,7 +100,7 @@ export class SignAPIError extends TikTokLiveError {
         agentId?: string,
         ...args: (string | undefined)[]
     ) {
-        super([`[${reason}]`, ...args].join(' '));
+        super([`[${reason}]`, ...args.filter((a) => a !== undefined)].join(' '));
         this.reason = reason;
         this.requestId = requestId;
         this.agentId = agentId;
@@ -106,8 +129,8 @@ export class SignatureRateLimitError extends SignAPIError {
     constructor(apiMessage: string | undefined, formatStr: string, response: AxiosResponse) {
         const retryAfter = SignatureRateLimitError.calculateRetryAfter(response);
         const resetTime = SignatureRateLimitError.calculateResetTime(response);
-        const logId = response.headers['X-Log-ID'];
-        const agentId = response.headers['X-Agent-ID'];
+        const logId = response.headers['x-log-id'];
+        const agentId = response.headers['x-agent-id'];
 
         const formattedMsg = formatStr.replace('%s', retryAfter.toString());
         const args: string[] = [formattedMsg];

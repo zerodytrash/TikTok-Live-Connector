@@ -1,32 +1,11 @@
-import {
-    BaseProtoMessage,
-    ProtoMessageFetchResult,
-    WebcastControlMessage
-} from '@/types/tiktok-schema';
 import { EventEmitter } from 'node:events';
-import { simplifyObject } from '@/lib/_legacy/data-converter';
-import { TikTokLiveConnection } from '@/lib';
 import { ControlEvent, WebcastEvent } from '@/types/events';
 import { WebcastEventMessage } from '@/types';
+import { simplifyObject } from '@/lib/client/legacy/data-converter';
+import { BaseProtoMessage, ProtoMessageFetchResult, WebcastControlMessage } from 'tiktok-live-proto/v2';
+import { TikTokLiveConnection } from '@/lib/client';
 
-function resolveLegacySuperFanBarrageEvent(data: Record<string, any>): WebcastEvent.SUPER_FAN | WebcastEvent.SUPER_FAN_JOIN | null {
-    const displayTypes = [
-        data.content?.displayType,
-        data.displayType,
-    ]
-        .filter((value): value is string => typeof value === 'string' && value.length > 0)
-        .map((value) => value.toLowerCase());
-
-    if (displayTypes.some((value) => value.includes('ttlive_superfan_commentnotif_superfanjoined'))) {
-        return WebcastEvent.SUPER_FAN_JOIN;
-    }
-
-    if (displayTypes.some((value) => value.includes('ttlive_superfan_commentnotif_someonebecamesuperfan'))) {
-        return WebcastEvent.SUPER_FAN;
-    }
-
-    return null;
-}
+export * from './data-converter';
 
 /**
  * The legacy WebcastPushConnection class for backwards compatibility.
@@ -51,7 +30,7 @@ export class WebcastPushConnection extends (TikTokLiveConnection as new (...args
                         // Known control actions:
                         // 3 = Stream terminated by user
                         // 4 = Stream terminated by platform moderator (ban)
-                        const action = (message.decodedData.data as WebcastControlMessage).action;
+                        const action = (message.decodedData?.data as WebcastControlMessage).action;
                         if ([3, 4].includes(action)) {
                             this.emit(WebcastEvent.STREAM_END, { action });
                             this.disconnect();
@@ -102,11 +81,11 @@ export class WebcastPushConnection extends (TikTokLiveConnection as new (...args
                         break;
                     case 'WebcastBarrageMessage':
                         this.emit(WebcastEvent.BARRAGE, simplifiedObj);
-                        {
-                            const superFanEvent = resolveLegacySuperFanBarrageEvent(simplifiedObj);
-                            if (superFanEvent) {
-                                this.emit(superFanEvent, simplifiedObj);
-                            }
+                        if (
+                            simplifiedObj.content?.displayType?.toLowerCase()?.includes('ttlive_superfan')
+                            || simplifiedObj.displayType?.toLowerCase()?.includes('ttlive_superfan')
+                        ) {
+                            this.emit(WebcastEvent.SUPER_FAN, simplifiedObj);
                         }
                         break;
                     case 'WebcastEnvelopeMessage':
@@ -124,3 +103,4 @@ export class WebcastPushConnection extends (TikTokLiveConnection as new (...args
 
 
 }
+
