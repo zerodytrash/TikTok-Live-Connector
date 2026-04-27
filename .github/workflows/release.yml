@@ -1,98 +1,99 @@
 name: "Release (TypeScript): Build & Publish to npm"
 
 on:
-  workflow_dispatch:
-    inputs:
-      bump:
-        description: 'Version bump type (use "manual" to set an exact version below)'
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
-          - manual
-        default: patch
-      manual_version:
-        description: 'Exact version when bump = manual (e.g. 2.3.0-alpha1). Ignored otherwise.'
-        type: string
-        required: false
-        default: ''
+    workflow_dispatch:
+        inputs:
+            bump:
+                description: 'Version bump type (use "manual" to set an exact version below)'
+                type: choice
+                options:
+                    - patch
+                    - minor
+                    - major
+                    - manual
+                default: patch
+            manual_version:
+                description: 'Exact version when bump = manual (e.g. 2.3.0-alpha1). Ignored otherwise.'
+                type: string
+                required: false
+                default: ''
 
 permissions:
-  contents: write
-  id-token: write
+    contents: write
+    id-token: write
 
 jobs:
-  check-branch:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Enforce main branch
-        if: github.ref != 'refs/heads/main'
-        run: |
-          echo "::error::Release must be triggered from the main branch, got ${{ github.ref }}"
-          exit 1
+    check-branch:
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Enforce ts-rewrite branch
+                if: github.ref != 'refs/heads/ts-rewrite'
+                run: |
+                    echo "::error::Release must be triggered from the ts-rewrite branch, got ${{ github.ref }}"
+                    exit 1
 
-  release:
-    needs: check-branch
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      id-token: write
-    steps:
-      - uses: actions/checkout@v4
+    release:
+        needs: check-branch
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            id-token: write
+        steps:
+            -   uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-          registry-url: 'https://registry.npmjs.org'
+            -   uses: actions/setup-node@v4
+                with:
+                    node-version: '24'
+                    registry-url: 'https://registry.npmjs.org'
 
-      - name: Ensure npm supports trusted publishing
-        run: npm install -g npm@11
+            -   name: Ensure npm supports trusted publishing
+                run: npm install -g npm@11
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+            -   name: Install pnpm
+                run: npm install -g pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+            -   name: Install dependencies
+                run: pnpm install --frozen-lockfile
 
-      - name: Bump version
-        run: |
-          if [ "${{ inputs.bump }}" = "manual" ]; then
-            if [ -z "${{ inputs.manual_version }}" ]; then
-              echo "::error::manual_version is required when bump = manual"
-              exit 1
-            fi
-            npm version "${{ inputs.manual_version }}" --no-git-tag-version --allow-same-version
-          else
-            npm version "${{ inputs.bump }}" --no-git-tag-version
-          fi
+            -   name: Bump version
+                run: |
+                    if [ "${{ inputs.bump }}" = "manual" ]; then
+                      if [ -z "${{ inputs.manual_version }}" ]; then
+                        echo "::error::manual_version is required when bump = manual"
+                        exit 1
+                      fi
+                      npm version "${{ inputs.manual_version }}" --no-git-tag-version --allow-same-version
+                    else
+                      npm version "${{ inputs.bump }}" --no-git-tag-version
+                    fi
 
-      - name: Read new version
-        id: version
-        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+            -   name: Read new version
+                id: version
+                run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
-      - name: Write src/version.ts
-        run: printf 'export const VERSION: string = "%s";\n' "${{ steps.version.outputs.version }}" > src/version.ts
+            -   name: Write src/version.ts
+                run: |
+                    printf 'export const VERSION: string = "%s";\n' "${{ steps.version.outputs.version }}" > src/version.ts
 
-      - name: Build
-        run: pnpm run build
+            -   name: Build
+                run: pnpm run build
 
-      - name: Publish to npm
-        run: npm publish --provenance --access public
-        working-directory: dist
+            -   name: Publish to npm
+                run: npm publish --provenance --access public
+                working-directory: dist
 
-      - name: Commit release
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package.json pnpm-lock.yaml src/version.ts
-          git commit -m "chore: release tiktok-live-connector v${{ steps.version.outputs.version }} [skip ci]"
-          git push
+            -   name: Commit release
+                run: |
+                    git config user.name "github-actions[bot]"
+                    git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                    git add package.json pnpm-lock.yaml src/version.ts
+                    git commit -m "chore: release tiktok-live-connector v${{ steps.version.outputs.version }} [skip ci]"
+                    git push
 
-      - name: Create git tag
-        run: |
-          git tag "v${{ steps.version.outputs.version }}"
-          git push origin "v${{ steps.version.outputs.version }}"
+            -   name: Create git tag
+                run: |
+                    git tag "v${{ steps.version.outputs.version }}"
+                    git push origin "v${{ steps.version.outputs.version }}"
 
-      - name: Summary
-        run: echo "### Published tiktok-live-connector@${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+            -   name: Summary
+                run: echo "### Published tiktok-live-connector@${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
