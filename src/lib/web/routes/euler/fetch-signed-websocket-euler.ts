@@ -12,8 +12,8 @@ import { SoaxProxyRegion, WebcastFetchPlatform } from '@eulerstream/euler-api-sd
 import { createRoute } from '@/lib/web/lib/route-wrapper';
 import { EulerFetchRoute } from '@/lib/web/routes/routes';
 import { WebcastHttpEulerRouteArgs } from '@/types/route';
-import { LIBRARY_IDENTITY } from './config';
-import { AxiosResponse } from 'axios';
+import { LIBRARY_IDENTITY } from '@/lib';
+import type { AxiosResponse } from 'axios';
 
 export type FetchSignedWebSocketFromEulerRouteParams = WebcastHttpEulerRouteArgs<TikTokLiveConnectionBundledAuthOptions & {
 

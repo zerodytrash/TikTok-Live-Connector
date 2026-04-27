@@ -1,4 +1,10 @@
-import { AxiosResponse } from 'axios';
+/**
+ * Minimal structural type for the response object passed to {@link SignatureRateLimitError}.
+ * Avoids depending on axios's declaration files (which the library no longer ships at runtime).
+ */
+type RateLimitedResponse = {
+    headers: Record<string, string | undefined>;
+};
 
 class ConnectError extends Error {
     constructor(message: string) {
@@ -126,7 +132,7 @@ export class SignatureRateLimitError extends SignAPIError {
     public readonly retryAfter: number;
     public readonly resetTime?: number;
 
-    constructor(apiMessage: string | undefined, formatStr: string, response: AxiosResponse) {
+    constructor(apiMessage: string | undefined, formatStr: string, response: RateLimitedResponse) {
         const retryAfter = SignatureRateLimitError.calculateRetryAfter(response);
         const resetTime = SignatureRateLimitError.calculateResetTime(response);
         const logId = response.headers['x-log-id'];
@@ -150,12 +156,12 @@ export class SignatureRateLimitError extends SignAPIError {
         return value ? parseInt(value) : undefined;
     }
 
-    private static calculateRetryAfter(response: AxiosResponse): number {
+    private static calculateRetryAfter(response: RateLimitedResponse): number {
         const retryAfter = parseInt(response.headers['retry-after'] || '0');
         return retryAfter * 1000;
     }
 
-    private static calculateResetTime(response: AxiosResponse): number | undefined {
+    private static calculateResetTime(response: RateLimitedResponse): number | undefined {
         const value = response.headers['x-ratelimit-reset'];
         return value ? parseInt(value) * 1000 : undefined;
     }

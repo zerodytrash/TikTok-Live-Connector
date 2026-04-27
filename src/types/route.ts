@@ -1,6 +1,11 @@
 import WebcastHttpClient from '@/lib/web/lib/http-client';
 import EulerStreamApiClient from '@eulerstream/euler-api-sdk';
-import { AxiosRequestConfig } from 'axios';
+
+/**
+ * Per-call options forwarded to the Euler Stream SDK (axios-shaped under the hood).
+ * Typed loosely so the public surface doesn't pull in axios's declaration files.
+ */
+export type EulerRouteRequestOptions = Record<string, any>;
 
 /**
  * Makes calls to TikTok directly
@@ -14,7 +19,7 @@ export type WebcastHttpRouteArgs<T = {}> = {
  */
 export type WebcastHttpEulerRouteArgs<T = {}> = WebcastHttpRouteArgs & {
     apiClient: EulerStreamApiClient,
-    options?: AxiosRequestConfig
+    options?: EulerRouteRequestOptions
 } & T
 
 /**
