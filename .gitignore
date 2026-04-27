@@ -7,6 +7,7 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
@@ -137,7 +138,6 @@ migrate.ts
 ws-test.ts
 publish.ts
 
-pnpm-lock.yaml
 test-decoding.ts
 unzip-test.ts
 
