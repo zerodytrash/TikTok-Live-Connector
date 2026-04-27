@@ -1,15 +1,28 @@
-import CallableInstance from 'callable-instance';
-import { TikTokWebClient } from '@/lib';
+import WebcastHttpClient from '@/lib/web/lib/http-client';
+import EulerStreamApiClient from '@eulerstream/euler-api-sdk';
+import { AxiosRequestConfig } from 'axios';
 
-export abstract class Route<Args, Response> extends CallableInstance<[Args], Promise<Response>> {
+/**
+ * Makes calls to TikTok directly
+ */
+export type WebcastHttpRouteArgs<T = {}> = {
+    webClient: WebcastHttpClient
+} & T
 
-    constructor(
-        protected readonly webClient: TikTokWebClient
-    ) {
-        super('call');
-    }
+/**
+ * Makes calls to Euler Stream's API
+ */
+export type WebcastHttpEulerRouteArgs<T = {}> = WebcastHttpRouteArgs & {
+    apiClient: EulerStreamApiClient,
+    options?: AxiosRequestConfig
+} & T
 
-    abstract call(args: Args): Promise<Response>;
+/**
+ * Combines the use of TikTok & Euler Stream APIs
+ */
+export type WebcastHttpCompositeRouteArgs<T = {}> = WebcastHttpEulerRouteArgs<T>;
 
-}
+export type HttpRoute<P, R> = (args: P) => Promise<R>
+export type WrappedHttpRoute<P, R> = (args: P & { routeId: string }) => Promise<R>
+
 
