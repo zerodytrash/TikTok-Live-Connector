@@ -69,7 +69,17 @@ jobs:
 
             -   name: Read new version
                 id: version
-                run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+                run: |
+                    VERSION=$(node -p "require('./package.json').version")
+                    # Derive the dist-tag: 2.3.0-alpha1 -> alpha, 2.3.0-beta1 -> beta, 2.3.0 -> latest
+                    TAG=$(node -p "
+                        const v = require('./package.json').version;
+                        const m = v.match(/-([a-z]+)/i);
+                        m ? m[1].toLowerCase() : 'latest';
+                    ")
+                    echo "version=$VERSION" >> $GITHUB_OUTPUT
+                    echo "tag=$TAG" >> $GITHUB_OUTPUT
+                    echo "Publishing $VERSION under dist-tag '$TAG'"
 
             -   name: Write src/version.ts
                 run: |
@@ -79,7 +89,7 @@ jobs:
                 run: pnpm run build
 
             -   name: Publish to npm
-                run: npm publish --provenance --access public
+                run: npm publish --provenance --access public --tag "${{ steps.version.outputs.tag }}"
                 working-directory: dist
 
             -   name: Commit release
@@ -96,4 +106,4 @@ jobs:
                     git push origin "v${{ steps.version.outputs.version }}"
 
             -   name: Summary
-                run: echo "### Published tiktok-live-connector@${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+                run: echo "### Published tiktok-live-connector@${{ steps.version.outputs.version }} under dist-tag \`${{ steps.version.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
