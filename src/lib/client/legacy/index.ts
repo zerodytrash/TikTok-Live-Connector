@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
 import { ControlEvent, WebcastEvent } from '@/types/events';
-import { WebcastEventMessage } from '@/types';
+import { TikTokLiveConstructorConnectionOptions, WebcastEventMessage } from '@/types';
 import { simplifyObject } from '@/lib/client/legacy/data-converter';
 import { BaseProtoMessage, ProtoMessageFetchResult, WebcastControlMessage } from 'tiktok-live-proto/v2';
 import { TikTokLiveConnection } from '@/lib/client';
@@ -8,10 +8,20 @@ import { TikTokLiveConnection } from '@/lib/client';
 export * from './data-converter';
 
 /**
+ * Cast that preserves the real `(uniqueId, options)` constructor signature while exposing the
+ * loose `EventEmitter.emit(...)` overload. Required because the legacy class emits the flattened
+ * `simplifiedObj` shape, which doesn't satisfy the strict `ClientEventMap` payload types.
+ */
+type WebcastPushConnectionBase = new (
+    uniqueId: string,
+    options: TikTokLiveConstructorConnectionOptions
+) => EventEmitter & TikTokLiveConnection;
+
+/**
  * The legacy WebcastPushConnection class for backwards compatibility.
  * @deprecated Use TikTokLiveConnection instead.
  */
-export class WebcastPushConnection extends (TikTokLiveConnection as new (...args: any[]) => EventEmitter & TikTokLiveConnection) {
+export class WebcastPushConnection extends (TikTokLiveConnection as unknown as WebcastPushConnectionBase) {
 
     protected async processProtoMessageFetchResult(fetchResult: ProtoMessageFetchResult): Promise<void> {
 
@@ -30,10 +40,10 @@ export class WebcastPushConnection extends (TikTokLiveConnection as new (...args
                         // Known control actions:
                         // 3 = Stream terminated by user
                         // 4 = Stream terminated by platform moderator (ban)
-                        const action = (message.decodedData?.data as WebcastControlMessage).action;
-                        if ([3, 4].includes(action)) {
+                        const action = (message.decodedData?.data as WebcastControlMessage | undefined)?.action;
+                        if (action !== undefined && [3, 4].includes(action)) {
                             this.emit(WebcastEvent.STREAM_END, { action });
-                            this.disconnect();
+                            void this.disconnect().catch(() => {});
                         }
                         break;
                     case 'WebcastRoomUserSeqMessage':
