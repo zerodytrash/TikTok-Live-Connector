@@ -4,22 +4,73 @@ on:
   workflow_dispatch:
     inputs:
       bump:
-        description: 'Version bump type'
+        description: 'Version bump type (use "manual" to set an exact version below)'
         type: choice
         options:
           - patch
           - minor
           - major
+          - manual
         default: patch
+      manual_version:
+        description: 'Exact version when bump = manual (e.g. 2.3.0-alpha1). Ignored otherwise.'
+        type: string
+        required: false
+        default: ''
 
 permissions:
   contents: write
 
 jobs:
   dry-run:
-    uses: ./.github/workflows/build.yml
-    permissions:
-      contents: write
-    with:
-      bump: ${{ inputs.bump }}
-      dry_run: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Bump version
+        run: |
+          if [ "${{ inputs.bump }}" = "manual" ]; then
+            if [ -z "${{ inputs.manual_version }}" ]; then
+              echo "::error::manual_version is required when bump = manual"
+              exit 1
+            fi
+            npm version "${{ inputs.manual_version }}" --no-git-tag-version --allow-same-version
+          else
+            npm version "${{ inputs.bump }}" --no-git-tag-version
+          fi
+
+      - name: Read new version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Write src/version.ts
+        run: printf 'export const VERSION: string = "%s";\n' "${{ steps.version.outputs.version }}" > src/version.ts
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Commit src/version.ts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/version.ts
+          if git diff --cached --quiet; then
+            echo "No changes to src/version.ts"
+          else
+            git commit -m "chore: update src/version.ts to v${{ steps.version.outputs.version }} [skip ci]"
+            git push
+          fi
+
+      - name: Summary
+        run: echo "### Dry-run completed for tiktok-live-connector@${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
