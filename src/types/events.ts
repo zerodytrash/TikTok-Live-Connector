@@ -37,7 +37,8 @@ import {
     WebcastUnauthorizedMemberMessage
 } from 'tiktok-live-proto/v2';
 import { DecodedWebcastPushFrame, RoomGiftInfo, RoomInfo, WebcastEventMessage } from '@/types/client';
-import TikTokWsClient from '@/lib/ws/lib/ws-client';
+import WebcastWebSocketClient from '@/lib/ws/lib/ws-client';
+import TypedEventEmitter from 'typed-emitter';
 
 export enum ControlEvent {
     CONNECTED = 'connected',
@@ -125,7 +126,7 @@ export type ClientEventMap = {
     [ControlEvent.WEBSOCKET_DATA]: EventHandler<Uint8Array>,
     [ControlEvent.RAW_DATA]: (type: string, data: Uint8Array) => void | Promise<void>,
     [ControlEvent.DECODED_DATA]: (type: string, event: any, binary: Uint8Array) => void | Promise<void>,
-    [ControlEvent.WEBSOCKET_CONNECTED]: EventHandler<TikTokWsClient>,
+    [ControlEvent.WEBSOCKET_CONNECTED]: EventHandler<WebcastWebSocketClient>,
     [ControlEvent.ENTER_ROOM]: EventHandler<DecodedWebcastPushFrame>,
 
     // Old Message Events - Added 1.X.X
@@ -218,7 +219,10 @@ export type BasicWebcastEventMessage = keyof Omit<
 
 export type TikTokLiveConnectionState = {
     isConnected: boolean,
+    isConnecting: boolean,
     roomId: string,
     roomInfo: RoomInfo | null,
     availableGifts: RoomGiftInfo | null
 };
+
+export type WebcastTypedClient = new () => TypedEventEmitter<ClientEventMap>;
