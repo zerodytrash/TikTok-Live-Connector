@@ -57,7 +57,7 @@ export default class WebcastHttpClient {
         this._eulerApiInstance = eulerApiInstance ?? createEulerClient();
         this._webcastWebConfig = cleanWebcastConfig;
 
-        // Got instance: transport only. NO headers, NO searchParams in the defaults — those live on `this`.
+        // Got instance: transport only. NO headers, NO searchParams in the defaults; those live on `this`.
         this._gotInstance = got.extend({
 
             // Base timeout, can be overridden
@@ -101,16 +101,17 @@ export default class WebcastHttpClient {
     }
 
     /**
-     * Build the URL for the request
+     * Issue an HTTP request, merging the per-call options with the live client state
+     * (headers, search params, cookie jar) and optionally routing the URL through the
+     * sign server first.
      *
-     * @param host The host for the request
-     * @param path The path for the request
-     * @param searchParams The query parameters for the request
-     * @param signRequest Whether to sign the request or not
-     * @param method The HTTP method for the request
-     * @param headers The headers for the request
-     * @param extraOptions Additional got request options
-     * @protected
+     * @param options.host Host portion of the request URL.
+     * @param options.path Path appended to the host.
+     * @param options.searchParams Per-call query parameters. Merged on top of `clientParams`; per-call values win on key collision.
+     * @param options.signRequest If true, the URL is signed via `RouteConfig.fetchWebcastSignatureFromProvider` and any returned signed URL / User-Agent are honored.
+     * @param options.method HTTP method. Defaults to `GET`.
+     * @param options.headers Per-call headers. Merged on top of `clientHeaders`; per-call values win on key collision.
+     * @param options Any other field is forwarded to `got` as-is (body, responseType, retry, etc.).
      */
     public async request(
         {
@@ -226,9 +227,6 @@ export default class WebcastHttpClient {
         options: Partial<WebcastHttpClientRequestParams> = {}
     ): Promise<T> {
 
-        options.headers ||= {};
-        options.headers['Content-Type'] = 'application/json; charset=UTF-8';
-
         const fetchResponse = await this.request(
             {
                 host: this._webcastWebConfig.TIKTOK_HOST_WEBCAST,
@@ -238,7 +236,11 @@ export default class WebcastHttpClient {
                 responseType: 'json',
                 signRequest: signRequest,
                 method: 'POST',
-                ...options
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                    ...options.headers
+                }
             }
         );
 
@@ -260,8 +262,6 @@ export default class WebcastHttpClient {
         options: Partial<WebcastHttpClientRequestParams> = {}
     ): Promise<T> {
 
-        options.headers = {};
-
         const fetchResponse = await this.request(
             {
                 host: this._webcastWebConfig.TIKTOK_HOST_WEBCAST,
@@ -269,9 +269,6 @@ export default class WebcastHttpClient {
                 searchParams: params,
                 responseType: 'json',
                 signRequest: signRequest,
-                headers: {
-                    ...options.headers
-                },
                 ...options
             }
         );
