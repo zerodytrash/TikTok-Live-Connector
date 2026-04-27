@@ -22,9 +22,9 @@ type InvalidRequestErrorConfig = {
 export class InvalidResponseError extends Error {
     constructor(
         public readonly config: InvalidResponseErrorConfig,
-        ...args: any[]
+        ...args: string[]
     ) {
-        super(`[${config.routeId}] `, ...args);
+        super(`[${config.routeId}] ${args.join(' ')}`);
     }
 }
 
@@ -45,9 +45,9 @@ export class InvalidResponseCompositeError extends Error {
 export class InvalidRequestError extends Error {
     constructor(
         public readonly config: InvalidRequestErrorConfig,
-        ...args: any[]
+        ...args: string[]
     ) {
-        super(`[${config.routeId}] `, ...args);
+        super(`[${config.routeId}] ${args.join(' ')}`);
     }
 }
 
@@ -98,9 +98,9 @@ export class SignAPIError extends TikTokLiveError {
         reason: ErrorReason,
         requestId?: string,
         agentId?: string,
-        ...args: (string | undefined)[]
+        ...args: (string | Error | undefined)[]
     ) {
-        super([`[${reason}]`, ...args.filter((a) => a !== undefined)].join(' '));
+        super([`[${reason}]`, ...args.filter((a) => a !== undefined).map((a) => a instanceof Error ? a.message : a)].join(' '));
         this.reason = reason;
         this.requestId = requestId;
         this.agentId = agentId;
