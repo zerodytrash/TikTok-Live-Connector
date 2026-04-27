@@ -225,12 +225,19 @@ export default class WebcastWebSocketClient extends (WebSocket as WebcastTypedWe
             return;
         }
 
+        if (!protoMessageFetchResult?.internalExt) {
+            if (!process.env.DISABLE_ACK_LOG_WARNING) {
+                console.error('No internalExt found for message that needs ACK, skipping ACK');
+            }
+            return;
+        }
+
         const webcastPushFrame: BinaryWriter = createBaseWebcastPushFrame(
             {
                 logId: logId,
                 payloadEncoding: 'pb',
                 payloadType: 'ack',
-                payload: Buffer.from(textEncoder.encode(protoMessageFetchResult?.internalExt))
+                payload: Buffer.from(textEncoder.encode(protoMessageFetchResult.internalExt))
             }
         );
 
