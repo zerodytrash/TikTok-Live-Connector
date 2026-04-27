@@ -88,6 +88,20 @@ jobs:
             -   name: Build
                 run: pnpm run build
 
+            -   name: Strip GitHub alert markers from README for npm tarball
+                # GitHub renders `> [!NOTE]` style alerts as styled callouts; npm's
+                # markdown renderer doesn't, leaving literal `[!NOTE]` in the README.
+                # Rewrite each marker to a plain bold label so npm renders cleanly.
+                # Edit happens on the runner only — the repo's README.md is untouched.
+                run: |
+                    sed -E -i \
+                      -e 's/^> \[!NOTE\][[:space:]]*(.*)$/> **Note:** \1/' \
+                      -e 's/^> \[!TIP\][[:space:]]*(.*)$/> **Tip:** \1/' \
+                      -e 's/^> \[!IMPORTANT\][[:space:]]*(.*)$/> **Important:** \1/' \
+                      -e 's/^> \[!WARNING\][[:space:]]*(.*)$/> **Warning:** \1/' \
+                      -e 's/^> \[!CAUTION\][[:space:]]*(.*)$/> **Caution:** \1/' \
+                      README.md
+
             -   name: Publish to npm
                 # Publish from the project root so npm packages `dist/` (per `files`),
                 # plus the root README.md and LICENSE that npm always auto-includes.
