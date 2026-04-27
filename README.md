@@ -88,181 +88,207 @@ To create a new `TikTokLiveConnection` object the following parameters can be sp
 
 `TikTokLiveConnection(uniqueId, [options])`
 
-| Param Name | Required | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-|------------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| uniqueId   | Yes      | The unique username of the broadcaster. You can find this name in the URL.<br>Example: `https://www.tiktok.com/@officialgeilegisela/live` => `officialgeilegisela`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| options    | No       | Here you can set the following optional connection properties. If you do not specify a value, the default value will be used.<br><br>`processInitialData` (default: `true`) <br> Define if you want to process the initital data which includes old messages of the last seconds.<br><br>`signApiKey` (default: `null`) Configure a Sign API key. This API key will be used to generate the URL to facilitate connections to the TikTok LIVE WebSocket server. <br><br> `fetchRoomInfoOnConnect` (default: `true`) <br> Define if you want to fetch all room information on [`connect()`](#methods). If this option is enabled, the connection to offline rooms will be prevented. If enabled, the connect result contains the room info via the `roomInfo` attribute. You can also manually retrieve the room info (even in an unconnected state) using the [`getRoomInfo()`](#methods) function.<br><br>`enableExtendedGiftInfo` (default: `false`) <br> Define if you want to receive extended information about gifts like gift name, cost and images. This information will be provided at the [gift event](#gift). <br><br>`requestPollingIntervalMs` (default: `1000`) <br> Request polling interval if WebSocket is not used.<br><br>`sessionId` (default: `null`) <br> Here you can specify the current Session ID of your TikTok account <br><br>`ttTargetIdc` (default: `null`)<br>The tt-target-idc cookie, representing the TikTok datacenter the account is registered in (based on the sign-up region)<br><br> `webClientParams` (default: `{}`) <br> Custom client params for Webcast API.<br><br>`webClientHeaders` (default: `{}`) <br> Custom request headers passed to [axios](https://github.com/axios/axios).<br><br>`websocketHeaders` (default: `{}`) <br> Custom websocket headers passed to [websocket.client](https://github.com/theturtle32/WebSocket-Node). <br><br>`webClientOptions` (default: `{}`) <br> Custom request options passed to [axios](https://github.com/axios/axios). Here you can specify an `httpsAgent` to use a proxy and a `timeout` value. See [Example](#proxied-connection). <br><br>`wsClientParams` (default: `${}`)<br/> WebSocket parameters to be appended to the connection url. <br><br>`wsClientHeaders` (default: {})<br/> Custom WebSocket headers to be sent when connecting. <br><br>`wsClientOptions` (default: `{}`) <br> Custom websocket options passed to [websocket.client](https://github.com/theturtle32/WebSocket-Node). Here you can specify an `agent` to use a proxy and a `timeout` value. See [Example](#proxied-connection). <br/><br/> `authenticateWs` (default: `false`) <br/> By default, WebSocket connections are not authenticated, even when passing a sessionid, for security. This is because 'signing' (generating the URL) for connecting is done by a 3rd-party freeware service. It must be manually enabled, and you assume the risks associated with sending over a session id when you enable it.<br/><br/>`connectWithUniqueId` (default: `false`)<br/>This option allows the 3rd-party service to determine the Room ID _for_ you, rather than retrieving it through scraping. This may be preferable on low-quality IPs, as it bypasses captchas.<br/><br/>`disableEulerFallbacks` (default: false)<br/>This option disables the Euler Stream API "fallback" routes used by default when scraping fails.<br/><br/>`signedWebSocketProvider` (default: `(props: FetchSignedWebSocketParams) => Promise<ProtoMessageFetchResult>`)<br/> The function responsible for signing (generating a valid WebSocket URL) can be swapped out for your own backend, if you do not want to use the free 3rd-party service bundled into the client that generates them. |
+| Param Name | Required | Description |
+|------------|----------|-------------|
+| `uniqueId` | Yes | The unique username of the broadcaster. You can find this name in the URL.<br>Example: `https://www.tiktok.com/@officialgeilegisela/live` becomes `officialgeilegisela`. The leading `@` and the full URL form are also accepted. |
+| `options`  | No | Optional connection properties. Defaults are applied when a value is not specified.<br><br>`signApiKey` (default: `undefined`)<br>Euler Stream API key. When provided, it is written to the global `SignConfig.apiKey` before the underlying Euler client is created. Ignored when `eulerApiInstance` is passed.<br><br>`eulerApiInstance` (default: `undefined`)<br>Pre-built `EulerStreamApiClient` to use for all sign-server traffic. Takes precedence over `signApiKey`.<br><br>`session` (default: `undefined`)<br>Authenticated session bundle. Pass `session.cookie` to seed the cookie jar with `sessionid` and `tt-target-idc`, and/or `session.oAuthToken` to send an OAuth token to the sign server. Required when `authenticateWs` or `useMobile` is true. See [Authenticated Connection](#authenticated-connection).<br><br>`authenticateWs` (default: `false`)<br>Forward the session cookies or OAuth token to the sign server so the WebSocket is authenticated. Disabled by default since signing is done by a third-party service; enabling it sends your session credentials to that service.<br><br>`useMobile` (default: `false`)<br>Use the mobile WebSocket flow. Implies `authenticateWs: true` and requires `session.cookie`.<br><br>`processInitialData` (default: `true`)<br>Decode and emit the message batch returned in the initial sign response (recent chat history etc.).<br><br>`fetchRoomInfoOnConnect` (default: `true`)<br>Fetch room info during connect. If the streamer is not currently live the connect rejects with `UserOfflineError`. The fetched info is stored on `connection.roomInfo` and is also accessible via [`fetchRoomInfo()`](#methods).<br><br>`enableExtendedGiftInfo` (default: `false`)<br>Fetch the room gift list during connect so `WebcastGiftMessage` events carry an `extendedGiftInfo` field with name, cost, and image data.<br><br>`clientPresets` (default: randomized)<br>Pre-built `{ device, screen, location }` presets. Defaults to a freshly randomized set from `getRandomPresets()`.<br><br>`webClientOptions` (default: `{}`)<br>Extra options forwarded to the underlying [`got`](https://github.com/sindresorhus/got) HTTP client (proxy agent, timeout, etc.). Headers and search params from this object are merged with the defaults; transport-only fields are passed through. See [Proxied Connection](#proxied-connection).<br><br>`wsClientOptions` (default: `{}`)<br>Extra options forwarded to the underlying [`ws`](https://github.com/websockets/ws) WebSocket client. See [Proxied Connection](#proxied-connection).<br><br>`webConfigOverrides` (default: `{}`)<br>Partial overrides for the resolved `WebcastWebConfigDefaults` used by the HTTP client. Use this to customize `DEFAULT_HTTP_CLIENT_PARAMS`, `DEFAULT_HTTP_CLIENT_HEADERS`, etc.<br><br>`wsConfigOverrides` (default: `{}`)<br>Partial overrides for the resolved `WebcastWebSocketConfigDefaults` used by the WebSocket client. Use this to customize `DEFAULT_WS_CLIENT_PARAMS` or `DEFAULT_WS_CLIENT_HEADERS`. |
 
 #### Example Options
 
 ```ts
 const tikTokLiveConnection = new TikTokLiveConnection(tiktokUsername, {
+    signApiKey: 'your-api-key',
     processInitialData: false,
     enableExtendedGiftInfo: true,
-    requestPollingIntervalMs: 2000,
-    signApiKey: 'your-api-key',
-    webClientParams: {
-        "app_language": "en-US",
-        "device_platform": "web"
+    webConfigOverrides: {
+        DEFAULT_HTTP_CLIENT_PARAMS: {
+            app_language: 'en-US',
+            device_platform: 'web_pc'
+        },
+        DEFAULT_HTTP_CLIENT_HEADERS: {
+            'X-Custom-Header': 'value'
+        }
     },
-    webClientHeaders: {
-        "headerName": "headerValue"
-    },
-    wsClientHeaders: {
-        "headerName": "headerValue"
-    },
-    wsClientParams: {
-        "app_language": "en-US",
+    wsConfigOverrides: {
+        DEFAULT_WS_CLIENT_PARAMS: {
+            app_language: 'en-US'
+        },
+        DEFAULT_WS_CLIENT_HEADERS: {
+            'X-Custom-Header': 'value'
+        }
     },
     webClientOptions: {
-        timeout: 10000
+        timeout: { request: 10000 }
     },
     wsClientOptions: {
-        timeout: 10000
+        handshakeTimeout: 10000
     }
 });
 ```
 
 ## Methods
 
-| Method Name               | Description                                                                                                                                                                                                                                                                                                                               |
-|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| connect(`[roomId]`)       | Connects to the live stream chat.<br>Returns a `Promise` which will be resolved when the connection is successfully established. Optionally, you can provide a Room Id to bypass Room Id scraping.                                                                                                                                        |
-| disconnect()              | Disconnects from the stream if connected.                                                                                                                                                                                                                                                                                                 |
-| sendMessage(`<content>`)  | Send a message to a TikTok LIVE chat. Simply speciy the message you want to send, and voila! Requires an API key. <br>[Example](#send-messages)                                                                                                                                                                                           |
-| fetchRoomId(`[uniqueId]`) | Fetch the Room Id associated with the currently configured `uniqueId`. Optionally, provide a `uniqueId` for a different user to check. Returns a `Promise` which is resolved when the Room Id is fetched.                                                                                                                                 |
-| fetchIsLive()             | Fetch whether the user is currently streaming. Returns a `Promise` which resolves when the state is fetched.                                                                                                                                                                                                                              |
-| waitUntilLive()           | Returns a blocking promise that resolves when the user goes live.                                                                                                                                                                                                                                                                         |
-| fetchRoomInfo()           | Gets the current room info from TikTok API including streamer info, room status and statistics.<br>Returns a `Promise` which will be resolved when the API request is done.<br>*<b>Note: </b>You can call this function even if you're not connected.*<br>[Example](#retrieve-room-info)                                                  |
-| fetchAvailableGifts()     | Gets a list of all available gifts including gift name, image url, diamont cost and a lot of other information.<br>Returns a `Promise` that will be resolved when all available gifts has been retrieved from the API.<br>*<b>Note: </b>You can call this function even if you're not connected.*<br>[Example](#retrieve-available-gifts) |
+| Method Name | Description |
+|-------------|-------------|
+| `connect([roomId])` | Connects to the live stream chat. Returns a `Promise<TikTokLiveConnectionState>` that resolves when the WebSocket is open and the room has been entered. Pass an explicit `roomId` to skip room-id resolution. |
+| `disconnect()` | Closes the WebSocket and waits for the `close` event before resolving. Safe to call even when not connected. |
+| `sendMessage(content, [roomId])` | Sends a chat message to the connected room (or to `roomId` if provided). Requires `signApiKey` and an authenticated session. See [Send Messages](#send-messages). |
+| `fetchRoomId([uniqueId])` | Resolves the room id for the configured username (or for `uniqueId` if provided). Tries HTML scrape, then the TikTok API, then Euler Stream as a fallback. |
+| `fetchIsLive([uniqueId])` | Resolves whether the user is currently live. Same fallback chain as `fetchRoomId`. |
+| `waitUntilLive([seconds], [abortSignal])` | Polls `fetchIsLive` every `seconds` seconds (minimum 30) until the streamer goes live. Reject via `abortSignal` to cancel. |
+| `fetchRoomInfo([roomId])` | Fetches room info from TikTok's webcast API. Caches the result on `connection.roomInfo`. Callable without an active connection. See [Retrieve Room Info](#retrieve-room-info). |
+| `fetchAvailableGifts()` | Fetches the room gift list. Caches on `connection.availableGifts`. Callable without an active connection. See [Retrieve Available Gifts](#retrieve-available-gifts). |
 
 ## Properties
 
-| Property Name                             | Description                                                                                                                               |
-|-------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
-| webClient: `TikTokWebClient`              | An API wrapper for TikTok with routes for scraping the TikTok site & internal APIs. This is used to fetch the initial data and room info. |
-| wsClient: `TikTokWsClient \| null`        | The WebSocket client object. This manages the lifecycle of the WebSocket connection to TikTok, and is where all events originate from.    |
-| options: `TikTokLiveConnectionOptions`    | Options described in [Params and Options](#params-and-options)                                                                            |
-| roomInfo: `RoomInfoResponse`              | The room info object. This contains all information about the current room.                                                               |
-| availableGifts: `RoomGiftInfo`            | The list of available gifts. This is only filled if `enableExtendedGiftInfo` is set to `true`.                                            |
-| isConnecting: `boolean`                   | Indicates whether the connection is currently being established.                                                                          |
-| isConnected: `boolean`                    | Indicates whether the connection is currently established.                                                                                |
-| webClientParams: `Record<string, string>` | Base URI parameters that are sent with every request of `TikTokWebClient`.<br/>                                                           |
-| roomId: `string`                          | The current room id. This is only available after a successful connection.                                                                |
-| state: `TikTokLiveConnectionState`        | The current state of the connection. Includes info such as connection status, Room Id, room info, etc.                                    |
+| Property Name | Description |
+|---------------|-------------|
+| `webClient: WebcastHttpClient` | The HTTP client used to talk to TikTok's web and webcast APIs. Holds the cookie jar, the merged client params, and the merged client headers. |
+| `apiClient: EulerStreamApiClient` | The Euler Stream API client used for sign-server traffic and other premium endpoints. Equivalent to `webClient.apiClient`. |
+| `wsClient: WebcastWebSocketClient \| null` | The active WebSocket client. `null` until the connection is established and after disconnect. |
+| `options: TikTokLiveConnectionMutableOptions` | The subset of options retained on the instance (`processInitialData`, `fetchRoomInfoOnConnect`, `enableExtendedGiftInfo`, `authenticateWs`, `useMobile`). |
+| `roomInfo: RoomInfo \| null` | The room info object cached from the most recent `fetchRoomInfo()` call (or from connect, when `fetchRoomInfoOnConnect` is true). |
+| `availableGifts: RoomGiftInfo \| null` | The cached gift list. Populated when `enableExtendedGiftInfo` is `true` or after manually calling `fetchAvailableGifts()`. |
+| `isConnecting: boolean` | True while `connect()` is in flight. |
+| `isConnected: boolean` | True after a successful connect, until the WebSocket closes. |
+| `clientParams: Record<string, string>` | Live URI parameters sent with every `webClient` request. Mutating this changes outgoing query strings. |
+| `roomId: string` | The currently bound room id. Empty string until connect resolves or `fetchRoomId()` is called. |
+| `state: TikTokLiveConnectionState` | Snapshot containing `isConnected`, `isConnecting`, `roomId`, `roomInfo`, and `availableGifts`. |
 
 ## Signing Configuration
 
-It is possible to configure the [3rd-party library](https://github.com/EulerStream/EulerApiSdk) used to generate
-WebSocket URLs, a process referred to as 'signing'. An example is provided below:
+WebSocket URL signing is delegated to the [Euler Stream sign server](https://www.eulerstream.com) via the
+[`@eulerstream/euler-api-sdk`](https://github.com/EulerStream/EulerApiSdk) package. Configuration is held on the
+mutable `SignConfig` singleton.
+
+For most users, passing `signApiKey` to the `TikTokLiveConnection` constructor is enough. It writes the key to
+`SignConfig.apiKey` before the underlying Euler client is built.
+
+For advanced cases (custom sign-server URL, extra headers, JWT auth), mutate `SignConfig` directly before
+constructing your first connection:
 
 ```ts
-// SignConfig is an instance of Partial<ClientConfiguration>
 import { SignConfig } from 'tiktok-live-connector';
 
-SignConfig.apiKey = "your api key" // An API key created at https://www.eulerstream.com
-SignConfig.basePath = "https://your-custom-sign-server.com" // Optionally, you can even define your own server
-SignConfig.baseOptions.headers['X-Custom-Header'] = 'Custom-Header-Value'
+SignConfig.apiKey = 'your api key'; // An API key created at https://www.eulerstream.com
+SignConfig.basePath = 'https://your-custom-sign-server.com';
+SignConfig.baseOptions = SignConfig.baseOptions || {};
+SignConfig.baseOptions.headers = {
+    ...(SignConfig.baseOptions.headers || {}),
+    'X-Custom-Header': 'Custom-Header-Value'
+};
 ```
+
+> [!IMPORTANT]
+> `SignConfig` is read once when the underlying Euler client is first instantiated and the result is cached.
+> Mutate it before constructing the first `TikTokLiveConnection`, or pass an explicit `eulerApiInstance` to
+> bypass the cache.
 
 ## Accessing TikTok LIVE Routes
 
-The `TikTokWebClient` object is used to access TikTok's internal API routes. This object is available via
-the `webClient` property of the `TikTokLiveConnection` object.
+All HTTP route handlers live in the global `RouteConfig` registry and are also exported individually.
+Each route is a function that accepts a single options object and returns a `Promise` resolving to the route's
+response. The currently registered routes are:
 
-The following routes come bundled with the web client:
+- `fetchRoomInfo` (TikTok webcast API)
+- `fetchRoomGifts` (TikTok webcast API)
+- `fetchRoomInfoFromApiLive` (TikTok web API)
+- `fetchRoomInfoFromHtml` (HTML scrape with SIGI_STATE extraction)
+- `fetchRoomIdFromProvider` (Euler Stream)
+- `fetchRoomInfoFromProvider` (Euler Stream)
+- `fetchSignedWebSocketFromProvider` (Euler Stream)
+- `fetchWebcastSignatureFromProvider` (Euler Stream)
+- `sendRoomChatFromProvider` (Euler Stream)
+- `fetchRoomIdComposite` (HTML, then API, then Euler fallback)
+- `fetchIsLiveComposite` (HTML, then API, then Euler fallback)
 
-- `connection.webClient.fetchRoomInfo`
-- `connection.webClient.sendRoomChat`
-- `connection.webClient.fetchRoomInfoFromApiLive`
-- `connection.webClient.fetchRoomInfoFromHtml`
-- `connection.webClient.fetchSignedWebSocketFromEuler`
-- `connection.webClient.fetchRoomIdFromEuler`
-- `connection.webClient.fetchRoomInfoFromEuler`
+### Example Usage
 
-### Example Usage:
-
-All routes are callable classes that accepts a singular object with the required parameters, and return a promise
-that resolves with the route data. For instance, here is how you can fetch Room Info from the page HTML:
+Routes need a `webClient` (and an `apiClient` for Euler routes), both of which are exposed on a
+`TikTokLiveConnection` instance:
 
 ```ts
+import { TikTokLiveConnection, RouteConfig } from 'tiktok-live-connector';
+
 const connection = new TikTokLiveConnection('officialgeilegisela');
 
-connection.webClient.fetchRoomInfoFromHtml({ uniqueId: uniqueId })
-    .then((response: FetchRoomInfoFromHtmlRouteResponse) => {
-        console.log('Room Info:', response.data);
-    });
+const sigiState = await RouteConfig.fetchRoomInfoFromHtml({
+    webClient: connection.webClient,
+    uniqueId: 'officialgeilegisela'
+});
+
+console.log('SIGI_STATE liveRoom:', sigiState.liveRoom);
 ```
 
-## Accessing 3rd-Party Routes
+### Swapping a Route Implementation
 
-The `TikTokWebClient` comes bundled with an instance of `EulerSigner`, a 3rd-party library that provides the WebSocket
-connection URL used to
-connect to TikTok LIVE.
+You can replace any handler in `RouteConfig` to inject custom behavior (caching, alternate sign provider,
+proxying through your own backend, etc.):
 
-This is publicly accessible via `connection.webClient.webSigner` and exposes additional 3rd-party routes related to
-TikTok LIVE.
+```ts
+import { RouteConfig } from 'tiktok-live-connector';
+
+const original = RouteConfig.fetchSignedWebSocketFromProvider;
+RouteConfig.fetchSignedWebSocketFromProvider = async (args) => {
+    console.log('signing for room', args.roomId);
+    return original(args);
+};
+```
+
+## Accessing 3rd-Party (Euler Stream) Routes
+
+The Euler Stream API client is exposed as `connection.apiClient`. It wraps every endpoint published by the
+[`@eulerstream/euler-api-sdk`](https://github.com/eulerstream/EulerApiSdk) package, including premium and
+analytics endpoints not bundled into `RouteConfig`.
 
 ### Example 1: Fetching Rate Limits
 
-For example, here's how you can fetch the rate limits for your current API key:
-
 ```ts
-import { SignConfig } from 'tiktok-live-connector';
-import { GetRateLimits } from '@eulerstream/euler-api-sdk';
+import { TikTokLiveConnection } from 'tiktok-live-connector';
 
-// Configure an API Key
-SignConfig.apiKey = 'your api key'; // An API key created at https://www.eulerstream.com
+const connection = new TikTokLiveConnection('officialgeilegisela', {
+    signApiKey: 'your-api-key'
+});
 
-// Create a connection
-const connection = new TikTokLiveConnection();
-
-// Fetch the limits
-connection.webClient.webSigner.webcast.getRateLimits()
-    .then((response: AxiosResponse<IGetRateLimits>) => {
-        console.log('Rate Limits:', response.data);
-    });
+const response = await connection.apiClient.webcast.getRateLimits();
+console.log('Rate Limits:', response.data);
 ```
 
 ### Example 2: Using JWT Authentication
 
-If you intend to run the TikTok-Live-Connector in a client environment (e.g. a bundled desktop app), you won't want to
-give the user your API key. Instead, you can create a JWT for the user to connect to the API.
+When running the connector in a client-facing environment (bundled desktop app, browser worker, etc.) you should
+not ship your raw API key. Mint a short-lived JWT on your server and hand that to the client instead.
 
-### Server-Side:
-
-First, generate the JWT and return it to your user:
+#### Server-Side
 
 ```ts
-import { SignConfig, TikTokWebClient } from './src';
+import { SignConfig, createEulerClient } from 'tiktok-live-connector';
 
-SignConfig.apiKey = 'your_api_key_here';
-const connection = new TikTokWebClient();
+SignConfig.apiKey = 'your_server_side_api_key';
+const apiClient = createEulerClient();
 
-connection.webSigner.authentication.createJWT(
+const res = await apiClient.authentication.createJWT(
     122, // Your account ID
     {
-        limits: {
-            minute: 5,
-            day: 5,
-            hour: 5
-        },
-        expireAfter: 60 * 60 * 2 // 2 hours is the max accepted value
+        limits: { minute: 5, hour: 5, day: 5 },
+        expireAfter: 60 * 60 * 2 // 2 hours, the maximum accepted value
     }
-).then((res) => {
-    console.log('Generated JWT:', res.data.token);
-});
+);
+
+console.log('Generated JWT:', res.data.token);
 ```
 
-### Client-Side:
-
-Then, use the JWT to connect to the API in the client-side NodeJS application:
+#### Client-Side
 
 ```ts
-import { SignConfig } from './config';
-import { TikTokLiveConnection } from './client';
+import { SignConfig, TikTokLiveConnection } from 'tiktok-live-connector';
 
-SignConfig.baseOptions.headers['x-jwt-key'] = 'generated-jwt-key';
+SignConfig.baseOptions = SignConfig.baseOptions || {};
+SignConfig.baseOptions.headers = {
+    ...(SignConfig.baseOptions.headers || {}),
+    'x-jwt-key': 'generated-jwt-key'
+};
+
 const connection = new TikTokLiveConnection('tv_asahi_news');
 ```
 
@@ -1114,91 +1140,135 @@ connection.fetchAvailableGifts().then((giftList: RoomGiftInfo) => {
 
 ### Proxied Connection
 
-It is possible to proxy connections. The library [proxy-agent](https://www.npmjs.com/package/proxy-agent)
-supports `http`, `https`, `socks4` and `socks5` proxies:
+The HTTP layer uses [`got`](https://github.com/sindresorhus/got) and the WebSocket layer uses
+[`ws`](https://github.com/websockets/ws). Both accept a Node `http.Agent`, which makes
+[`hpagent`](https://www.npmjs.com/package/hpagent) the recommended proxy integration. `hpagent` is already a
+direct dependency of this package, so no extra install is required.
 
-````
-npm i proxy-agent
-````
+#### HTTP Client (got) via `webClientOptions`
 
-You can specify if you want to use a proxy for https requests, websockets or both:
-
-````ts
-import { TikTokLiveConnection } from 'tiktok-live-connector';
-import ProxyAgent from 'proxy-agent';
-
-const connection = new TikTokLiveConnection('@username', {
-    webClientOptions: {
-        httpsAgent: new ProxyAgent('https://username:password@host:port'),
-        timeout: 10000 // 10 seconds
-    },
-    wsClientOptions: {
-        agent: new ProxyAgent('https://username:password@host:port'),
-        timeout: 10000 // 10 seconds
-    }
-});
-
-// Connect as per usual
-````
-
-### Authenticated Connection
-
-You can connect to the TikTok LIVE with a specific account. To do so, log into your browser & into TikTok.
-Then, simply extract the `sessionid` and `tt-target-idc` cookies. **Both** are needed to connect.
-
-One is your account's session token (keep this secret!), and the other is the datacenter the account is located in. This
-tells TikTok where to look for your session, and is based
-on your region (i.e. EU and NA will have different cookies, but all NA users will have the same cookie, such
-as `useast1a`).
+`got` accepts an `agent` map keyed by protocol (`http`, `https`, `http2`). Provide proxy agents for each protocol
+the connector talks to:
 
 ```ts
 import { TikTokLiveConnection } from 'tiktok-live-connector';
-import { connection } from 'websocket';
+import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
+
+const proxy = 'http://user:pwd@host:8080';
+
+const connection = new TikTokLiveConnection('@username', {
+    webClientOptions: {
+        agent: {
+            http: new HttpProxyAgent({ proxy, keepAlive: true }),
+            https: new HttpsProxyAgent({ proxy, keepAlive: true })
+        }
+    }
+});
+```
+
+This routes all TikTok web/webcast HTTP traffic (room id, room info, gift list, HTML scrape, sign requests)
+through the proxy.
+
+#### WebSocket Client (ws) via `wsClientOptions`
+
+`ws` accepts a single `agent` (a Node `http.Agent`). Since the WebSocket upgrade goes over `wss://`, use the
+HTTPS variant:
+
+```ts
+import { TikTokLiveConnection } from 'tiktok-live-connector';
+import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
+
+const proxy = 'http://user:pwd@host:8080';
+
+const connection = new TikTokLiveConnection('@username', {
+    webClientOptions: {
+        agent: {
+            http: new HttpProxyAgent({ proxy, keepAlive: true }),
+            https: new HttpsProxyAgent({ proxy, keepAlive: true })
+        }
+    },
+    wsClientOptions: {
+        agent: new HttpsProxyAgent({ proxy, keepAlive: true })
+    }
+});
+
+// Connect as usual
+await connection.connect();
+```
+
+### Authenticated Connection
+
+To connect as a specific TikTok account, log into TikTok in your browser and copy two cookies: `sessionid` and
+`tt-target-idc`. Both are required. `sessionid` is your account's session token (keep it secret), and
+`tt-target-idc` is the datacenter region your account belongs to (for example `useast1a` for North America).
+
+Pass them via the `session.cookie` bundle. To force the WebSocket itself to authenticate (so the server treats you
+as that account in chat), also set `authenticateWs: true`.
+
+```ts
+import { TikTokLiveConnection } from 'tiktok-live-connector';
 
 const connection = new TikTokLiveConnection(
     'tv_asahi_news',
     {
-        sessionId: '<account_session_id>',
-        ttTargetIdc: '<account_target_idc>',
+        signApiKey: 'your-api-key',
+        authenticateWs: true,
+        session: {
+            cookie: {
+                type: 'cookie',
+                value: {
+                    sessionId: '<account_session_id>',
+                    ttTargetIdc: '<account_target_idc>'
+                }
+            }
+        }
     }
 );
 
-// Connect, then send a chat!
-connection.connect().then(() => {
-    connection.sendMessage('Connected');
-    console.log('Connected to TikTok LIVE chat!');
-}).catch(err => {
-    console.error('Error connecting to TikTok LIVE chat:', err);
+await connection.connect();
+console.log('Connected to TikTok LIVE chat!');
+```
+
+You can also set the session after construction by calling `setSessionBundle` on the cookie jar:
+
+```ts
+await connection.webClient.cookieJar.setSessionBundle({
+    type: 'cookie',
+    value: {
+        sessionId: '<account_session_id>',
+        ttTargetIdc: '<account_target_idc>'
+    }
 });
 ```
 
 ### Send Messages
 
-As of `2.0.2` you can now send messages to TikTok LIVE chats!
+`sendMessage` posts a chat message into the currently connected room. It requires a valid Euler Stream API key
+(see [Signing Configuration](#signing-configuration)) and an authenticated session bundle (cookies or OAuth token).
 
 ```ts
 import { TikTokLiveConnection } from 'tiktok-live-connector';
-import { connection } from 'websocket';
 
-// Include in options
 const connection = new TikTokLiveConnection(
     'tv_asahi_news',
     {
-        sessionId: '<account_session_id>',
-        ttTargetIdc: '<account_target_idc>'
+        signApiKey: 'your-api-key',
+        authenticateWs: true,
+        session: {
+            cookie: {
+                type: 'cookie',
+                value: {
+                    sessionId: '<account_session_id>',
+                    ttTargetIdc: '<account_target_idc>'
+                }
+            }
+        }
     }
 );
 
-// OR, set it afterwards
-connection.webClient.cookieJar.setSession('<account_session_id>', '<account_target_idc>');
-
-// Connect, then send a chat!
-connection.connect().then(async () => {
-    await connection.sendMessage('Hello world!');
-    console.log('Connected to TikTok LIVE chat!');
-}).catch(err => {
-    console.error('Error connecting to TikTok LIVE chat:', err);
-});
+await connection.connect();
+await connection.sendMessage('Hello world!');
+console.log('Message sent!');
 ```
 
 ## Contributors

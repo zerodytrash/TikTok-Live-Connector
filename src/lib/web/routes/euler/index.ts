@@ -1,3 +1,4 @@
+export * from './config';
 export * from './fetch-room-id-euler';
 export * from './fetch-room-info-euler';
 export * from './fetch-signed-websocket-euler';
