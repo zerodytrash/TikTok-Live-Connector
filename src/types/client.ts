@@ -5,6 +5,7 @@ import { ClientOptions as WsWebSocketConfig } from 'ws';
 import EulerStreamApiClient from '@eulerstream/euler-api-sdk';
 import { GetWebConfigParams, WebcastGotHttpConfig } from '@/types/web';
 import { WebcastWebSocketConfigDefaults } from '@/lib/ws';
+import { WebcastWebConfigDefaults } from '@/lib/web/defaults';
 
 export type CookieSessionBundle = {
     type: 'cookie',
@@ -15,7 +16,7 @@ export type CookieSessionBundle = {
 }
 
 export type OAuthTokenSessionBundle = {
-    type: 'oauthToken',
+    type: 'oAuthToken',
     value: string;
 }
 
@@ -66,7 +67,7 @@ export type TikTokLiveConnectionOptions = TikTokLiveConnectionProviderOptions & 
     webClientOptions?: WebcastGotHttpConfig;
     wsClientOptions?: WsWebSocketConfig;
 
-    webConfigOverrides?: Partial<WebcastWebSocketConfigDefaults>;
+    webConfigOverrides?: Partial<WebcastWebConfigDefaults>;
     wsConfigOverrides?: Partial<WebcastWebSocketConfigDefaults>;
 }
 
@@ -78,7 +79,7 @@ export type TikTokLiveConstructorConnectionOptions =
 export type TikTokLiveConnectionMutableOptions = Pick<
     TikTokLiveConnectionOptions,
     'processInitialData' | 'fetchRoomInfoOnConnect' | 'enableExtendedGiftInfo' | 'authenticateWs' | 'useMobile'
-> & { oAuthSession?: OAuthTokenSessionBundle };
+>;
 
 export type RoomInfo = Record<string, any> & { data: { status: number } }
 export type RoomGiftInfo = any;

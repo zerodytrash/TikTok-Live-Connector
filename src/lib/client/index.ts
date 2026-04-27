@@ -89,7 +89,6 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
             processInitialData: options.processInitialData ?? true,
             fetchRoomInfoOnConnect: options.fetchRoomInfoOnConnect ?? true,
             enableExtendedGiftInfo: options.enableExtendedGiftInfo ?? false,
-            oAuthSession: options.session?.oAuthToken,
             authenticateWs: options.authenticateWs,
             useMobile: options.useMobile
         };

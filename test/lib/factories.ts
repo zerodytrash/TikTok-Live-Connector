@@ -19,7 +19,7 @@ export function createCookieSessionBundle(
 
 export function createOAuthTokenSessionBundle(value: string = 'oauth-token'): OAuthTokenSessionBundle {
     return {
-        type: 'oauthToken',
+        type: 'oAuthToken',
         value
     };
 }
