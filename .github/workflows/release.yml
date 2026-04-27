@@ -89,21 +89,35 @@ jobs:
                 run: pnpm run build
 
             -   name: Publish to npm
+                # Publish from the project root so npm packages `dist/` (per `files`),
+                # plus the root README.md and LICENSE that npm always auto-includes.
+                # Publishing from `dist/` makes npm follow the copied package.json's
+                # `files: ["dist"]` to a non-existent `dist/dist/` and ship an empty tarball.
                 run: npm publish --provenance --access public --tag "${{ steps.version.outputs.tag }}"
-                working-directory: dist
 
             -   name: Commit release
                 run: |
                     git config user.name "github-actions[bot]"
                     git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-                    git add package.json pnpm-lock.yaml src/version.ts
-                    git commit -m "chore: release tiktok-live-connector v${{ steps.version.outputs.version }} [skip ci]"
-                    git push
+                    git add package.json package-lock.json pnpm-lock.yaml src/version.ts 2>/dev/null || true
+                    if git diff --cached --quiet; then
+                      echo "No release-related changes to commit (version already at ${{ steps.version.outputs.version }})"
+                    else
+                      git commit -m "chore: release tiktok-live-connector v${{ steps.version.outputs.version }} [skip ci]"
+                      git push
+                    fi
 
             -   name: Create git tag
                 run: |
-                    git tag "v${{ steps.version.outputs.version }}"
-                    git push origin "v${{ steps.version.outputs.version }}"
+                    TAG="v${{ steps.version.outputs.version }}"
+                    if git rev-parse --verify --quiet "refs/tags/$TAG" >/dev/null; then
+                      echo "Local tag $TAG already exists, skipping tag creation"
+                    elif git ls-remote --exit-code --tags origin "$TAG" >/dev/null 2>&1; then
+                      echo "Remote tag $TAG already exists on origin, skipping push"
+                    else
+                      git tag "$TAG"
+                      git push origin "$TAG"
+                    fi
 
             -   name: Summary
                 run: echo "### Published tiktok-live-connector@${{ steps.version.outputs.version }} under dist-tag \`${{ steps.version.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
