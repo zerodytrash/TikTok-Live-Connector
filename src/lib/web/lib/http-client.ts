@@ -1,61 +1,92 @@
-import axios, { AxiosInstance } from 'axios';
-import { deserializeMessage } from '@/lib/utilities';
-import CookieJar from '@/lib/web/lib/cookie-jar';
-import { WebcastHttpClientConfig, WebcastHttpClientRequestParams, WebcastMessage } from '@/types/client';
-import Config from '@/lib/config';
-import { SignTikTokUrlBodyMethodEnum } from '@eulerstream/euler-api-sdk/dist/sdk/api';
-import { EulerSigner } from '@/lib';
+import got, { Got, Method } from 'got';
+import { deserializeMessage } from '@/lib/ws/lib/proto-utils';
+import WebcastCookieJar from '@/lib/web/lib/cookie-jar';
+import { OAuthTokenSessionBundle, WebcastHttpClientRequestParams, WebcastMessage } from '@/types/client';
+import { WebcastWebConfigDefaults } from '@/lib/web/defaults';
+import { RouteConfig } from '@/lib/web/config';
+import { isIP } from 'node:net';
+import EulerStreamApiClient, {
+    SignTikTokUrlBodyMethodEnum,
+    SignWebcastUrl200Response
+} from '@eulerstream/euler-api-sdk';
+import { createEulerClient } from '@/lib/web/routes/euler/config';
+import { WebcastGotHttpConfig } from '@/types/web';
 
 
 export default class WebcastHttpClient {
 
-    // HTTP Request Client
-    public readonly axiosInstance: AxiosInstance;
+    // Public access state
+    public oAuthSessionBundle: OAuthTokenSessionBundle | null = null;
 
-    // External Cookie Jar
-    public readonly cookieJar: CookieJar;
+    // HTTP Client Instance, protected to hint that you should be careful when accessing this
+    protected readonly _gotInstance: Got;
+    protected readonly _eulerApiInstance: EulerStreamApiClient;
+    protected readonly _webcastWebConfig: WebcastWebConfigDefaults;
 
-    // Internal Client Parameter Store
-    public clientParams: Record<string, string>;
+    // Publicly accessible options
+    public readonly clientParams: Record<string, string>;
+    public readonly clientHeaders: Record<string, string>;
+    public readonly cookieJar: WebcastCookieJar;
 
+
+    /**
+     * Instantiate a Webcast HTTP Client
+     *
+     * @param webcastWebConfig Randomized config for Webcast requests
+     * @param eulerApiInstance Rarely needed override for the cached & lazy-loaded API client
+     * @param gotHttpConfig Rarely needed override for the Got HTTP library configuration
+     */
     constructor(
-        public readonly configuration: WebcastHttpClientConfig = {
-            customHeaders: {},
-            axiosOptions: {},
-            clientParams: {},
-            authenticateWs: false,
-            signApiKey: undefined,
-            oauthToken: undefined
-        },
-        // Important: This gets merged with SignConfig, so only provide an "apiKey" key if non-null
-        public readonly webSigner: EulerSigner = new EulerSigner(configuration.signApiKey ? { apiKey: configuration.signApiKey } : {})
+        webcastWebConfig: WebcastWebConfigDefaults,
+        eulerApiInstance?: EulerStreamApiClient,
+        gotHttpConfig?: WebcastGotHttpConfig
     ) {
 
-        this.axiosInstance = axios.create({
-            timeout: parseInt(process.env.TIKTOK_CLIENT_TIMEOUT || '10000'),
-            headers: { ...Config.DEFAULT_HTTP_CLIENT_HEADERS, ...this.configuration.customHeaders },
-            ...this.configuration.axiosOptions
+        // Pull anything we manage ourselves out of the got config so it doesn't end up frozen on got's defaults.
+        const { headers: userHeaders, searchParams: userSearchParams, timeout, ...gotOptions } = gotHttpConfig || {};
+
+        // Merge headers & params
+        const cleanWebcastConfig = structuredClone(webcastWebConfig);
+        cleanWebcastConfig.DEFAULT_HTTP_CLIENT_PARAMS = { ...cleanWebcastConfig.DEFAULT_HTTP_CLIENT_PARAMS, ...userSearchParams };
+        cleanWebcastConfig.DEFAULT_HTTP_CLIENT_HEADERS = { ...cleanWebcastConfig.DEFAULT_HTTP_CLIENT_HEADERS, ...userHeaders };
+
+        // Assign internally managed objects
+        this.clientParams = cleanWebcastConfig.DEFAULT_HTTP_CLIENT_PARAMS;
+        this.clientHeaders = cleanWebcastConfig.DEFAULT_HTTP_CLIENT_HEADERS;
+        this.cookieJar = new WebcastCookieJar(webcastWebConfig);
+        this._eulerApiInstance = eulerApiInstance ?? createEulerClient();
+        this._webcastWebConfig = cleanWebcastConfig;
+
+        // Got instance: transport only. NO headers, NO searchParams in the defaults — those live on `this`.
+        this._gotInstance = got.extend({
+
+            // Base timeout, can be overridden
+            timeout: {
+                request: parseInt(process.env.TIKTOK_CLIENT_TIMEOUT || '10000')
+            },
+
+            // Generic options
+            ...gotOptions,
+
+            // Explicitly set as we handle this within the client itself
+            // Must never be overridden
+            searchParams: undefined,
+            headers: undefined,
+            cookieJar: this.cookieJar
         });
-
-        this.clientParams = {
-            ...Config.DEFAULT_HTTP_CLIENT_PARAMS,
-            ...this.configuration.clientParams
-        };
-
-        // Create the cookie jar
-        this.cookieJar = new CookieJar(this.axiosInstance);
-
-        // Process the cookie header
-        if (!!this.configuration.customHeaders?.Cookie) {
-            const cookieHeader = this.configuration.customHeaders.Cookie;
-            delete this.configuration.customHeaders['Cookie'];
-            cookieHeader.split('; ').forEach((v: string) => this.cookieJar.processSetCookieHeader(v));
-        }
 
     }
 
     /**
+     * Get an instance of the underlying API Client
+     */
+    public get apiClient(): EulerStreamApiClient {
+        return this._eulerApiInstance;
+    }
+
+    /**
      * Set the Room ID for the client
+     *
      * @param roomId The client's Room ID
      */
     public set roomId(roomId: string) {
@@ -74,18 +105,18 @@ export default class WebcastHttpClient {
      *
      * @param host The host for the request
      * @param path The path for the request
-     * @param params The query parameters for the request
+     * @param searchParams The query parameters for the request
      * @param signRequest Whether to sign the request or not
      * @param method The HTTP method for the request
      * @param headers The headers for the request
-     * @param extraOptions Additional axios request options
+     * @param extraOptions Additional got request options
      * @protected
      */
     public async request(
         {
             host,
             path,
-            params,
+            searchParams,
             signRequest,
             method = 'GET',
             headers,
@@ -93,38 +124,40 @@ export default class WebcastHttpClient {
         }: WebcastHttpClientRequestParams
     ) {
 
-        // Build the initial URL
-        let secure = !(host.startsWith('127.0.0.1') || host.startsWith('localhost') || host.startsWith('::1'));
-        let url: string = `http${secure ? 's' : ''}://${host}/${path}?${new URLSearchParams(params || {})}`;
+        // Merge live state from the client into per-call options. Per-call values win on key collision.
+        const mergedHeaders: Record<string, string> = { ...this.clientHeaders, ...headers };
+        const mergedParams: Record<string, string> = { ...this.clientParams, ...searchParams };
 
-        // Sign the request. Assumption is if it doesn't throw, it worked.
+        let url: string = `${this.getBaseUrl(host)}/${path}?${new URLSearchParams(mergedParams)}`;
+
+        // Sign the HTTP Request
         if (signRequest) {
-            const signMethod = Object.values(SignTikTokUrlBodyMethodEnum).includes(method.toUpperCase() as SignTikTokUrlBodyMethodEnum);
-            if (!signMethod) {
-                throw new Error(`Invalid method for signing: ${method}. Must be one of ${Object.values(SignTikTokUrlBodyMethodEnum).join(', ')}`);
-            }
-
-            const signResponse = await this.webSigner.webcastSign(
-                url,
-                method.toUpperCase() as SignTikTokUrlBodyMethodEnum,
-                this.axiosInstance.defaults.headers['User-Agent'] as string,
-                this.cookieJar.sessionId,
-                this.cookieJar.ttTargetIdc
+            let signResponse: SignWebcastUrl200Response = await RouteConfig.fetchWebcastSignatureFromProvider(
+                {
+                    url,
+                    method: method.toString().toUpperCase() as SignTikTokUrlBodyMethodEnum,
+                    userAgent: mergedHeaders['User-Agent'] as string,
+                    webClient: this,
+                    apiClient: this._eulerApiInstance
+                }
             );
 
-            url = signResponse.response.signedUrl;
+            // Honour the signature
+            if (signResponse.response?.signedUrl) {
+                url = signResponse.response.signedUrl;
+                if (signResponse.response.userAgent) {
+                    mergedHeaders['User-Agent'] = signResponse.response.userAgent;
+                }
+            }
 
-            headers ||= {};
-            headers['User-Agent'] = signResponse.response.userAgent;
         }
 
-
         // Execute the request
-        return this.axiosInstance.request(
+        return this._gotInstance(
+            url,
             {
-                url: url,
-                headers: headers ?? undefined,
-                method: method,
+                headers: mergedHeaders,
+                method: method as Method,
                 ...extraOptions
             }
         );
@@ -144,7 +177,7 @@ export default class WebcastHttpClient {
 
         const fetchResponse = await this.request(
             {
-                host: Config.TIKTOK_HOST_WEB,
+                host: this._webcastWebConfig.TIKTOK_HOST_WEB,
                 path: path,
                 responseType: 'text',
                 signRequest: false,
@@ -152,7 +185,7 @@ export default class WebcastHttpClient {
             }
         );
 
-        return fetchResponse.data;
+        return fetchResponse.body as unknown as string;
     }
 
     /**
@@ -166,23 +199,23 @@ export default class WebcastHttpClient {
      */
     public async getDeserializedObjectFromWebcastApi<T extends keyof WebcastMessage>(
         path: string,
-        params: Record<string, any>,
+        params: Record<string, string>,
         schemaName: T,
         signRequest: boolean = false,
         options: Partial<WebcastHttpClientRequestParams> = {}
     ) {
         const fetchResponse = await this.request(
             {
-                host: Config.TIKTOK_HOST_WEBCAST,
+                host: this._webcastWebConfig.TIKTOK_HOST_WEBCAST,
                 path: 'webcast/' + path,
-                params: params,
+                searchParams: params,
                 signRequest: signRequest,
-                responseType: 'arraybuffer',
+                responseType: 'buffer',
                 ...options
             }
         );
 
-        return deserializeMessage(schemaName, fetchResponse.data);
+        return deserializeMessage(schemaName, fetchResponse.body as unknown as Buffer);
     }
 
     public async postJsonObjectToWebcastApi<T extends Record<string, any>>(
@@ -198,10 +231,10 @@ export default class WebcastHttpClient {
 
         const fetchResponse = await this.request(
             {
-                host: Config.TIKTOK_HOST_WEBCAST,
+                host: this._webcastWebConfig.TIKTOK_HOST_WEBCAST,
                 path: 'webcast/' + path,
-                data: data,
-                params: params,
+                body: JSON.stringify(data),
+                searchParams: params,
                 responseType: 'json',
                 signRequest: signRequest,
                 method: 'POST',
@@ -209,7 +242,7 @@ export default class WebcastHttpClient {
             }
         );
 
-        return fetchResponse.data;
+        return fetchResponse.body as unknown as T;
     }
 
     /**
@@ -231,9 +264,9 @@ export default class WebcastHttpClient {
 
         const fetchResponse = await this.request(
             {
-                host: Config.TIKTOK_HOST_WEBCAST,
+                host: this._webcastWebConfig.TIKTOK_HOST_WEBCAST,
                 path: 'webcast/' + path,
-                params: params,
+                searchParams: params,
                 responseType: 'json',
                 signRequest: signRequest,
                 headers: {
@@ -243,7 +276,7 @@ export default class WebcastHttpClient {
             }
         );
 
-        return fetchResponse.data;
+        return fetchResponse.body as unknown as T;
     }
 
     /**
@@ -263,17 +296,46 @@ export default class WebcastHttpClient {
 
         const fetchResponse = await this.request(
             {
-                host: Config.TIKTOK_HOST_WEB,
+                host: this._webcastWebConfig.TIKTOK_HOST_WEB,
                 path: path,
-                params: params,
+                searchParams: params,
                 responseType: 'json',
                 signRequest: signRequest,
                 ...options
             }
         );
 
-        return fetchResponse.data;
+        return fetchResponse.body as unknown as T;
+    }
+
+    /**
+     * Determine if a host is secure
+     *
+     * @param host The host to check
+     * @protected
+     */
+    protected isSecure(host: string): boolean {
+        const { hostname } = new URL(host.includes('://') ? host : `http://${host}`);
+
+        return (
+            hostname === 'localhost' ||
+            hostname === '[::1]' || // IPv6 loopback
+            hostname === '::1' ||
+            (isIP(hostname) === 4 && hostname.startsWith('127.')) // IPv4 loopback range
+        );
+    }
+
+    /**
+     * Get the base URL from a host, no trailing slash
+     *
+     * @param host The host to get a base URL for
+     * @protected
+     */
+    protected getBaseUrl(host: string): string {
+        return `http${this.isSecure(host) ? 's' : ''}://${host}`;
     }
 
 }
+
+
 

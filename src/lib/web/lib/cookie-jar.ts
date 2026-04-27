@@ -1,223 +1,178 @@
-import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import Config from '@/lib/config';
+import { CookieSessionBundle } from '@/types';
+import { WebcastWebConfigDefaults } from '@/lib/web/defaults';
+import { AbstractWebcastCookieJar } from '@/types/web';
+
 
 /**
- * Custom cookie jar for axios
- * Because axios-cookiejar-support does not work as expected when using proxy agents
+ * Custom cookie jar for got
+ *
+ * Exposes `beforeRequest` / `afterResponse` hooks that the HTTP client wires into `got.extend(...)`,
+ * mirroring the axios interceptor model from before the migration.
+ *
  * https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector/issues/18
  */
-export default class CookieJar {
+export default class WebcastCookieJar implements AbstractWebcastCookieJar {
+
+    /**
+     * The internal cookie store, a simple key-value object. The keys are cookie names, the values are cookie values.
+     */
+    public readonly store: Record<string, string>;
 
     /**
      * Constructor
      *
-     * @param axiosInstance The axios instance to attach the cookie jar to
-     * @param cookies The initial cookies to set
+     * @param webConfig The current web config for the HTTP client
      */
     constructor(
-        public readonly axiosInstance: AxiosInstance,
-        public readonly cookies: Record<string, string> = Config.DEFAULT_HTTP_CLIENT_COOKIES
+        public readonly webConfig: WebcastWebConfigDefaults
     ) {
-        // Intercept responses to store cookies
-        this.axiosInstance.interceptors.response.use((response) => {
-            this.readCookies(response);
-            return response;
-        });
 
-        // Intercept request to append cookies
-        this.axiosInstance.interceptors.request.use((request) => {
-            this.appendCookies(request);
-            return request;
-        });
-
-        // Return a proxy object to allow direct access to cookies
-        return new Proxy(
-            this,
-            {
-                get(target: CookieJar, p: string): any {
-                    if (p in target) {
-                        return target[p];
-                    } else {
-                        return target.cookies[p];
-                    }
-                },
-                set(target: CookieJar, p: string, value: any): boolean {
-                    if (value === null) {
-                        // Delete the cookie if the value is null
-                        delete target.cookies[p];
-                        return true;
-                    }
-
-                    if (p in target) {
-                        target[p] = value;
-                    } else {
-                        target.cookies[p] = value;
-                    }
-                    return true;
-                },
-                deleteProperty(target: CookieJar, p: string): boolean {
-                    delete target.cookies[p];
-                    return true;
-                }
-            }
-        );
+        // Initialize the store based on default Cookie header
+        this.store = WebcastCookieJar.parseCookies(webConfig.DEFAULT_HTTP_CLIENT_HEADERS.Cookie);
     }
 
     /**
      * Set the session ID and tt-target-idc
      *
-     * @param sessionId The session ID to set
-     * @param ttTargetIdc The tt-target-idc to set
+     * @param session The session bundle containing the session ID and tt-target-idc
      */
-    public setSession(sessionId: string | null, ttTargetIdc: string | null) {
+    public async setSessionBundle(session: CookieSessionBundle): Promise<void> {
 
-        if (sessionId && !ttTargetIdc) {
-            throw new Error('tt-target-idc is required when sessionId is set');
+        if (session.type !== 'cookie') {
+            throw new TypeError('Invalid session bundle type. Expected \'cookie\'.');
         }
 
-        // (1) Set the sid
-        this.cookies['sessionid'] = sessionId;
-        this.cookies['sessionid_ss'] = sessionId;
-        this.cookies['sid_tt'] = sessionId;
-        this.cookies['sid_guard'] = sessionId;
-
-        // (2) Set the IDC, basically, the account region. Must match the account's sid.
-        this.cookies['tt-target-idc'] = ttTargetIdc;
+        // Update session values
+        this.webConfig.SESSION_COOKIE_NAMES.forEach((cookie) => this.store[cookie] = session.value.sessionId);
+        this.store[this.webConfig.TARGET_IDC_COOKIE_NAME] = session.value.ttTargetIdc;
     }
 
     /**
-     * Get the tt-target-idc cookie
+     * Get the session bundle containing the session ID and tt-target-idc
+     *
      */
-    public get ttTargetIdc(): string | null {
-        return this.cookies['tt-target-idc'] || null;
-    }
+    public async getSessionBundle(): Promise<CookieSessionBundle | null> {
+        let ttTargetIdc: string | null = this.store[this.webConfig.TARGET_IDC_COOKIE_NAME] || null;
+        let sessionId: string | null = null;
 
-    /**
-     * Get the session ID
-     */
-    public get sessionId(): string | null {
-        return this.cookies['sessionid'] || this.cookies['sessionid_ss'] || this.cookies['sid_tt'] || this.cookies['sid_guard'] || null;
-    }
-
-    /**
-     * Build a session cookie header string for API requests
-     * @param sessionId The session ID (uses stored value if not provided)
-     * @param ttTargetIdc The target IDC (uses stored value if not provided)
-     * @returns Cookie header string or undefined if no session
-     */
-    public buildSessionCookieHeader(sessionId?: string | null, ttTargetIdc?: string | null): string | undefined {
-        const resolvedSessionId = sessionId ?? this.sessionId;
-        const resolvedTtTargetIdc = ttTargetIdc ?? this.ttTargetIdc;
-
-        if (!resolvedSessionId) return undefined;
-
-        const cookies: string[] = [
-            `sessionid=${resolvedSessionId}`,
-            `sessionid_ss=${resolvedSessionId}`,
-            `sid_tt=${resolvedSessionId}`,
-        ];
-
-        if (resolvedTtTargetIdc) {
-            cookies.push(`tt-target-idc=${resolvedTtTargetIdc}`);
+        // Extract sessionid from the multiple possible cookie names
+        for (const cookieName of this.webConfig.SESSION_COOKIE_NAMES) {
+            if (this.store[cookieName]) {
+                sessionId = this.store[cookieName];
+                break;
+            }
         }
 
-        return cookies.join('; ');
+        // Only return a session bundle if we have both tt-target-idc and a sessionid
+        if (ttTargetIdc && sessionId) {
+            return {
+                type: 'cookie',
+                value: {
+                    ttTargetIdc,
+                    sessionId
+                }
+            };
+        }
+
+        return null;
     }
 
     /**
-     * Read cookies from response headers
-     * @param response The axios response
+     * Process a single set-cookie header
+     *
+     * @param setCookieHeader The set-cookie header
      */
-    public readCookies(response: AxiosResponse) {
-        const setCookieHeaders = response.headers['set-cookie'];
-        if (Array.isArray(setCookieHeaders)) {
-            // Multiple set-cookie headers
-            setCookieHeaders.forEach((setCookieHeader) => this.processSetCookieHeader(setCookieHeader));
-        } else if (typeof setCookieHeaders === 'string') {
-            // Single set-cookie header
-            this.processSetCookieHeader(setCookieHeaders);
+    public async processSetCookieHeader(setCookieHeader: unknown): Promise<void> {
+
+        if (typeof setCookieHeader === 'string') {
+            const nameValuePart = setCookieHeader.split(';')[0];
+            const parts = nameValuePart.split('=');
+            const cookieName = parts.shift();
+            const cookieValue = parts.join('=');
+
+            if (typeof cookieName === 'string' && cookieName !== '') {
+                this.store[decodeURIComponent(cookieName)] = decodeURIComponent(cookieValue);
+            }
         }
+
     }
 
     /**
-     * Append cookies to request headers
-     * @param request The axios request
+     * We ignore the URL parameter because TikTok's cookies are not scoped by path or domain - any cookie we set should be sent with every request to TikTok regardless of URL
+     *
+     * @param __url Ignored
      */
-    public appendCookies(request: AxiosRequestConfig) {
-        // We use the capitalized 'Cookie' header, because every browser does that
-        if (request.headers['cookie']) {
-            request.headers['Cookie'] = request.headers['cookie'];
-            delete request.headers['cookie'];
-        }
-
-        // Cookies already set by custom headers? => Append
-        const headerCookie = request.headers['Cookie'];
-        if (typeof headerCookie === 'string') {
-            Object.assign(this.cookies, this.parseCookie(headerCookie), this.cookies);
-        }
-
-        request.headers['Cookie'] = this.getCookieString();
+    async getCookieString(__url: string = ''): Promise<string> {
+        return WebcastCookieJar.serializeCookieObject(this.store);
     }
 
     /**
-     * Parse cookie string
-     * @param str The cookie string
+     * Set cookie string - we ignore the URL parameter for the same reason as in getCookieString
+     * @param rawCookie The raw cookie string from the set-cookie header
+     * @param __url The URL the cookie is associated with (ignored)
      */
-    public parseCookie(str: string): Record<string, string> {
+    async setCookie(rawCookie: string, __url: string = ''): Promise<void> {
+        if (!rawCookie) return;
+        await this.processSetCookieHeader(rawCookie);
+    }
+
+    /**
+     * Serialize a cookie object into a cookie header string. For example, { sessionid: 'abc', tt-target-idc: 'def' } becomes 'sessionid=abc; tt-target-idc=def'
+     *
+     * @param cookies The cookie object to serialize
+     */
+    private static serializeCookieObject(cookies: Record<string, string>): string {
+        return Object.entries(cookies)
+            .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+            .join('; ');
+    }
+
+
+    /**
+     * Serialize a CookieSessionBundle into a Record of cookie name to cookie value, based on the provided web config. This is used to set the initial cookies in the cookie jar when creating a new session.
+     *
+     * @param config The web config containing the cookie names to use for the session ID and tt-target-idc
+     * @param session The session bundle containing the session ID and tt-target-idc to serialize
+     *
+     */
+    public static serializeCookieSessionBundle(config: WebcastWebConfigDefaults, session: CookieSessionBundle): string {
+        const cookies: Record<string, string> = {};
+
+        // Set session ID cookies
+        config.SESSION_COOKIE_NAMES.forEach((cookieName) => {
+            cookies[cookieName] = session.value.sessionId;
+        });
+
+        // Set tt-target-idc cookie
+        cookies[config.TARGET_IDC_COOKIE_NAME] = session.value.ttTargetIdc;
+
+        // Serialize into a cookie header string
+        return WebcastCookieJar.serializeCookieObject(cookies);
+    }
+
+    /**
+     * Parse a cookie header string into a Record of cookie name to cookie value. For example, 'sessionid=abc; tt-target-idc=def' becomes { sessionid: 'abc', tt-target-idc: 'def' }
+     *
+     * @param str
+     */
+    private static parseCookies(str: string): Record<string, string> {
         const cookies: Record<string, string> = {};
         if (!str) return cookies;
 
         str.split('; ').forEach((v) => {
             if (!v) return;
             const parts = String(v).split('=');
-            const cookieName = decodeURIComponent(parts.shift());
+            const cookieName = decodeURIComponent(parts.shift() || '');
             cookies[cookieName] = parts.join('=');
         });
 
         return cookies;
     }
 
-    /**
-     * Process a single set-cookie header
-     * @param setCookieHeader The set-cookie header
-     */
-    public processSetCookieHeader(setCookieHeader: string): void {
-        const nameValuePart = setCookieHeader.split(';')[0];
-        const parts = nameValuePart.split('=');
-        const cookieName = parts.shift();
-        const cookieValue = parts.join('=');
-
-        if (typeof cookieName === 'string' && cookieName !== '' && typeof cookieValue === 'string') {
-            this.cookies[decodeURIComponent(cookieName)] = cookieValue;
-        }
-    }
-
-    /**
-     * Get the cookie string
-     * @param headers Optional existing headers to merge with
-     */
-    public getCookieString(headers?: Record<string, string>): string {
-        // Start with the current cookies in the jar
-        let cookies: Record<string, string> = { ...this.cookies };
-
-        // If a header was passed in, parse it and merge (existing header cookies overwritten by jar cookies)
-        const cookieHeader = headers?.['Cookie'] || headers?.['cookie'];
-        if (cookieHeader) {
-            const parsedHeaderCookies = this.parseCookie(cookieHeader);
-            // Merge: header first, then overwrite with current cookies
-            cookies = { ...parsedHeaderCookies, ...cookies };
-        }
-
-        // Convert merged cookies into a single header string
-        const cookieParams: string[] = [];
-        for (const [cookieName, cookieValue] of Object.entries(cookies)) {
-            if (!cookieValue) continue;
-            cookieParams.push(`${cookieName}=${cookieValue}`);
-        }
-
-        return cookieParams.join('; ');
-    }
-
 
 }
+
+
+
+
 

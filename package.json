@@ -5,6 +5,17 @@
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
     "type": "module",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "default": "./dist/index.js"
+        },
+        "./legacy": {
+            "types": "./dist/legacy.d.ts",
+            "default": "./dist/legacy.js"
+        },
+        "./package.json": "./package.json"
+    },
     "files": [
         "dist"
     ],
@@ -14,7 +25,12 @@
     "scripts": {
         "build": "tsdown && npm run build:copy-package",
         "build:copy-package": "cpx package.json dist && cpx LICENSE dist",
-        "typecheck": "tsc --noEmit"
+        "typecheck": "tsc --noEmit",
+        "typecheck:test": "tsc -p tsconfig.test.json --noEmit",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:routes": "vitest run test/routes",
+        "test:routes:watch": "vitest test/routes"
     },
     "repository": {
         "type": "git",
@@ -49,11 +65,10 @@
     "homepage": "https://github.com/zerodytrash/TikTok-Live-Connector#readme",
     "dependencies": {
         "@bufbuild/protobuf": "^2.2.5",
-        "@eulerstream/euler-api-sdk": "0.2.0-beta1",
-        "axios": "^1.15.0",
-        "callable-instance": "^2.0.0",
-        "protobufjs": "^6.11.2",
-        "tiktok-live-proto": "^0.1.0",
+        "@eulerstream/euler-api-sdk": "0.3.0",
+        "got": "^15.0.3",
+        "hpagent": "^1.2.0",
+        "tiktok-live-proto": "0.1.1",
         "typed-emitter": "^2.1.0",
         "ws": "^8.18.2"
     },
@@ -63,11 +78,13 @@
         "@babel/preset-env": "^7.16.11",
         "@types/node": "^22.15.3",
         "@types/ws": "^8.18.1",
+        "axios": "^1.15.2",
         "cpx": "^1.5.0",
         "cycletls": "^2.0.5",
         "dotenv": "^16.5.0",
-        "https-proxy-agent": "^7.0.6",
         "prettier": "2.5.1",
+        "vite-tsconfig-paths": "^5.1.4",
+        "vitest": "^3.2.4",
         "ts-proto": "^2.6.1",
         "tsdown": "^0.21.0",
         "typescript": "^5.6.0"
