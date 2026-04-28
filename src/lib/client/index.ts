@@ -160,6 +160,7 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
     protected setDisconnected() {
         this._connectState = ConnectState.DISCONNECTED;
         this._roomInfo = null;
+        this._availableGifts = null;
 
         // Reset the client parameters
         this.clientParams.cursor = '';
@@ -363,7 +364,14 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
         }
 
         await new Promise<void>((resolve) => {
-            wsClient.once('close', () => resolve());
+            const onClose = () => {
+                clearTimeout(forceTerminate);
+                resolve();
+            };
+            const forceTerminate = setTimeout(() => {
+                wsClient.terminate();
+            }, parseInt(process.env.WS_DISCONNECT_TIMEOUT_MS || '2000'));
+            wsClient.once('close', onClose);
             wsClient.close();
         });
     }
@@ -508,6 +516,7 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
 
                 wsClient.removeListener('open', onConnectOpen);
                 wsClient.removeListener('error', onConnectError);
+                wsClient.removeListener('close', onConnectClose);
 
                 // Start piping errors to the error handler
                 // Resolve successfully
