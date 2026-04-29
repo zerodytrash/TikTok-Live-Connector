@@ -89,15 +89,23 @@ export class WebcastPushConnection extends (TikTokLiveConnection as unknown as W
                     case 'WebcastEmoteChatMessage':
                         this.emit(WebcastEvent.EMOTE, simplifiedObj);
                         break;
-                    case 'WebcastBarrageMessage':
+                    case 'WebcastBarrageMessage': {
                         this.emit(WebcastEvent.BARRAGE, simplifiedObj);
-                        if (
-                            simplifiedObj.content?.displayType?.toLowerCase()?.includes('ttlive_superfan')
-                            || simplifiedObj.displayType?.toLowerCase()?.includes('ttlive_superfan')
-                        ) {
+                        const displayTypes = [
+                            simplifiedObj.content?.displayType,
+                            simplifiedObj.commonBarrageContent?.displayType,
+                            simplifiedObj.displayType
+                        ]
+                            .filter((v: unknown): v is string => typeof v === 'string' && v.length > 0)
+                            .map((v: string) => v.toLowerCase());
+
+                        if (displayTypes.some((v) => v.includes('ttlive_superfan_commentnotif_superfanjoined'))) {
+                            this.emit(WebcastEvent.SUPER_FAN_JOIN, simplifiedObj);
+                        } else if (displayTypes.some((v) => v.includes('ttlive_superfan'))) {
                             this.emit(WebcastEvent.SUPER_FAN, simplifiedObj);
                         }
                         break;
+                    }
                     case 'WebcastEnvelopeMessage':
                         this.emit(WebcastEvent.ENVELOPE, simplifiedObj);
                         if (

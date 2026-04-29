@@ -631,12 +631,19 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
                 }
 
                 return this.emit(WebcastEvent.GIFT, data);
-            case 'WebcastBarrageMessage':
-                if (data.content?.displayType?.toLowerCase().includes('ttlive_superfan')) {
+            case 'WebcastBarrageMessage': {
+                const displayTypes = [data.content?.displayType, data.commonBarrageContent?.displayType]
+                    .filter((v): v is string => typeof v === 'string' && v.length > 0)
+                    .map((v) => v.toLowerCase());
+
+                if (displayTypes.some((v) => v.includes('ttlive_superfan_commentnotif_superfanjoined'))) {
+                    this.emit(WebcastEvent.SUPER_FAN_JOIN, data);
+                } else if (displayTypes.some((v) => v.includes('ttlive_superfan'))) {
                     this.emit(WebcastEvent.SUPER_FAN, data);
                 }
 
                 return this.emit(WebcastEvent.BARRAGE, data);
+            }
             case 'WebcastEnvelopeMessage':
                 if (
                     data.common?.displayText?.displayType?.toLowerCase().includes('ttlive_superfanbox')
