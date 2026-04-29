@@ -19,6 +19,7 @@ function hasProtoName(protoName: string): boolean {
 
 export const WebcastDeserializeConfig: IWebcastDeserializeConfig = {
     skipMessageTypes: [],
+    includeMessageTypes: null,
     showBase64OnDecodeError: true
 };
 
@@ -46,8 +47,16 @@ export function deserializeMessage<T extends keyof WebcastMessage>(
     // Handle ProtoMessageFetchResult nested messages
     if (protoName === 'ProtoMessageFetchResult') {
         for (const message of (deserializedMessage as ProtoMessageFetchResult).messages || []) {
-            if (WebcastDeserializeConfig.skipMessageTypes.includes(message.type as keyof WebcastEventMessage)) {
-                continue;
+
+            // Filter messages based on includeMessageTypes and skipMessageTypes config. includeMessageTypes takes precedence over skipMessageTypes
+            if (WebcastDeserializeConfig.includeMessageTypes === null) {
+                if (WebcastDeserializeConfig.skipMessageTypes?.includes(message.type as keyof WebcastEventMessage)) {
+                    continue;
+                }
+            } else {
+                if (!WebcastDeserializeConfig.includeMessageTypes.includes(message.type as keyof WebcastEventMessage)) {
+                    continue;
+                }
             }
 
             if (!hasProtoName(message.type)) {

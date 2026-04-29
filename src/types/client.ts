@@ -107,14 +107,21 @@ export type WebcastEventMessage = {
 };
 
 
-export interface IWebcastDeserializeConfig {
-    skipMessageTypes: (keyof WebcastEventMessage)[];
+export type IWebcastDeserializeConfig  = {
+    /**
+     * When specified, messages of these types will be skipped during deserialization. This is useful for large messages that you don't need, to save CPU and memory.
+     */
+    skipMessageTypes: (keyof WebcastEventMessage)[] | null;
+
+    /**
+     * When specified, only messages of these types will be deserialized. skipMessageTypes will be ignored if this is set.
+     */
+    includeMessageTypes: (keyof WebcastEventMessage)[] | null;
+
+    /**
+     * Show the base64-encoded original message in the error message when deserialization fails. This can be useful for debugging and for creating issues with the original message data.
+     */
     showBase64OnDecodeError: boolean;
-}
-
-
-export interface IWebcastDeserializeConfig {
-    skipMessageTypes: (keyof WebcastEventMessage)[];
 }
 
 
