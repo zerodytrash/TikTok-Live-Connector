@@ -2,12 +2,15 @@ type ErrorHandler = { handleError: (err: Error, info: string) => void };
 
 export function HandleError(errMsg: string, exceptionWrapper?: new (err: Error, ...args: any[]) => Error) {
 
-    return function <This, Args extends any[], Return>(
-        originalMethod: (this: This, ...args: Args) => Return,
-        _context: ClassMethodDecoratorContext<This, (this: This, ...args: Args) => Return>
-    ) {
+    return function (
+        _target: object,
+        _propertyKey: string | symbol,
+        descriptor: PropertyDescriptor
+    ): PropertyDescriptor {
 
-        return function(this: This, ...args: Args): Return {
+        const originalMethod = descriptor.value as (...args: any[]) => any;
+
+        descriptor.value = function (this: ErrorHandler, ...args: any[]) {
             const handle = (err: Error) => {
 
                 // Handle wrapper classes
@@ -15,7 +18,7 @@ export function HandleError(errMsg: string, exceptionWrapper?: new (err: Error, 
                     err = new exceptionWrapper(err, errMsg);
                 }
 
-                (this as This & ErrorHandler).handleError(err, errMsg);
+                this.handleError(err, errMsg);
             };
             try {
                 const result = originalMethod.apply(this, args);
@@ -23,7 +26,7 @@ export function HandleError(errMsg: string, exceptionWrapper?: new (err: Error, 
                     return result.catch((err: Error) => {
                         handle(err);
                         throw err;
-                    }) as Return;
+                    });
                 }
                 return result;
             } catch (err) {
@@ -31,6 +34,8 @@ export function HandleError(errMsg: string, exceptionWrapper?: new (err: Error, 
                 throw err;
             }
         };
+
+        return descriptor;
     };
 }
 

@@ -5,6 +5,7 @@
     "compilerOptions": {
         "allowJs": false,
         "strictNullChecks": true,
+        "experimentalDecorators": true,
         "moduleResolution": "Bundler",
         "module": "ESNext",
         "target": "ES2022",
