@@ -83,14 +83,9 @@ export const fetchSignedWebSocketFromEulerRoute = createRoute<FetchSignedWebSock
             .cookieJar
             .getCookieString() || undefined;
 
-        const xOauthToken: string | undefined = xCookieHeader ? undefined : webClient
-            .oAuthSessionBundle
-            ?.value || undefined;
-
-
-        if (authenticateWs && !xCookieHeader && !xOauthToken) {
+        if (authenticateWs && !xCookieHeader) {
             throw new AuthenticatedWebSocketConnectionError(
-                `authenticate_websocket is true, but no session cookies or OAuth token found.`
+                `authenticate_websocket is true, but no session cookies found.`
             );
         }
 
@@ -105,7 +100,7 @@ export const fetchSignedWebSocketFromEulerRoute = createRoute<FetchSignedWebSock
                 true,
                 country,
                 useMobile ? WebcastFetchPlatform.Mobile : WebcastFetchPlatform.Web,
-                authenticateWs ? xOauthToken : undefined,
+                undefined,
                 authenticateWs ? xCookieHeader : undefined,
                 undefined,
                 undefined,
