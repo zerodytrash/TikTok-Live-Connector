@@ -5,4 +5,4 @@ export * from './route';
 export * from './web';
 export * from './ws';
 
-export * from 'tiktok-live-proto/v2';
+export * from 'tiktok-live-proto/v3';

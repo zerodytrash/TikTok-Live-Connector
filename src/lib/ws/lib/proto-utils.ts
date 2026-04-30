@@ -1,5 +1,5 @@
-import * as tikTokSchema from 'tiktok-live-proto/v2';
-import { MessageFns, ProtoMessageFetchResult, WebcastPushFrame } from 'tiktok-live-proto/v2';
+import * as tikTokSchema from 'tiktok-live-proto/v3';
+import { ProtoMessageFetchResult, WebcastPushFrame } from 'tiktok-live-proto/v3';
 import {
     DecodedWebcastPushFrame,
     IWebcastDeserializeConfig,
@@ -9,7 +9,16 @@ import {
 import * as zlib from 'node:zlib';
 import * as util from 'node:util';
 import { InvalidSchemaNameError, InvalidUniqueIdError, SchemaDecodeError } from '@/types/errors';
-import { base64Encode, BinaryWriter } from '@bufbuild/protobuf/wire';
+import { base64Encode, BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+
+/**
+ * Copy the internal MessageFns over for type introspection
+ */
+interface MessageFns<T> {
+    encode(message: T, writer?: BinaryWriter): BinaryWriter;
+
+    decode(input: BinaryReader | Uint8Array, length?: number): T;
+}
 
 const unzip = util.promisify(zlib.unzip);
 
@@ -50,19 +59,19 @@ export function deserializeMessage<T extends keyof WebcastMessage>(
 
             // Filter messages based on includeMessageTypes and skipMessageTypes config. includeMessageTypes takes precedence over skipMessageTypes
             if (WebcastDeserializeConfig.includeMessageTypes === null) {
-                if (WebcastDeserializeConfig.skipMessageTypes?.includes(message.type as keyof WebcastEventMessage)) {
+                if (WebcastDeserializeConfig.skipMessageTypes?.includes(message.method as keyof WebcastEventMessage)) {
                     continue;
                 }
             } else {
-                if (!WebcastDeserializeConfig.includeMessageTypes.includes(message.type as keyof WebcastEventMessage)) {
+                if (!WebcastDeserializeConfig.includeMessageTypes.includes(message.method as keyof WebcastEventMessage)) {
                     continue;
                 }
             }
 
-            if (!hasProtoName(message.type)) {
+            if (!hasProtoName(message.method)) {
                 if (process.env.DEBUG_DESERIALIZE_XD) {
                     console.log('---------------');
-                    console.log(message.type, base64Encode(Buffer.from(message.payload)));
+                    console.log(message.method, base64Encode(Buffer.from(message.payload)));
                     console.log('---------------');
                 }
                 continue;
@@ -71,8 +80,8 @@ export function deserializeMessage<T extends keyof WebcastMessage>(
             // Try to decode nested message, if it fails, store error in decodeError
             try {
                 message.decodedData = {
-                    type: message.type as keyof WebcastEventMessage,
-                    data: deserializeMessage(message.type as keyof WebcastEventMessage, Buffer.from(message.payload))
+                    type: message.method as keyof WebcastEventMessage,
+                    data: deserializeMessage(message.method as keyof WebcastEventMessage, Buffer.from(message.payload))
                 } as any;
             } catch (ex) {
                 message.decodeError = ex;
@@ -151,7 +160,7 @@ export function createBaseWebcastPushFrame(overrides: Partial<WebcastPushFrame>)
             payload: Buffer.from([]),
             service: undefinedNum,
             method: undefinedNum,
-            headers: {},
+            headers: [],
             ...overrides
         }
     );

@@ -2,7 +2,7 @@ import { BinaryWriter } from '@bufbuild/protobuf/wire';
 import { DecodedWebcastPushFrame } from '@/types/client';
 import { createBaseWebcastPushFrame, deserializeWebSocketMessage } from '@/lib/ws/lib/proto-utils';
 import { ClientOptions as WsWebSocketConfig, WebSocket } from 'ws';
-import { HeartbeatMessage, WebcastImEnterRoomMessage } from 'tiktok-live-proto/v2';
+import { HeartBeatMessage, WebcastImEnterRoomMessage } from 'tiktok-live-proto/v3';
 import { generateUniqId, WebcastWebSocketConfig, WebcastWebSocketConfigDefaults } from '@/lib/ws';
 import { WebcastTypedWebSocket } from '@/types/ws';
 import { WebSocketDynamicParams } from '@/types/web';
@@ -121,7 +121,7 @@ export default class WebcastWebSocketClient extends (WebSocket as WebcastTypedWe
             if (decodedContainer.protoMessageFetchResult) {
 
                 // If it needs an ack, send the ack
-                if (decodedContainer.protoMessageFetchResult.needsAck) {
+                if (decodedContainer.protoMessageFetchResult.needAck) {
                     this.sendAck(decodedContainer);
                 }
 
@@ -145,7 +145,7 @@ export default class WebcastWebSocketClient extends (WebSocket as WebcastTypedWe
     protected sendHeartbeat() {
 
         // Create the heartbeat
-        const hb = HeartbeatMessage.encode(
+        const hb = HeartBeatMessage.encode(
             {
                 roomId: this.webcastWsConfig.roomId,
                 sendPacketSeqId: String(this.seqId)
@@ -160,7 +160,7 @@ export default class WebcastWebSocketClient extends (WebSocket as WebcastTypedWe
                 payload: Buffer.from(hb.finish()),
                 service: undefined,
                 method: undefined,
-                headers: {}
+                headers: []
             }
         );
 

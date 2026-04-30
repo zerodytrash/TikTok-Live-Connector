@@ -352,6 +352,33 @@ connection.on(ControlEvent.CONNECTED, () => console.log("Connected!"));
 - [`WebcastEvent.LINK_LAYER`](#linklayer) or `"linkLayer"`
 - [`WebcastEvent.ROOM_PIN`](#roompin) or `"roomPin"`
 - [`WebcastEvent.SUPER_FAN_BOX`](#superfanbox) or `"superFanBox"`
+- [`WebcastEvent.ACCESS_CONTROL`](#accesscontrol) or `"accessControl"`
+- [`WebcastEvent.ACCESS_RECALL`](#accessrecall) or `"accessRecall"`
+- [`WebcastEvent.BOOST_CARD`](#boostcard) or `"boostCard"`
+- [`WebcastEvent.BOTTOM_MESSAGE`](#bottommessage) or `"bottomMessage"`
+- [`WebcastEvent.CAPSULE`](#capsule) or `"capsule"`
+- [`WebcastEvent.GAME_RANK_NOTIFY`](#gameranknotify) or `"gameRankNotify"`
+- [`WebcastEvent.GIFT_BROADCAST`](#giftbroadcast) or `"giftBroadcast"`
+- [`WebcastEvent.GIFT_DYNAMIC_RESTRICTION`](#giftdynamicrestriction) or `"giftDynamicRestriction"`
+- [`WebcastEvent.GIFT_PANEL_UPDATE`](#giftpanelupdate) or `"giftPanelUpdate"`
+- [`WebcastEvent.GIFT_PROMPT`](#giftprompt) or `"giftPrompt"`
+- [`WebcastEvent.GUIDE`](#guide) or `"guide"`
+- [`WebcastEvent.HOURLY_RANK`](#hourlyrank) or `"hourlyRank"`
+- [`WebcastEvent.LINK_MIC_LAYOUT_STATE`](#linkmiclayoutstate) or `"linkMicLayoutState"`
+- [`WebcastEvent.LINK_STATE`](#linkstate) or `"linkState"`
+- [`WebcastEvent.LIVE_GAME_INTRO`](#livegameintro) or `"liveGameIntro"`
+- [`WebcastEvent.MARQUEE_ANNOUNCEMENT`](#marqueeannouncement) or `"marqueeAnnouncement"`
+- [`WebcastEvent.NOTICE`](#notice) or `"notice"`
+- [`WebcastEvent.PARTNERSHIP_DROPS_UPDATE`](#partnershipdropsupdate) or `"partnershipDropsUpdate"`
+- [`WebcastEvent.PARTNERSHIP_GAME_OFFLINE`](#partnershipgameoffline) or `"partnershipGameOffline"`
+- [`WebcastEvent.PARTNERSHIP_PUNISH`](#partnershippunish) or `"partnershipPunish"`
+- [`WebcastEvent.PERCEPTION`](#perception) or `"perception"`
+- [`WebcastEvent.ROOM_NOTIFY`](#roomnotify) or `"roomNotify"`
+- [`WebcastEvent.SPEAKER`](#speaker) or `"speaker"`
+- [`WebcastEvent.SUB_NOTIFY`](#subnotify) or `"subNotify"`
+- [`WebcastEvent.SUB_PIN_EVENT`](#subpinevent) or `"subPinEvent"`
+- [`WebcastEvent.TOAST`](#toast) or `"toast"`
+- [`WebcastEvent.VIEWER_PICKS_UPDATE`](#viewerpicksupdate) or `"viewerPicksUpdate"`
 
 ## Control Events
 

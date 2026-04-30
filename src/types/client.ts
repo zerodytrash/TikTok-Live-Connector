@@ -1,6 +1,12 @@
 import { OptionsInit } from 'got';
-import * as tikTokSchema from 'tiktok-live-proto/v2';
-import { MessageFns, ProtoMessageFetchResult, WebcastPushFrame } from 'tiktok-live-proto/v2';
+import * as tikTokSchema from 'tiktok-live-proto/v3';
+import { ProtoMessageFetchResult, WebcastPushFrame } from 'tiktok-live-proto/v3';
+import type { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
+
+interface MessageFns<T> {
+    encode(message: T, writer?: BinaryWriter): BinaryWriter;
+    decode(input: BinaryReader | Uint8Array, length?: number): T;
+}
 import { ClientOptions as WsWebSocketConfig } from 'ws';
 import EulerStreamApiClient from '@eulerstream/euler-api-sdk';
 import { GetWebConfigParams, WebcastGotHttpConfig } from '@/types/web';
@@ -132,7 +138,7 @@ export type DecodedData = {
     }
 }[keyof WebcastEventMessage];
 
-declare module 'tiktok-live-proto/v2' {
+declare module 'tiktok-live-proto/v3' {
     export interface BaseProtoMessage {
         decodedData?: DecodedData;
         decodeError?: any;

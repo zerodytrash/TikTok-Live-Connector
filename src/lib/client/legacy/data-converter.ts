@@ -8,7 +8,7 @@ import {
     WebcastQuestionNewMessage,
     WebcastRoomUserSeqMessage,
     WebcastSubEmote
-} from 'tiktok-live-proto/v2';
+} from 'tiktok-live-proto/v3';
 import { WebcastEventMessage } from '@/types';
 
 

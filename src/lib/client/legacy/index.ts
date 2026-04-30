@@ -2,7 +2,7 @@ import { EventEmitter } from 'node:events';
 import { ControlEvent, WebcastEvent } from '@/types/events';
 import { TikTokLiveConstructorConnectionOptions, WebcastEventMessage } from '@/types';
 import { simplifyObject } from '@/lib/client/legacy/data-converter';
-import { BaseProtoMessage, ProtoMessageFetchResult, WebcastControlMessage } from 'tiktok-live-proto/v2';
+import { BaseProtoMessage, ProtoMessageFetchResult, WebcastControlMessage } from 'tiktok-live-proto/v3';
 import { TikTokLiveConnection } from '@/lib/client';
 
 export * from './data-converter';
@@ -26,16 +26,16 @@ export class WebcastPushConnection extends (TikTokLiveConnection as unknown as W
     protected async processProtoMessageFetchResult(fetchResult: ProtoMessageFetchResult): Promise<void> {
 
         fetchResult.messages.forEach((message) => {
-            this.emit(ControlEvent.RAW_DATA, message.type, message.payload);
+            this.emit(ControlEvent.RAW_DATA, message.method, message.payload);
         });
 
         // Process and emit decoded data depending on the message type
         fetchResult.messages
             .forEach((message: BaseProtoMessage) => {
-                let simplifiedObj = simplifyObject(message.type as keyof WebcastEventMessage, message.decodedData?.data || {});
-                this.emit(ControlEvent.DECODED_DATA, message.type, simplifiedObj, message.payload);
+                let simplifiedObj = simplifyObject(message.method as keyof WebcastEventMessage, message.decodedData?.data || {});
+                this.emit(ControlEvent.DECODED_DATA, message.method, simplifiedObj, message.payload);
 
-                switch (message.type) {
+                switch (message.method) {
                     case 'WebcastControlMessage':
                         // Known control actions:
                         // 3 = Stream terminated by user

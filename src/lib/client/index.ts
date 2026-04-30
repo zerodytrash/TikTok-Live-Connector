@@ -26,7 +26,8 @@ import {
     WebcastEventMap,
     WebcastTypedClient
 } from '@/types/events';
-import { ControlAction, EnvelopeBusinessType, ProtoMessageFetchResult } from 'tiktok-live-proto/v2';
+import { ControlAction, ProtoMessageFetchResult } from 'tiktok-live-proto/v3';
+import { EnvelopeBusinessType } from 'tiktok-live-proto/v2';
 import EulerStreamApiClient, { WebcastRoomChatRouteResponse } from '@eulerstream/euler-api-sdk';
 import WebcastHttpClient from '@/lib/web/lib/http-client';
 import { EulerFetchRoute, RoomInfoResponse } from '@/lib/web/routes';
@@ -341,13 +342,13 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
         };
 
         // Filter for only defined params, like web does
-        for (const [key, value] of Object.entries(protoMessageFetchResult.wsParams || [])) {
+        for (const [key, value] of Object.entries(protoMessageFetchResult.routeParams || {})) {
             if (value) wsParams[key] = value;
         }
 
         // Create the WebSocket client
         return this.setupWebsocket(
-            protoMessageFetchResult.wsUrl,
+            protoMessageFetchResult.pushServer,
             wsParams,
             roomId
         );
@@ -578,7 +579,7 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
             // Emit the decoded data
             this.emit(
                 ControlEvent.DECODED_DATA,
-                message.type,
+                message.method,
                 message.decodedData,
                 message.payload
             );
@@ -600,11 +601,11 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
         switch (type) {
 
             case 'WebcastSocialMessage':
-                if (data.common?.displayText?.displayType?.includes('follow')) {
+                if (data.common?.displayText?.key?.includes('follow')) {
                     return this.emit(WebcastEvent.FOLLOW, data);
                 }
 
-                if (data.common?.displayText?.displayType?.includes('share')) {
+                if (data.common?.displayText?.key?.includes('share')) {
                     return this.emit(WebcastEvent.SHARE, data);
                 }
 
@@ -632,7 +633,7 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
 
                 return this.emit(WebcastEvent.GIFT, data);
             case 'WebcastBarrageMessage': {
-                const displayTypes = [data.content?.displayType, data.commonBarrageContent?.displayType]
+                const displayTypes = [data.content?.key, data.commonBarrageContent?.key]
                     .filter((v): v is string => typeof v === 'string' && v.length > 0)
                     .map((v) => v.toLowerCase());
 
@@ -646,8 +647,9 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
             }
             case 'WebcastEnvelopeMessage':
                 if (
-                    data.common?.displayText?.displayType?.toLowerCase().includes('ttlive_superfanbox')
-                    || data.envelopeInfo?.businessType === EnvelopeBusinessType.BusinessTypeSuperFanBox
+                    data.common?.displayText?.key?.toLowerCase().includes('ttlive_superfanbox')
+                    // todo: Swap to v3 in the next update for EnvelopeBusinessType import
+                    || (data.envelopeInfo?.businessType as number) === EnvelopeBusinessType.BusinessTypeSuperFanBox
                 ) {
                     this.emit(WebcastEvent.SUPER_FAN_BOX, data);
                 }
