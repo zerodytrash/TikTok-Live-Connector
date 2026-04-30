@@ -6,13 +6,12 @@ import {
     SignAPIError,
     SignatureRateLimitError
 } from '@/types/errors';
-import { deserializeMessage } from '@/lib';
+import { deserializeMessage, LIBRARY_IDENTITY } from '@/lib';
 import { ProtoMessageFetchResult } from '@/types';
 import { SoaxProxyRegion, WebcastFetchPlatform } from '@eulerstream/euler-api-sdk';
 import { createRoute } from '@/lib/web/lib/route-wrapper';
 import { EulerFetchRoute } from '@/lib/web/routes/routes';
 import { WebcastHttpEulerRouteArgs } from '@/types/route';
-import { LIBRARY_IDENTITY } from '@/lib';
 import type { AxiosResponse } from 'axios';
 
 export type FetchSignedWebSocketFromEulerRouteParams = WebcastHttpEulerRouteArgs<TikTokLiveConnectionBundledAuthOptions & {
@@ -121,7 +120,7 @@ export const fetchSignedWebSocketFromEulerRoute = createRoute<FetchSignedWebSock
             const data = JSON.parse(Buffer.from(response.data).toString('utf-8')) as any;
             const message = process.env.SIGN_SERVER_MESSAGE_DISABLED ? null : data?.message;
             const label = data?.limit_label ? `(${data.limit_label}) ` : '';
-            throw new SignatureRateLimitError(message, `${label}Too many connections started, try again later.`, response);
+            throw new SignatureRateLimitError(message, `${label}Too many connections started, try again later.`, response.data);
         }
 
         if (response.status === 402) {
