@@ -26,8 +26,7 @@ import {
     WebcastEventMap,
     WebcastTypedClient
 } from '@/types/events';
-import { ControlAction, ProtoMessageFetchResult } from 'tiktok-live-proto/v3';
-import { EnvelopeBusinessType } from 'tiktok-live-proto/v2';
+import { ControlAction, EnvelopeBusinessType, ProtoMessageFetchResult } from 'tiktok-live-proto/v3';
 import EulerStreamApiClient, { WebcastRoomChatRouteResponse } from '@eulerstream/euler-api-sdk';
 import WebcastHttpClient from '@/lib/web/lib/http-client';
 import { EulerFetchRoute, RoomInfoResponse } from '@/lib/web/routes';
@@ -648,8 +647,7 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
             case 'WebcastEnvelopeMessage':
                 if (
                     data.common?.displayText?.key?.toLowerCase().includes('ttlive_superfanbox')
-                    // todo: Swap to v3 in the next update for EnvelopeBusinessType import
-                    || (data.envelopeInfo?.businessType as number) === EnvelopeBusinessType.BusinessTypeSuperFanBox
+                    || (data.envelopeInfo?.businessType as number) === EnvelopeBusinessType.SUPER_FAN_BOX
                 ) {
                     this.emit(WebcastEvent.SUPER_FAN_BOX, data);
                 }
