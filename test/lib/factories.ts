@@ -67,7 +67,7 @@ export function createMockEulerClient(
 ) {
     const client = {
         configuration: {
-            basePath: 'https://tiktok.eulerstream.com',
+            basePath: 'https://api.eulerstream.com',
             ...(overrides.configuration || {})
         },
         webcast: {

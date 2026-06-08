@@ -19,7 +19,7 @@ export function getRequiredSignApiKey(): string {
 export function createLiveEulerClient(): EulerStreamApiClient {
     return new EulerStreamApiClient({
         apiKey: getRequiredSignApiKey(),
-        basePath: process.env.SIGN_API_URL || 'https://tiktok.eulerstream.com',
+        basePath: process.env.SIGN_API_URL || 'https://api.eulerstream.com',
         baseOptions: {
             headers: {
                 'User-Agent': `tiktok-live-connector-test/${VERSION} ${process.platform}`

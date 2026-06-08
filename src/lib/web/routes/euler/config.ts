@@ -12,7 +12,7 @@ export const LIBRARY_IDENTITY = 'ttlive-node';
 export type SignConfig = Partial<ClientConfiguration> & { cachedInstance?: EulerStreamApiClient };
 
 export const SignConfig: SignConfig = {
-    basePath: process.env.SIGN_API_URL || 'https://tiktok.eulerstream.com',
+    basePath: process.env.SIGN_API_URL || 'https://api.eulerstream.com',
     apiKey: process.env.SIGN_API_KEY,
     baseOptions: {
         headers: { 'User-Agent': `tiktok-live-connector/${VERSION} ${process.platform}` },

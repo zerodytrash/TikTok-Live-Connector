@@ -9,7 +9,7 @@ as [Members Joining](#member), [Gifts](#gift), [Subscriptions](#subscribe), [Vie
 and [Battles](#linkmicbattle) can be tracked.
 
 [![Discord](https://img.shields.io/discord/977648006063091742?logo=discord&label=TikTokLive%20Discord&labelColor=%23171717&color=%231877af)](https://discord.gg/N3KSxzvDX8)
-![Connections](https://tiktok.eulerstream.com/analytics/pips?client=ttlive-node)
+![Connections](https://api.eulerstream.com/analytics/pips?client=ttlive-node)
 ![Downloads](https://img.shields.io/npm/dw/tiktok-live-connector?style=flat&color=0274b5&alt=1)
 ![Stars](https://img.shields.io/github/stars/zerodytrash/tiktok-live-connector?style=flat&color=0274b5&alt=1)
 ![Issues](https://img.shields.io/github/issues/zerodytrash/tiktok-live-connector?style=flat&color=0274b5&alt=1)
