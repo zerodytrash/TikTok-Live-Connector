@@ -11,9 +11,9 @@ describe('fetchRoomInfoFromEulerRoute', () => {
             room_id: '7140000000000000001'
         };
 
-        apiClient.premium.retrieveRoomInfo.mockResolvedValue(createAxiosResponse(responseBody));
+        apiClient.anchors.retrieveRoomInfo.mockResolvedValue(createAxiosResponse(responseBody));
 
         await expect(fetchRoomInfoFromEulerRoute({ webClient, apiClient, uniqueId: TEST_UNIQUE_ID })).resolves.toEqual(responseBody);
-        expect(apiClient.premium.retrieveRoomInfo).toHaveBeenCalledWith(TEST_UNIQUE_ID, undefined);
+        expect(apiClient.anchors.retrieveRoomInfo).toHaveBeenCalledWith(TEST_UNIQUE_ID, undefined);
     });
 });

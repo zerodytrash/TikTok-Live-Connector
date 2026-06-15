@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { SignTikTokUrlBodyMethodEnum } from '@eulerstream/euler-api-sdk';
+import { SignTikTokUrlBodyMethodEnum } from 'tiktok-live-api-sdk';
 import { fetchWebcastSignatureFromEulerRoute } from '@/lib/web/routes/euler/fetch-webcast-signature-euler';
 import { createLiveEulerClient, createMockWebClient, hasEulerApiKey } from '../../lib';
 

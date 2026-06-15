@@ -1,6 +1,6 @@
 import type WebcastHttpClient from '@/lib/web/lib/http-client';
 import type { CookieSessionBundle, OAuthTokenSessionBundle } from '@/types/client';
-import type EulerStreamApiClient from '@eulerstream/euler-api-sdk';
+import type EulerStreamApiClient from 'tiktok-live-api-sdk';
 import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { vi } from 'vitest';
 
@@ -61,8 +61,9 @@ export function createMockWebClient(overrides: Record<string, any> = {}) {
 export function createMockEulerClient(
     overrides: {
         configuration?: Record<string, any>,
-        webcast?: Record<string, any>,
-        premium?: Record<string, any>
+        general?: Record<string, any>,
+        anchors?: Record<string, any>,
+        rooms?: Record<string, any>
     } = {}
 ) {
     const client = {
@@ -70,16 +71,19 @@ export function createMockEulerClient(
             basePath: 'https://api.eulerstream.com',
             ...(overrides.configuration || {})
         },
-        webcast: {
-            retrieveRoomId: vi.fn(),
-            signWebcastUrl: vi.fn(),
-            fetchWebcastURL: vi.fn(),
-            ...(overrides.webcast || {})
+        general: {
+            signTikTokUrl: vi.fn(),
+            ...(overrides.general || {})
         },
-        premium: {
+        anchors: {
+            retrieveRoomId: vi.fn(),
             retrieveRoomInfo: vi.fn(),
+            ...(overrides.anchors || {})
+        },
+        rooms: {
+            fetchWebcastURL: vi.fn(),
             sendRoomChat: vi.fn(),
-            ...(overrides.premium || {})
+            ...(overrides.rooms || {})
         }
     };
 

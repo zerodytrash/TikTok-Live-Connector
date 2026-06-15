@@ -12,9 +12,9 @@ describe('fetchRoomIdFromEulerRoute', () => {
             room_id: TEST_ROOM_ID
         };
 
-        apiClient.webcast.retrieveRoomId.mockResolvedValue(createAxiosResponse(responseBody));
+        apiClient.anchors.retrieveRoomId.mockResolvedValue(createAxiosResponse(responseBody));
 
         await expect(fetchRoomIdFromEulerRoute({ webClient, apiClient, uniqueId: TEST_UNIQUE_ID })).resolves.toEqual(responseBody);
-        expect(apiClient.webcast.retrieveRoomId).toHaveBeenCalledWith(TEST_UNIQUE_ID, undefined);
+        expect(apiClient.anchors.retrieveRoomId).toHaveBeenCalledWith(TEST_UNIQUE_ID, undefined);
     });
 });

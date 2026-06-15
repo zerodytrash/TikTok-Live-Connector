@@ -1,4 +1,4 @@
-import EulerStreamApiClient from '@eulerstream/euler-api-sdk';
+import EulerStreamApiClient from 'tiktok-live-api-sdk';
 import { VERSION } from '@/version';
 
 export const SIGN_API_KEY_ENV = 'SIGN_API_KEY';

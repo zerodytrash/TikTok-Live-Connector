@@ -20,7 +20,7 @@ describe('fetchRoomGiftsRoute', () => {
                 ...webClient.clientParams,
                 room_id: TEST_ROOM_ID
             },
-            false
+            true
         );
     });
 

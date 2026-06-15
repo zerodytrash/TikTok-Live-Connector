@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { SignTikTokUrlBodyMethodEnum } from '@eulerstream/euler-api-sdk';
+import { SignTikTokUrlBodyMethodEnum } from 'tiktok-live-api-sdk';
 import { InvalidRequestError, PremiumFeatureError, SignatureMissingTokensError } from '@/types/errors';
 import { fetchWebcastSignatureFromEulerRoute } from '@/lib/web/routes/euler/fetch-webcast-signature-euler';
 import {
@@ -14,7 +14,7 @@ describe('fetchWebcastSignatureFromEulerRoute', () => {
         const webClient = createMockWebClient();
         const apiClient = createMockEulerClient();
         webClient.cookieJar.getSessionBundle.mockResolvedValue(createCookieSessionBundle());
-        apiClient.webcast.signWebcastUrl.mockResolvedValue(createAxiosResponse({
+        apiClient.general.signTikTokUrl.mockResolvedValue(createAxiosResponse({
             response: {
                 signedUrl: 'https://signed.example.com',
                 tokens: {
@@ -35,7 +35,7 @@ describe('fetchWebcastSignatureFromEulerRoute', () => {
             }
         });
 
-        const [payload, libraryIdentity] = apiClient.webcast.signWebcastUrl.mock.calls[0];
+        const [payload, libraryIdentity] = apiClient.general.signTikTokUrl.mock.calls[0];
         expect(payload.url).toContain('aid=1988');
         expect(payload.url).toContain('room_id=12345');
         expect(payload.url).not.toContain('X-Bogus');
@@ -63,7 +63,7 @@ describe('fetchWebcastSignatureFromEulerRoute', () => {
     it('translates a 403 response into a premium feature error', async () => {
         const webClient = createMockWebClient();
         const apiClient = createMockEulerClient();
-        apiClient.webcast.signWebcastUrl.mockResolvedValue(createAxiosResponse(
+        apiClient.general.signTikTokUrl.mockResolvedValue(createAxiosResponse(
             {
                 message: 'forbidden',
                 response: {
@@ -89,7 +89,7 @@ describe('fetchWebcastSignatureFromEulerRoute', () => {
     it('rejects when the signer omits tokens', async () => {
         const webClient = createMockWebClient();
         const apiClient = createMockEulerClient();
-        apiClient.webcast.signWebcastUrl.mockResolvedValue(createAxiosResponse({
+        apiClient.general.signTikTokUrl.mockResolvedValue(createAxiosResponse({
             message: 'missing tokens',
             response: {
                 tokens: {}

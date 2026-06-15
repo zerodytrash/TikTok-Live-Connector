@@ -14,7 +14,7 @@ describe('sendRoomChatFromEulerRoute', () => {
         const webClient = createMockWebClient();
         const apiClient = createMockEulerClient();
         webClient.cookieJar.getCookieString.mockResolvedValue('sessionid=abc');
-        apiClient.premium.sendRoomChat.mockResolvedValue(createAxiosResponse({
+        apiClient.rooms.sendRoomChat.mockResolvedValue(createAxiosResponse({
             ok: true
         }));
 
@@ -25,12 +25,10 @@ describe('sendRoomChatFromEulerRoute', () => {
             content: 'hello world'
         })).resolves.toEqual({ ok: true });
 
-        expect(apiClient.premium.sendRoomChat).toHaveBeenCalledWith(
+        expect(apiClient.rooms.sendRoomChat).toHaveBeenCalledWith(
+            TEST_ROOM_ID,
             {
-                content: 'hello world',
-                targetRoomId: TEST_ROOM_ID,
-                sessionId: '',
-                ttTargetIdc: ''
+                content: 'hello world'
             },
             undefined,
             'sessionid=abc',
@@ -43,7 +41,7 @@ describe('sendRoomChatFromEulerRoute', () => {
             oAuthSessionBundle: createOAuthTokenSessionBundle('oauth-123')
         });
         const apiClient = createMockEulerClient();
-        apiClient.premium.sendRoomChat.mockResolvedValue(createAxiosResponse({
+        apiClient.rooms.sendRoomChat.mockResolvedValue(createAxiosResponse({
             ok: true
         }));
 
@@ -54,7 +52,8 @@ describe('sendRoomChatFromEulerRoute', () => {
             content: 'hello world'
         })).resolves.toEqual({ ok: true });
 
-        expect(apiClient.premium.sendRoomChat).toHaveBeenCalledWith(
+        expect(apiClient.rooms.sendRoomChat).toHaveBeenCalledWith(
+            TEST_ROOM_ID,
             expect.any(Object),
             'oauth-123',
             undefined,
@@ -77,7 +76,7 @@ describe('sendRoomChatFromEulerRoute', () => {
     it('translates premium auth failures into a premium feature error', async () => {
         const webClient = createMockWebClient();
         const apiClient = createMockEulerClient();
-        apiClient.premium.sendRoomChat.mockResolvedValue(createAxiosResponse(
+        apiClient.rooms.sendRoomChat.mockResolvedValue(createAxiosResponse(
             {
                 message: 'forbidden'
             },
@@ -97,7 +96,7 @@ describe('sendRoomChatFromEulerRoute', () => {
     it('rejects on non-200 non-premium failures', async () => {
         const webClient = createMockWebClient();
         const apiClient = createMockEulerClient();
-        apiClient.premium.sendRoomChat.mockResolvedValue(createAxiosResponse(
+        apiClient.rooms.sendRoomChat.mockResolvedValue(createAxiosResponse(
             {
                 message: 'server error'
             },
