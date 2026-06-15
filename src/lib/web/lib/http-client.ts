@@ -7,8 +7,8 @@ import { RouteConfig } from '@/lib/web/config';
 import { isIP } from 'node:net';
 import EulerStreamApiClient, {
     SignTikTokUrlBodyMethodEnum,
-    SignWebcastUrl200Response
-} from '@eulerstream/euler-api-sdk';
+    SignTikTokUrlResponse
+} from 'tiktok-live-api-sdk';
 import { createEulerClient } from '@/lib/web/routes/euler/config';
 import { WebcastGotHttpConfig } from '@/types/web';
 
@@ -27,7 +27,6 @@ export default class WebcastHttpClient {
     public readonly clientParams: Record<string, string>;
     public readonly clientHeaders: Record<string, string>;
     public readonly cookieJar: WebcastCookieJar;
-
 
     /**
      * Instantiate a Webcast HTTP Client
@@ -133,7 +132,7 @@ export default class WebcastHttpClient {
 
         // Sign the HTTP Request
         if (signRequest) {
-            let signResponse: SignWebcastUrl200Response = await RouteConfig.fetchWebcastSignatureFromProvider(
+            let signResponse: SignTikTokUrlResponse = await RouteConfig.fetchWebcastSignatureFromProvider(
                 {
                     url,
                     method: method.toString().toUpperCase() as SignTikTokUrlBodyMethodEnum,

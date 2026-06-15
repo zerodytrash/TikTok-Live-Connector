@@ -1,4 +1,6 @@
 import {
+    fetchRoomGiftGalleryFromEulerRoute,
+    fetchRoomGiftsFromEulerRoute,
     fetchRoomIdFromEulerRoute,
     fetchRoomInfoFromApiLiveRoute,
     fetchRoomInfoFromEulerRoute,
@@ -35,6 +37,8 @@ export const RouteConfig = {
     fetchRoomInfoFromHtml: fetchRoomInfoFromHtmlRoute,
 
     // Overridable, Euler-default operations
+    fetchRoomGiftsFromProvider: fetchRoomGiftsFromEulerRoute,
+    fetchRoomGiftGalleryFromProvider: fetchRoomGiftGalleryFromEulerRoute,
     fetchRoomIdFromProvider: fetchRoomIdFromEulerRoute,
     fetchRoomInfoFromProvider: fetchRoomInfoFromEulerRoute,
     fetchSignedWebSocketFromProvider: fetchSignedWebSocketFromEulerRoute,

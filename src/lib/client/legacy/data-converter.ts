@@ -1,15 +1,15 @@
 import {
     CommonMessageData,
-    Emote,
+    EmoteModel,
     User,
     WebcastChatMessage,
     WebcastEmoteChatMessage,
     WebcastLinkMicBattle,
     WebcastQuestionNewMessage,
-    WebcastRoomUserSeqMessage,
-    WebcastSubEmote
+    WebcastRoomUserSeqMessage
 } from 'tiktok-live-proto/v3';
 import { WebcastEventMessage } from '@/types';
+import { WebcastSubEmote } from 'tiktok-live-proto/v2';
 
 
 /**
@@ -68,8 +68,8 @@ export function simplifyObject(
             originalObject = simplify<WebcastLinkMicBattle>((webcastObject) => {
                 const battleUsers = [];
 
-                Object.values(webcastObject.anchorInfo).forEach((anchor) => {
-                    if (anchor.user) {
+                Object.values(webcastObject.anchorsInfo).forEach((anchor) => {
+                    if (anchor.value) {
                         // @ts-ignore
                         battleUsers.push(getUserAttributes(anchor.user));
                     }
@@ -142,10 +142,10 @@ export function simplifyObject(
         }
         case 'WebcastEmoteChatMessage': {
             originalObject = simplify<WebcastEmoteChatMessage & { emotes: WebcastSubEmote & any }>((webcastObject) => {
-                webcastObject.emotes = webcastObject.emoteList.map((emote: Emote) => (
+                webcastObject.emotes = webcastObject.emoteList.map((emote: EmoteModel) => (
                     {
                         emoteId: emote.emoteId,
-                        emoteImageUrl: emote.image?.url[0]
+                        emoteImageUrl: emote.image?.urlList[0]
                     }
                 ));
                 return webcastObject;
@@ -162,18 +162,18 @@ function getUserAttributes(webcastUser: Partial<User>): Record<string, any> {
     webcastUser ||= {};
 
     const userAttributes: Record<string, any> = {
-        userId: webcastUser.userId?.toString(),
+        userId: webcastUser.idStr?.toString(),
         secUid: webcastUser.secUid?.toString(),
-        uniqueId: webcastUser.uniqueId !== '' ? webcastUser.uniqueId : undefined,
+        uniqueId: webcastUser.displayId !== '' ? webcastUser.displayId : undefined,
         nickname: webcastUser.nickname !== '' ? webcastUser.nickname : undefined,
-        profilePictureUrl: getPreferredPictureFormat(webcastUser.profilePicture?.url),
+        profilePictureUrl: getPreferredPictureFormat(webcastUser.avatarLarge),
         followRole: webcastUser.followInfo?.followStatus,
-        userBadges: mapBadges(webcastUser.badges), // todo fix struct
-        userSceneTypes: webcastUser.badges?.map((x) => x?.badgeScene || 0),
+        userBadges: mapBadges(webcastUser.badgeList), // todo fix struct
+        userSceneTypes: webcastUser.badgeList?.map((x) => x?.sceneType || 0),
         userDetails: {
             createTime: webcastUser.createTime?.toString(),
             bioDescription: webcastUser.bioDescription,
-            profilePictureUrls: webcastUser.profilePicture?.url
+            profilePictureUrls: webcastUser.avatarLarge?.urlList?.[0]
         }
     };
 

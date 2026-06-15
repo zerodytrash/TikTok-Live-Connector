@@ -8,7 +8,7 @@ import {
 } from '@/types/errors';
 import { deserializeMessage, LIBRARY_IDENTITY } from '@/lib';
 import { ProtoMessageFetchResult } from '@/types';
-import { SoaxProxyRegion, WebcastFetchPlatform } from '@eulerstream/euler-api-sdk';
+import { PooledProxyRegion, WebcastFetchPlatform } from 'tiktok-live-api-sdk';
 import { createRoute } from '@/lib/web/lib/route-wrapper';
 import { EulerFetchRoute } from '@/lib/web/routes/routes';
 import { WebcastHttpEulerRouteArgs } from '@/types/route';
@@ -20,7 +20,7 @@ export type FetchSignedWebSocketFromEulerRouteParams = WebcastHttpEulerRouteArgs
     roomId: string;
 
     // Optional country override
-    country?: SoaxProxyRegion;
+    country?: PooledProxyRegion;
 
     // Cursor
     cursor?: string;
@@ -90,9 +90,9 @@ export const fetchSignedWebSocketFromEulerRoute = createRoute<FetchSignedWebSock
 
         let response: AxiosResponse;
         try {
-            response = await apiClient.webcast.fetchWebcastURL(
-                LIBRARY_IDENTITY,
+            response = await apiClient.rooms.fetchWebcastURL(
                 roomId,
+                LIBRARY_IDENTITY,
                 undefined,
                 cursor,
                 webClient.clientHeaders['User-Agent'],

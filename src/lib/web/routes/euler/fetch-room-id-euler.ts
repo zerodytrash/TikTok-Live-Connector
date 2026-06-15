@@ -1,4 +1,4 @@
-import { WebcastRoomIdRouteResponse } from '@eulerstream/euler-api-sdk';
+import { WebcastRoomIdRouteResponse } from 'tiktok-live-api-sdk';
 import { createRoute } from '@/lib/web/lib/route-wrapper';
 import { WebcastHttpEulerRouteArgs } from '@/types/route';
 import { EulerFetchRoute } from '@/lib/web/routes/routes';
@@ -18,7 +18,7 @@ export const fetchRoomIdFromEulerRoute = createRoute<FetchRoomIdFromEulerRoutePa
     async ({ apiClient, uniqueId, options }) => {
 
         const fetchResponse = await apiClient
-            .webcast
+            .anchors
             .retrieveRoomId(uniqueId, options);
 
         return fetchResponse.data;

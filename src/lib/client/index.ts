@@ -27,7 +27,7 @@ import {
     WebcastTypedClient
 } from '@/types/events';
 import { ControlAction, EnvelopeBusinessType, ProtoMessageFetchResult } from 'tiktok-live-proto/v3';
-import EulerStreamApiClient, { WebcastRoomChatRouteResponse } from '@eulerstream/euler-api-sdk';
+import EulerStreamApiClient, { WebcastRoomChatRouteResponse } from 'tiktok-live-api-sdk';
 import WebcastHttpClient from '@/lib/web/lib/http-client';
 import { EulerFetchRoute, RoomInfoResponse } from '@/lib/web/routes';
 import { HandleError } from '@/lib/client/utilities';

@@ -1,4 +1,4 @@
-import EulerStreamApiClient, { ClientConfiguration } from '@eulerstream/euler-api-sdk';
+import EulerStreamApiClient, { ClientConfiguration } from 'tiktok-live-api-sdk';
 import { VERSION } from '@/version';
 
 /**

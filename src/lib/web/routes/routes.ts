@@ -11,6 +11,8 @@ export enum CompositeFetchRoute {
 }
 
 export enum EulerFetchRoute {
+    FETCH_ROOM_GIFTS = 'fetchRoomGiftsFromEulerRoute',
+    FETCH_ROOM_GIFT_GALLERY = 'fetchRoomGiftGalleryFromEulerRoute',
     FETCH_ROOM_ID = 'fetchRoomIdFromEulerRoute',
     FETCH_ROOM_INFO = 'fetchRoomInfoFromEulerRoute',
     FETCH_SIGNED_WEBSOCKET = 'fetchSignedWebSocketFromEulerRoute',

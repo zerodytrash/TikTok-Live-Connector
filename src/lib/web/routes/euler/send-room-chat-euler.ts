@@ -1,5 +1,5 @@
 import { InvalidRequestError, InvalidResponseError, PremiumFeatureError } from '@/types';
-import { WebcastRoomChatRouteResponse } from '@eulerstream/euler-api-sdk';
+import { WebcastRoomChatRouteResponse } from 'tiktok-live-api-sdk';
 import { createRoute } from '@/lib/web/lib/route-wrapper';
 import { WebcastHttpEulerRouteArgs } from '@/types/route';
 import { EulerFetchRoute } from '@/lib/web/routes/routes';
@@ -48,12 +48,10 @@ export const sendRoomChatFromEulerRoute = createRoute<SendRoomChatFromEulerRoute
             .oAuthSessionBundle
             ?.value || undefined;
 
-        const fetchResponse = await apiClient.premium.sendRoomChat(
+        const fetchResponse = await apiClient.rooms.sendRoomChat(
+            roomId,
             {
-                content,
-                targetRoomId: roomId,
-                sessionId: '',
-                ttTargetIdc: ''
+                content
             },
             xOauthToken,
             xCookieHeader,

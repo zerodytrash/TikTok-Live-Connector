@@ -1,5 +1,5 @@
 import { URL } from 'url';
-import { SignTikTokUrlBodyMethodEnum, SignWebcastUrl200Response } from '@eulerstream/euler-api-sdk';
+import { SignTikTokUrlBodyMethodEnum, SignTikTokUrlResponse } from 'tiktok-live-api-sdk';
 import { InvalidRequestError, PremiumFeatureError, SignatureMissingTokensError } from '@/types';
 import { createRoute } from '@/lib/web/lib/route-wrapper';
 import { WebcastHttpEulerRouteArgs } from '@/types/route';
@@ -13,7 +13,7 @@ export type WebcastSignerParams = {
     userAgent: string
 };
 
-export type WebcastSignerResponse = SignWebcastUrl200Response;
+export type WebcastSignerResponse = SignTikTokUrlResponse;
 
 export type FetchWebcastSignatureFromEulerRouteParams = WebcastHttpEulerRouteArgs<WebcastSignerParams>;
 
@@ -64,7 +64,7 @@ export const fetchWebcastSignatureFromEulerRoute = createRoute<FetchWebcastSigna
         }
 
         // Sign the URL
-        const response = await apiClient.webcast.signWebcastUrl(
+        const response = await apiClient.general.signTikTokUrl(
             {
                 url: cleanUrl,
                 method: method,

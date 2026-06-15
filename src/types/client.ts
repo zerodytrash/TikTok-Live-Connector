@@ -8,7 +8,7 @@ interface MessageFns<T> {
     decode(input: BinaryReader | Uint8Array, length?: number): T;
 }
 import { ClientOptions as WsWebSocketConfig } from 'ws';
-import EulerStreamApiClient from '@eulerstream/euler-api-sdk';
+import EulerStreamApiClient from 'tiktok-live-api-sdk';
 import { GetWebConfigParams, WebcastGotHttpConfig } from '@/types/web';
 import { WebcastWebSocketConfigDefaults } from '@/lib/ws';
 import { WebcastWebConfigDefaults } from '@/lib/web/defaults';

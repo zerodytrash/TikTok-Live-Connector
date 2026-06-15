@@ -194,6 +194,8 @@ response. The currently registered routes are:
 - `fetchRoomGifts` (TikTok webcast API)
 - `fetchRoomInfoFromApiLive` (TikTok web API)
 - `fetchRoomInfoFromHtml` (HTML scrape with SIGI_STATE extraction)
+- `fetchRoomGiftsFromProvider` (Euler Stream)
+- `fetchRoomGiftGalleryFromProvider` (Euler Stream)
 - `fetchRoomIdFromProvider` (Euler Stream)
 - `fetchRoomInfoFromProvider` (Euler Stream)
 - `fetchSignedWebSocketFromProvider` (Euler Stream)

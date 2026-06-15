@@ -1,5 +1,5 @@
 import WebcastHttpClient from '@/lib/web/lib/http-client';
-import EulerStreamApiClient from '@eulerstream/euler-api-sdk';
+import EulerStreamApiClient from 'tiktok-live-api-sdk';
 
 /**
  * Per-call options forwarded to the Euler Stream SDK (axios-shaped under the hood).
