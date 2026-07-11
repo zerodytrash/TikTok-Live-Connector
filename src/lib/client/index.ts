@@ -596,6 +596,13 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
 
     protected async processDecodedData({ data, type }: DecodedData): Promise<boolean | void> {
 
+        console.log("Received data!")
+
+        if (type !== "WebcastMemberMessage" && type !== "WebcastSocialMessage" && type !== "WebcastLikeMessage" && type !== "WebcastChatMessage") {
+            console.log("Data", JSON.stringify(data));
+
+        }
+
         // Emit a decoded data event
         switch (type) {
 
