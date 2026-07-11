@@ -1,4 +1,6 @@
-# TikTok-Live-Connector
+# TikTok LIVE API for Node.JS (Unofficial)
+
+The #1 [TikTok LIVE API](https://www.eulerstream.com/) Client for Node.JS (Unofficial, Unaffiliated with ByteDance Ltd.)
 
 A Node.js library to receive live stream events such as comments and gifts in realtime
 from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal Webcast push service.
