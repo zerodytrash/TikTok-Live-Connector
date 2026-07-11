@@ -1,4 +1,4 @@
-# TikTok LIVE WebSocket API (Unofficial)
+# TikTok LIVE API for Node.JS (Unofficial)
 
 The #1 [TikTok LIVE API](https://www.eulerstream.com/) Client for Node.JS (Unofficial, Unaffiliated with ByteDance Ltd.)
 
