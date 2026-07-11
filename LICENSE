@@ -670,15 +670,17 @@ hereby grants the following additional permissions and restrictions:
 
   18. Library Integration Permissions
 
-  You may link, import, or integrate this Program (including its generated 
-Protobuf bindings, schemas, and serialization logic) into downstream 
-client libraries or application frameworks (such as "TikTokLive", 
-"TikTok-Live-Connector", or similar open-source tools) without 
-the downstream library itself being forced to adopt the AGPL-3.0 license, 
-provided that the downstream library does not violate Section 19 below. You
-may also integrate this in derivative works that do NOT violate Section 19,
-with the specific exceptions enumerated below, such as TikTok LIVE Overlay
-services, TikTok LIVE games, automated tools, etc. 
+  You may link, import, or integrate this Program, including its generated 
+Protobuf bindings, schemas, and serialization logic into downstream client
+libraries or application frameworks (such as "TikTokLive," 
+"TikTok-Live-Connector," or similar open-source tools) without subjecting 
+the downstream project to the AGPL-3.0 license. You may also integrate this
+project without the AGPL-3.0 license into derivative works for commercial 
+and non-commercial purposes, provided they do not violate Section 19.
+
+  Specific examples of use-cases that do not require AGPL-3.0 adoption
+include TikTok LIVE Overlay services TikTok LIVE games, TikTok LIVE Stream
+Bots, and other automated tools. Please see Section 19 for exclusions.
 
   19. WebSocket Servers, SaaS APIs, and Cloud Hosting Restrictions
 
