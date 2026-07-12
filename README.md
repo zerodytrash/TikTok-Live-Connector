@@ -1309,4 +1309,4 @@ console.log('Message sent!');
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under a modified AGPL License. See the [LICENSE](LICENSE) file for details.
