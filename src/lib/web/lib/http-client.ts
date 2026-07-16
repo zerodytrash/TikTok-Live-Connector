@@ -13,7 +13,7 @@ import { createEulerClient } from '@/lib/web/routes/euler/config';
 import { WebcastGotHttpConfig } from '@/types/web';
 
 
-export default class WebcastHttpClient {
+export class WebcastHttpClient {
 
     // Public access state
     public oAuthSessionBundle: OAuthTokenSessionBundle | null = null;

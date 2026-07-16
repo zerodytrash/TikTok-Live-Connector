@@ -28,7 +28,7 @@ import {
 } from '@/types/events';
 import { ControlAction, EnvelopeBusinessType, ProtoMessageFetchResult } from 'tiktok-live-proto/v3';
 import EulerStreamApiClient, { WebcastRoomChatRouteResponse } from 'tiktok-live-api-sdk';
-import WebcastHttpClient from '@/lib/web/lib/http-client';
+import { WebcastHttpClient } from '@/lib/web/lib/http-client';
 import { EulerFetchRoute, RoomInfoResponse } from '@/lib/web/routes';
 import { HandleError } from '@/lib/client/utilities';
 import { getRandomPresets, getWebConfig, RouteConfig } from '@/lib/web/config';
@@ -471,6 +471,7 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
         roomId: string
     ): Promise<void> {
 
+
         // Create the WebSocket
         const wsClient = this._wsClientInstance = this._wsClientProvider(
             {
@@ -595,13 +596,6 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
     }
 
     protected async processDecodedData({ data, type }: DecodedData): Promise<boolean | void> {
-
-        console.log("Received data!")
-
-        if (type !== "WebcastMemberMessage" && type !== "WebcastSocialMessage" && type !== "WebcastLikeMessage" && type !== "WebcastChatMessage") {
-            console.log("Data", JSON.stringify(data));
-
-        }
 
         // Emit a decoded data event
         switch (type) {

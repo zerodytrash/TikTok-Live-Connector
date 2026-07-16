@@ -1,4 +1,4 @@
-import WebcastHttpClient from '@/lib/web/lib/http-client';
+import { WebcastHttpClient } from '@/lib/web/lib/http-client';
 import EulerStreamApiClient from 'tiktok-live-api-sdk';
 
 /**
