@@ -676,10 +676,10 @@ libraries or application frameworks (such as "TikTokLive,"
 "TikTok-Live-Connector," or similar open-source tools) without subjecting 
 the downstream project to the AGPL-3.0 license. You may also integrate this
 project without the AGPL-3.0 license into derivative works for commercial 
-and non-commercial purposes, provided they do not violate Section 19.
+and non-commercial purposes, provided they do not trigger Section 19.
 
   Specific examples of use-cases that do not require AGPL-3.0 adoption
-include TikTok LIVE Overlay services TikTok LIVE games, TikTok LIVE Stream
+include TikTok LIVE Overlay services, TikTok LIVE games, TikTok LIVE Stream
 Bots, and other automated tools. Please see Section 19 for exclusions.
 
   19. WebSocket Servers, SaaS APIs, and Cloud Hosting Restrictions
