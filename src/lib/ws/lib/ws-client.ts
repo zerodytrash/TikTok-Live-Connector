@@ -32,7 +32,7 @@ export function createWebSocketProvider(
 
 }
 
-export default class WebcastWebSocketClient extends (WebSocket as WebcastTypedWebSocket) {
+export class WebcastWebSocketClient extends (WebSocket as WebcastTypedWebSocket) {
 
     protected pingInterval: NodeJS.Timeout | null;
     protected seqId: number = 1;

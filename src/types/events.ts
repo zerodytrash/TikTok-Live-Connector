@@ -63,7 +63,7 @@ import {
     WebcastViewerPicksUpdateMessage
 } from 'tiktok-live-proto/v3';
 import { DecodedWebcastPushFrame, RoomGiftInfo, RoomInfo, WebcastEventMessage } from '@/types/client';
-import WebcastWebSocketClient from '@/lib/ws/lib/ws-client';
+import { WebcastWebSocketClient } from '@/lib/ws/lib/ws-client';
 import TypedEventEmitter from 'typed-emitter';
 
 export enum ControlEvent {

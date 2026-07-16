@@ -6,7 +6,7 @@ import {
     UserOfflineError
 } from '@/types/errors';
 import { EventEmitter } from 'node:events';
-import WebcastWebSocketClient, { createWebSocketProvider } from '@/lib/ws/lib/ws-client';
+import { WebcastWebSocketClient, createWebSocketProvider } from '@/lib/ws/lib/ws-client';
 import {
     DecodedData,
     DecodedWebcastPushFrame,
