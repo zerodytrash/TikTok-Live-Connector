@@ -18,8 +18,8 @@ importers:
         specifier: 0.4.0-beta1
         version: 0.4.0-beta1
       tiktok-live-proto:
-        specifier: 0.2.3
-        version: 0.2.3
+        specifier: 0.2.4
+        version: 0.2.4
       typed-emitter:
         specifier: ^2.1.0
         version: 2.1.0
@@ -2239,8 +2239,8 @@ packages:
     resolution: {integrity: sha512-rnd6hczshMsWdVSAuyG+YSRL2EmL3iagK6y/wkVwmbnB2vRHnleKvD5JS/ZtxlRvgSLL5SnNNyoUHzKyesv8Bg==}
     engines: {node: '>=10.0.0'}
 
-  tiktok-live-proto@0.2.3:
-    resolution: {integrity: sha512-CSW01HFqCcGovT8UphsXcZ55ABA6jZarJ5AkO1ZpYRsPBlJ7ODjASO3ynYVzVfCaKF8fbKaJnbNd633iSakjFw==}
+  tiktok-live-proto@0.2.4:
+    resolution: {integrity: sha512-MXvP8n7oBArkuEt/LkDkyThPpnSvnxaccSDf5HNviWI45ZL47Jr48VnBShROH6lLVCuWC4y4bTw/EmiUeA1t3A==}
 
   tinybench@2.9.0:
     resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
@@ -2301,6 +2301,7 @@ packages:
   tsconfck@3.1.6:
     resolution: {integrity: sha512-ks6Vjr/jEw0P1gmOVwutM3B7fWxoWBL2KRDb1JfqGVawBmO5UsvmWOQFGHBPl5yxYz4eERr19E6L7NMv+Fej4w==}
     engines: {node: ^18 || >=20}
+    deprecated: unmaintained
     hasBin: true
     peerDependencies:
       typescript: ^5.0.0
@@ -4774,7 +4775,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  tiktok-live-proto@0.2.3:
+  tiktok-live-proto@0.2.4:
     dependencies:
       '@bufbuild/protobuf': 2.2.5
 

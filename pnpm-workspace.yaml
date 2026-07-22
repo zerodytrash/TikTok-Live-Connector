@@ -7,3 +7,4 @@ allowBuilds:
 minimumReleaseAgeExclude:
   - tiktok-live-api-sdk@0.4.0-beta1
   - tiktok-live-proto@0.2.3
+  - tiktok-live-proto@0.2.4

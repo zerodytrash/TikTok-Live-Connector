@@ -2,16 +2,17 @@ import { OptionsInit } from 'got';
 import * as tikTokSchema from 'tiktok-live-proto/v3';
 import { ProtoMessageFetchResult, WebcastPushFrame } from 'tiktok-live-proto/v3';
 import type { BinaryReader, BinaryWriter } from '@bufbuild/protobuf/wire';
-
-interface MessageFns<T> {
-    encode(message: T, writer?: BinaryWriter): BinaryWriter;
-    decode(input: BinaryReader | Uint8Array, length?: number): T;
-}
 import { ClientOptions as WsWebSocketConfig } from 'ws';
 import EulerStreamApiClient from 'tiktok-live-api-sdk';
 import { GetWebConfigParams, WebcastGotHttpConfig } from '@/types/web';
 import { WebcastWebSocketConfigDefaults } from '@/lib/ws';
 import { WebcastWebConfigDefaults } from '@/lib/web/defaults';
+
+interface MessageFns<T> {
+    encode(message: T, writer?: BinaryWriter): BinaryWriter;
+
+    decode(input: BinaryReader | Uint8Array, length?: number): T;
+}
 
 export type CookieSessionBundle = {
     type: 'cookie',
@@ -108,12 +109,15 @@ type HasCommon<T> = T extends { common: any } ? T : never;
 
 
 // Top-Level Messages
-export type WebcastEventMessage = {
-    [K in keyof WebcastMessage as HasCommon<WebcastMessage[K]> extends never ? never : K]: WebcastMessage[K];
-};
+export type WebcastEventMessage = Omit<
+    {
+        [K in keyof WebcastMessage as HasCommon<WebcastMessage[K]> extends never ? never : K]: WebcastMessage[K];
+    },
+    'VaultGloveCardInfo' | 'Top2CardInfo' | 'Top3CardInfo'
+>
 
 
-export type IWebcastDeserializeConfig  = {
+export type IWebcastDeserializeConfig = {
     /**
      * When specified, messages of these types will be skipped during deserialization. This is useful for large messages that you don't need, to save CPU and memory.
      */

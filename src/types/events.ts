@@ -60,7 +60,7 @@ import {
     WebcastSystemMessage,
     WebcastToastMessage,
     WebcastUnauthorizedMemberMessage,
-    WebcastViewerPicksUpdateMessage
+    WebcastViewerPicksUpdateMessage, WebcastLinkMicBattleItemCard
 } from 'tiktok-live-proto/v3';
 import { DecodedWebcastPushFrame, RoomGiftInfo, RoomInfo, WebcastEventMessage } from '@/types/client';
 import { WebcastWebSocketClient } from '@/lib/ws/lib/ws-client';
@@ -108,6 +108,7 @@ export enum WebcastEvent {
     RANK_UPDATE = 'rankUpdate',
     POLL_MESSAGE = 'pollMessage',
     RANK_TEXT = 'rankText',
+    LINK_MIC_BATTLE_ITEM_CARD = 'linkMicBattleItemCard',
     LINK_MIC_BATTLE_PUNISH_FINISH = 'linkMicBattlePunishFinish',
     LINK_MIC_BATTLE_TASK = 'linkMicBattleTask',
     LINK_MIC_FAN_TICKET_METHOD = 'linkMicFanTicketMethod',
@@ -209,6 +210,7 @@ export type ClientEventMap = {
     [WebcastEvent.RANK_UPDATE]: EventHandler<WebcastRankUpdateMessage>,
     [WebcastEvent.POLL_MESSAGE]: EventHandler<WebcastPollMessage>,
     [WebcastEvent.RANK_TEXT]: EventHandler<WebcastRankTextMessage>,
+    [WebcastEvent.LINK_MIC_BATTLE_ITEM_CARD]: EventHandler<WebcastLinkMicBattleItemCard>,
     [WebcastEvent.LINK_MIC_BATTLE_PUNISH_FINISH]: EventHandler<WebcastLinkMicBattlePunishFinish>,
     [WebcastEvent.LINK_MIC_BATTLE_TASK]: EventHandler<WebcastLinkmicBattleTaskMessage>,
     [WebcastEvent.LINK_MIC_FAN_TICKET_METHOD]: EventHandler<WebcastLinkMicFanTicketMethod>,
@@ -317,6 +319,7 @@ export const WebcastEventMap: Record<BasicWebcastEventMessage, keyof ClientEvent
     'WebcastSubPinEventMessage': WebcastEvent.SUB_PIN_EVENT,
     'WebcastToastMessage': WebcastEvent.TOAST,
     'WebcastViewerPicksUpdateMessage': WebcastEvent.VIEWER_PICKS_UPDATE,
+    'WebcastLinkMicBattleItemCard': WebcastEvent.LINK_MIC_BATTLE_ITEM_CARD
 };
 
 
