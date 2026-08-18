@@ -1,6 +1,6 @@
 {
     "name": "tiktok-live-connector",
-    "version": "2.4.3",
+    "version": "2.4.4",
     "description": "TikTok LIVE API for Node.js: The #1 library for real-time chat, gift, like, follow and viewer events from any TikTok livestream.",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
