@@ -2,13 +2,17 @@
 
 [TikTok LIVE API](https://www.eulerstream.com/) Client for Node.JS (Unofficial, Unaffiliated with ByteDance Ltd.)
 
-A Node.js library to receive live stream events such as comments and gifts in realtime
-from [TikTok LIVE](https://www.tiktok.com/live) by connecting to TikTok's internal Webcast push service.
-This package includes a wrapper that connects to the Webcast service using just the username (`@uniqueId`).
-This allows you to connect to your own live chat as well as the live chat of other streamers. No credentials are
-required. Besides [Chat Comments](#chat), other events such
-as [Members Joining](#member), [Gifts](#gift), [Subscriptions](#subscribe), [Viewers](#roomuser), [Follows](#social), [Shares](#social), [Questions](#questionnew), [Likes](#like)
-and [Battles](#linkmicbattle) can be tracked.
+Connect to any [TikTok LIVE](https://www.tiktok.com/live) stream and receive real-time chat messages,
+gifts, likes, follows, shares, viewer counts and battles using just a creator's username (`@uniqueId`).
+No login, credentials or app registration are required.
+
+TikTokLiveConnector reads TikTok's internal Webcast push service directly, which makes it the foundation for
+TikTok chat bots, gift trackers, OBS overlays, donation alerts, moderation tools and livestream analytics.
+It works for your own live chat and for any other creator's.
+
+Tracked events include [Chat Comments](#chat), [Members Joining](#member), [Gifts](#gift),
+[Viewers](#roomuser), [Follows](#social), [Shares](#social), [Questions](#questionnew),
+[Likes](#like), [Super Fans](#superfan) and [Battles](#linkmicbattle).
 
 [![Discord](https://img.shields.io/discord/977648006063091742?logo=discord&label=TikTokLive%20Discord&labelColor=%23171717&color=%231877af)](https://discord.gg/N3KSxzvDX8)
 ![Connections](https://api.eulerstream.com/analytics/pips?client=ttlive-node)
@@ -1301,6 +1305,45 @@ await connection.connect();
 await connection.sendMessage('Hello world!');
 console.log('Message sent!');
 ```
+
+## Frequently Asked Questions
+
+### Is there an official TikTok LIVE API?
+
+TikTok does not offer a public official API for reading livestream events. TikTokLiveConnector is an unofficial,
+open-source TikTok LIVE API client that reads the same Webcast data available to any viewer of a stream.
+
+### How do I read TikTok live chat messages in Node.js?
+
+Install with `npm i tiktok-live-connector`, create a `TikTokLiveConnection` with the streamer's `@uniqueId`, and
+listen for `WebcastEvent.CHAT`. See [Getting Started](#getting-started) above — it takes about ten lines of code.
+
+### Can I track TikTok gifts, likes and viewer counts in real time?
+
+Yes. [`GIFT`](#gift) (with streak handling), [`LIKE`](#like) and [`ROOM_USER`](#roomuser) deliver gifts, likes and
+live viewer counts as they happen, alongside follows, shares, subscriptions, questions and battles.
+
+### Does it work without logging in?
+
+Yes. No credentials, cookies or app registration are required to *read* a public livestream. Authentication is only
+needed to *send* chat messages, which additionally requires a sign API key — see [Send Messages](#send-messages).
+
+### Is it free?
+
+Yes, the library is free and open source. Connecting requires a signed WebSocket token, provided by
+[Euler Stream](https://www.eulerstream.com/) with free community rate limits; an API key raises those limits.
+
+### Is it production-ready?
+
+The library is a reverse-engineering project and TikTok can change the Webcast protocol without notice. For
+workloads that need an uptime guarantee, use the managed
+[TikTok LIVE WebSocket API](https://www.eulerstream.com/websockets), which handles signing, scaling and protocol
+drift for you.
+
+### Is this available in other languages?
+
+Yes — see [Do you prefer other programming languages?](#do-you-prefer-other-programming-languages) for the Python,
+Java, Go and C# ports.
 
 ## Contributors
 
