@@ -120,7 +120,7 @@ export const fetchSignedWebSocketFromEulerRoute = createRoute<FetchSignedWebSock
             const data = JSON.parse(Buffer.from(response.data).toString('utf-8')) as any;
             const message = process.env.SIGN_SERVER_MESSAGE_DISABLED ? null : data?.message;
             const label = data?.limit_label ? `(${data.limit_label}) ` : '';
-            throw new SignatureRateLimitError(message, `${label}Too many connections started, try again later.`, response.data);
+            throw new SignatureRateLimitError(message, `${label}Too many connections started, try again later.`, response);
         }
 
         if (response.status === 402) {

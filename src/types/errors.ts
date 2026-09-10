@@ -3,7 +3,7 @@
  * Avoids depending on axios's declaration files (which the library no longer ships at runtime).
  */
 type RateLimitedResponse = {
-    headers: Record<string, string | undefined>;
+    headers: Record<string, unknown>;
 };
 
 class ConnectError extends Error {
@@ -135,8 +135,8 @@ export class SignatureRateLimitError extends SignAPIError {
     constructor(apiMessage: string | undefined, formatStr: string, response: RateLimitedResponse) {
         const retryAfter = SignatureRateLimitError.calculateRetryAfter(response);
         const resetTime = SignatureRateLimitError.calculateResetTime(response);
-        const logId = response.headers['x-log-id'];
-        const agentId = response.headers['x-agent-id'];
+        const logId = SignatureRateLimitError.readHeader(response, 'x-log-id');
+        const agentId = SignatureRateLimitError.readHeader(response, 'x-agent-id');
 
         const formattedMsg = formatStr.replace('%s', retryAfter.toString());
         const args: string[] = [formattedMsg];
@@ -152,17 +152,18 @@ export class SignatureRateLimitError extends SignAPIError {
         this.resetTime = resetTime;
     }
 
-    private static parseHeaderNumber(value: string | undefined): number | undefined {
-        return value ? parseInt(value) : undefined;
+    private static readHeader(response: RateLimitedResponse, name: string): string | undefined {
+        const value = response.headers[name];
+        return typeof value === 'string' || typeof value === 'number' ? String(value) : undefined;
     }
 
     private static calculateRetryAfter(response: RateLimitedResponse): number {
-        const retryAfter = parseInt(response.headers['retry-after'] || '0');
+        const retryAfter = parseInt(SignatureRateLimitError.readHeader(response, 'retry-after') || '0');
         return retryAfter * 1000;
     }
 
     private static calculateResetTime(response: RateLimitedResponse): number | undefined {
-        const value = response.headers['x-ratelimit-reset'];
+        const value = SignatureRateLimitError.readHeader(response, 'x-ratelimit-reset');
         return value ? parseInt(value) * 1000 : undefined;
     }
 
