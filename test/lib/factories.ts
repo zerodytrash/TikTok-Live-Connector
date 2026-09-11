@@ -1,4 +1,4 @@
-import type WebcastHttpClient from '@/lib/web/lib/http-client';
+import type { WebcastHttpClient } from '@/lib/web/lib/http-client';
 import type { CookieSessionBundle, OAuthTokenSessionBundle } from '@/types/client';
 import type EulerStreamApiClient from 'tiktok-live-api-sdk';
 import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
