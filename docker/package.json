@@ -1,0 +1,6 @@
+{
+    "name": "tiktok-live-connector-docker",
+    "private": true,
+    "type": "module",
+    "description": "Container entrypoint for tiktok-live-connector: streams TikTok LIVE events as JSON lines"
+}

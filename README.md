@@ -42,6 +42,7 @@ Tracked events include [Chat Comments](#chat), [Members Joining](#member), [Gift
 ### Table of Contents
 
 - [Getting Started](#getting-started)
+- [Run with Docker](#run-with-docker)
 - [Params and Options](#params-and-options)
 - [Methods](#methods)
 - [Properties](#properties)
@@ -87,6 +88,31 @@ connection.on(WebcastEvent.GIFT, data => {
 
 // ...and more events described in the documentation below
 ```
+
+### Run with Docker
+
+A prebuilt image on GitHub Container Registry streams every event from a LIVE as one JSON object per line on
+stdout, so you can pipe it into `jq`, a log shipper, or any process that reads stdin. No Node.js install needed.
+
+```bash
+docker run --rm -e SIGN_API_KEY=your-api-key ghcr.io/zerodytrash/tiktok-live-connector tv_asahi_news
+```
+
+Each line looks like `{"event":"chat","ts":1758000000000,"data":{...}}`. `event` is one of the
+[message event names](#events) (`chat`, `gift`, `like`, ...) or `connected`, `disconnected`, `error`.
+`ts` is the receive time in milliseconds. Protobuf 64-bit integers are emitted as strings and byte fields as base64.
+
+| Variable           | Description                                                                                   |
+|--------------------|-----------------------------------------------------------------------------------------------|
+| `SIGN_API_KEY`     | Euler Stream API key. See [Signing Configuration](#signing-configuration).                    |
+| `TIKTOK_UNIQUE_ID` | Username to connect to, as an alternative to the positional argument.                         |
+| `TIKTOK_EVENTS`    | Comma-separated events to emit, e.g. `chat,gift,like`. Defaults to all message events.        |
+| `SIGN_API_URL`     | Custom sign server base URL.                                                                  |
+
+The container exits with code `0` when the stream ends or it receives `SIGTERM`, `1` on a connection error, and
+`2` on a usage error. Image tags track the npm version (`2.5.0`, `2.5`, `2`, `latest`) and the image is built for
+`linux/amd64` and `linux/arm64`. It supports anonymous connections only; for authenticated sessions or custom
+options, use the library directly.
 
 ## Params and Options
 

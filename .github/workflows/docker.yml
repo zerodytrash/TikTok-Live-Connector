@@ -1,0 +1,126 @@
+name: "Release (Docker): Build & Publish to GHCR"
+
+# Packages an already-published npm version of tiktok-live-connector as a
+# container image on GitHub Container Registry. Runs automatically at the end
+# of the npm release workflow, and can be dispatched by hand for any version.
+
+on:
+    workflow_dispatch:
+        inputs:
+            version:
+                description: 'Published npm version to package (e.g. 2.5.0). Leave blank to use the version in package.json.'
+                type: string
+                required: false
+                default: ''
+    workflow_call:
+        inputs:
+            version:
+                description: 'Published npm version to package'
+                type: string
+                required: true
+
+permissions:
+    contents: read
+    packages: write
+
+env:
+    IMAGE_NAME: tiktok-live-connector
+
+jobs:
+    docker:
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v7
+
+            -   name: Resolve version and image tags
+                id: meta
+                run: |
+                    VERSION="${{ inputs.version }}"
+                    if [ -z "$VERSION" ]; then
+                      VERSION=$(node -p "require('./package.json').version")
+                    fi
+                    VERSION="${VERSION#v}"
+                    IMAGE="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${IMAGE_NAME}"
+                    TAGS="${IMAGE}:${VERSION}"
+                    # Floating tags (2.5, 2, latest) only for stable releases without a prerelease suffix
+                    if [[ "$VERSION" != *-* ]]; then
+                      MAJOR="${VERSION%%.*}"
+                      MINOR="${VERSION%.*}"
+                      TAGS="${TAGS},${IMAGE}:${MINOR},${IMAGE}:${MAJOR},${IMAGE}:latest"
+                    fi
+                    echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+                    echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+                    echo "tags=$TAGS" >> "$GITHUB_OUTPUT"
+                    echo "Packaging tiktok-live-connector@${VERSION} as ${TAGS}"
+
+            -   name: Wait for npm to serve the version
+                run: |
+                    for attempt in $(seq 1 20); do
+                      if npm view "tiktok-live-connector@${{ steps.meta.outputs.version }}" version >/dev/null 2>&1; then
+                        echo "npm has tiktok-live-connector@${{ steps.meta.outputs.version }}"
+                        exit 0
+                      fi
+                      echo "Attempt ${attempt}/20: not visible on npm yet, retrying in 15s"
+                      sleep 15
+                    done
+                    echo "::error::tiktok-live-connector@${{ steps.meta.outputs.version }} is not available on npm"
+                    exit 1
+
+            -   uses: docker/setup-qemu-action@v4
+            -   uses: docker/setup-buildx-action@v4
+
+            -   name: Log in to GHCR
+                uses: docker/login-action@v4
+                with:
+                    registry: ghcr.io
+                    username: ${{ github.actor }}
+                    password: ${{ secrets.GITHUB_TOKEN }}
+
+            -   name: Build image for smoke test
+                uses: docker/build-push-action@v7
+                with:
+                    context: docker
+                    load: true
+                    tags: ${{ env.IMAGE_NAME }}:smoke
+                    build-args: PACKAGE_VERSION=${{ steps.meta.outputs.version }}
+                    cache-from: type=gha
+                    cache-to: type=gha,mode=max
+
+            -   name: Smoke test
+                run: |
+                    EXPECTED="${{ steps.meta.outputs.version }}"
+                    GOT=$(docker run --rm "${IMAGE_NAME}:smoke" --version)
+                    echo "Image reports tiktok-live-connector ${GOT}"
+                    if [ "$GOT" != "$EXPECTED" ]; then
+                      echo "::error::image reports version ${GOT}, expected ${EXPECTED}"
+                      exit 1
+                    fi
+                    set +e
+                    OUT=$(docker run --rm "${IMAGE_NAME}:smoke" 2>&1)
+                    CODE=$?
+                    set -e
+                    if [ "$CODE" -ne 2 ] || ! echo "$OUT" | grep -q '^Usage:'; then
+                      echo "$OUT"
+                      echo "::error::running without arguments should print usage and exit 2 (got exit ${CODE})"
+                      exit 1
+                    fi
+                    echo "Usage check passed"
+
+            -   name: Build and push multi-arch image
+                uses: docker/build-push-action@v7
+                with:
+                    context: docker
+                    push: true
+                    platforms: linux/amd64,linux/arm64
+                    tags: ${{ steps.meta.outputs.tags }}
+                    build-args: PACKAGE_VERSION=${{ steps.meta.outputs.version }}
+                    cache-from: type=gha
+                    cache-to: type=gha,mode=max
+
+            -   name: Summary
+                run: |
+                    {
+                      echo "### Published \`${{ steps.meta.outputs.image }}\` for tiktok-live-connector@${{ steps.meta.outputs.version }}"
+                      echo ""
+                      echo "Tags: \`${{ steps.meta.outputs.tags }}\`"
+                    } >> "$GITHUB_STEP_SUMMARY"

@@ -21,6 +21,7 @@ on:
 permissions:
     contents: write
     id-token: write
+    packages: write
 
 jobs:
     check-branch:
@@ -35,6 +36,8 @@ jobs:
     release:
         needs: check-branch
         runs-on: ubuntu-latest
+        outputs:
+            version: ${{ steps.version.outputs.version }}
         permissions:
             contents: write
             id-token: write
@@ -135,3 +138,12 @@ jobs:
 
             -   name: Summary
                 run: echo "### Published tiktok-live-connector@${{ steps.version.outputs.version }} under dist-tag \`${{ steps.version.outputs.tag }}\`" >> $GITHUB_STEP_SUMMARY
+
+    docker:
+        needs: release
+        uses: ./.github/workflows/docker.yml
+        with:
+            version: ${{ needs.release.outputs.version }}
+        permissions:
+            contents: read
+            packages: write
