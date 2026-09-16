@@ -107,6 +107,22 @@ export default class WebcastCookieJar implements AbstractWebcastCookieJar {
     }
 
     /**
+     * Get the cookie string without session tokens
+     */
+    async getAnonymousCookieString(): Promise<string> {
+        const anonymizedStore: Record<string, string> = {};
+
+        for (let [cookieName, cookieValue] of Object.entries(this.store)) {
+                // Add non-session cookies to the anonymized store
+            if (!this.webConfig.SESSION_COOKIE_NAMES.includes(cookieName) && cookieName !== this.webConfig.TARGET_IDC_COOKIE_NAME) {
+                anonymizedStore[cookieName] = cookieValue;
+            }
+        }
+
+        return WebcastCookieJar.serializeCookieObject(anonymizedStore);
+    }
+
+    /**
      * Set cookie string - we ignore the URL parameter for the same reason as in getCookieString
      * @param rawCookie The raw cookie string from the set-cookie header
      * @param __url The URL the cookie is associated with (ignored)
