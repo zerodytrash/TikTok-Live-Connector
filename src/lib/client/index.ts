@@ -63,7 +63,7 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
    * @param options.eulerApiInstance Optional pre-built Euler Stream API client. Takes precedence over `signApiKey`.
    * @param options.session Authenticated session bundle. Pass `session.cookie` to seed the cookie jar with `sessionid` and `tt-target-idc`, and/or `session.oAuthToken` to send an OAuth token to the sign server. Required when `authenticateWs` or `useMobile` is true.
    * @param options.authenticateWs Forward the session cookies / OAuth token to the sign server so the WebSocket is authenticated. Defaults to false.
-   * @param options.useMobile Use the mobile WebSocket flow. Implies `authenticateWs: true` and requires `session.cookie`. Defaults to false.
+   * @param options.useMobile Use the mobile WebSocket flow. Requires `authenticateWs: true` and `session.cookie`; connecting with `useMobile` but without `authenticateWs` throws a `TypeError`. Defaults to false.
    * @param options.processInitialData Decode and emit the message batch returned in the initial sign response. Defaults to true.
    * @param options.fetchRoomInfoOnConnect Fetch room info during connect, throwing `UserOfflineError` if the streamer is not live. Defaults to true.
    * @param options.enableExtendedGiftInfo Fetch the room gift list during connect so `WebcastGiftMessage` events carry an `extendedGiftInfo` field. Defaults to false.
