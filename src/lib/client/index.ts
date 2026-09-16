@@ -75,7 +75,7 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
    */
   constructor(
     public readonly uniqueId: string,
-    options: TikTokLiveConstructorConnectionOptions
+    options: TikTokLiveConstructorConnectionOptions = {}
   ) {
     super();
 
