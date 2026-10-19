@@ -14,6 +14,7 @@ const connection = new TikTokLiveConnection('creator_username', {});
 connection.on(WebcastEvent.CHAT, (event) => {
     console.log(event.user?.displayId, event.content);
 });
+await connection.connect();
 ```
 
 ## Payload changes
@@ -33,7 +34,7 @@ The small `BattleUserInfo` nested in Power-Up cards uses `userId`, `displayId`, 
 
 - Replace `sessionId` and `ttTargetIdc` constructor fields with `session.cookie`, containing `type: 'cookie'` and `value: { sessionId, ttTargetIdc }`.
 - Replace `oauthToken` with `session.oAuthToken`, containing `type: 'oAuthToken'` and `value`.
-- Replace Axios-shaped HTTP options with Got-shaped `webClientOptions`. Query parameters are `searchParams`.
+- Replace Axios request options with `webClientOptions` for the Got HTTP client. Query parameters are `searchParams`.
 - Use `wsClientOptions` for socket transport options, and `webConfigOverrides` / `wsConfigOverrides` for protocol configuration.
 - Replace `signedWebSocketProvider` with `RouteConfig.fetchSignedWebSocketFromProvider`.
 - Replace `disableEulerFallbacks` with the specific `RoomIdRouteConfig` and `IsLiveRouteConfig` flags.

@@ -32,7 +32,7 @@ Construct a client with `new TikTokLiveConnection(uniqueId, options)`. The optio
 | Option | Default | Behavior |
 | --- | --- | --- |
 | `clientPresets` | `getRandomPresets()` | Sets the `{ device, location, screen }` used to build HTTP and WebSocket defaults. Despite the helper's name, presets are fixed unless the randomization environment flags are enabled. |
-| `webClientOptions` | `{}` | Got transport options, including proxy agents, headers, query parameters, and retries. See [HTTP transport](/advanced/http/). |
+| `webClientOptions` | `{}` | Options for the Got HTTP client, including proxy agents, headers, query parameters, and retries. See [HTTP transport](/advanced/http/). |
 | `wsClientOptions` | `{}` | `ws` client options, including a proxy agent, custom headers, and `handshakeTimeout`. Dynamic connection headers take precedence over supplied headers. |
 | `webConfigOverrides` | `{}` | Shallow replacement of fields in the resolved HTTP protocol configuration. |
 | `wsConfigOverrides` | `{}` | Shallow replacement of fields in the resolved WebSocket protocol configuration. |

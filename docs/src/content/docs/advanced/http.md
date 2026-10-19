@@ -1,9 +1,9 @@
 ---
 title: HTTP client and cookies
-description: Got transport options, request helpers, proxying, and cookie-jar behavior.
+description: Configure HTTP requests, proxies, and cookies.
 ---
 
-Most applications can use the connection methods and `RouteConfig`. `connection.webClient` exposes the underlying `WebcastHttpClient` for lower-level work.
+The connector uses [Got](https://github.com/sindresorhus/got), the `got` npm package, to make HTTP requests to TikTok. Most applications can use the connection methods and `RouteConfig`. `connection.webClient` exposes the underlying `WebcastHttpClient` for lower-level work.
 
 ## Request helpers
 
@@ -22,7 +22,7 @@ In this checkout, `getBaseUrl()` prefixes non-loopback hosts with `http://` and 
 
 ## Transport configuration
 
-`webClientOptions` uses Got options. `headers` and `searchParams` are extracted and merged into the live client state. The cookie jar is managed by the connector. `wsClientOptions` uses the separate `ws` options shape.
+`webClientOptions` accepts options for the Got HTTP client. `headers` and `searchParams` are extracted and merged into the live client state. The cookie jar is managed by the connector. `wsClientOptions` uses the separate `ws` options shape.
 
 Configure a Got `agent` object for HTTP/HTTPS proxying and a suitable `agent` for `ws` when proxying socket traffic. An HTTP proxy setting does not automatically configure the WebSocket or the provider SDK. Configure your explicit `eulerApiInstance` separately if provider traffic also needs a proxy.
 

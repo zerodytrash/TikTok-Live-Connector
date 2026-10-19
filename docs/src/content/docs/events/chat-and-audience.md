@@ -81,6 +81,8 @@ await connection.connect();
 
 A like update, with a per-update `count` and a `total`. Likes do not count unique viewers.
 
+TikTok may omit individual like updates, especially in streams with many viewers. Do not assume one event per like.
+
 Schema fields include `count`, `total`, `color`, `user`, `icon`, `icons`, `specifiedDisplayText`, `effectCnt`.
 
 ```ts

@@ -26,6 +26,7 @@ connection.on(WebcastEvent.LINK_MIC_BATTLE_ITEM_CARD, (event) => {
         anchorId: use?.anchorId,
     });
 });
+await connection.connect();
 ```
 
 The card sender uses a small battle-specific user message. Its fields are `userId`, `displayId`, and `nickName`; they differ from the ordinary `User` message's `id` and `nickname`.
@@ -67,6 +68,7 @@ connection.on(WebcastEvent.LINK_MIC_BATTLE_ITEM_CARD, (event) => {
         console.log(event.specialEffectNotice?.fromUserId, event.specialEffectNotice?.toAnchorId);
     }
 });
+await connection.connect();
 ```
 
 ## Times, IDs, and missing fields

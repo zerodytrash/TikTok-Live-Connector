@@ -314,57 +314,61 @@ connection.on(ControlEvent.CONNECTED, () => console.log("Connected!"));
 
 ### Control Events:
 
+<a id="control-events-1"></a>
+
 See the [control event reference](docs/src/content/docs/events/control.md) for arguments and examples.
 
-- [`ControlEvent.CONNECTED`](docs/src/content/docs/events/control.md#connected) or `"connected"`
-- [`ControlEvent.DISCONNECTED`](docs/src/content/docs/events/control.md#disconnected) or `"disconnected"`
-- [`ControlEvent.RAW_DATA`](docs/src/content/docs/events/control.md#raw-data) or `"rawData"`
-- [`ControlEvent.DECODED_DATA`](docs/src/content/docs/events/control.md#decoded-data) or `"decodedData"`
-- [`ControlEvent.WEBSOCKET_CONNECTED`](docs/src/content/docs/events/control.md#websocket-connected) or `"websocketConnected"`
-- [`ControlEvent.ERROR`](docs/src/content/docs/events/control.md#error) or `"error"`
-- [`ControlEvent.WEBSOCKET_DATA`](docs/src/content/docs/events/control.md#websocket-bytes) or `"websocketData"`
+- <a id="connected"></a>[`ControlEvent.CONNECTED`](docs/src/content/docs/events/control.md#connected) or `"connected"`
+- <a id="disconnected"></a>[`ControlEvent.DISCONNECTED`](docs/src/content/docs/events/control.md#disconnected) or `"disconnected"`
+- <a id="rawdata"></a>[`ControlEvent.RAW_DATA`](docs/src/content/docs/events/control.md#raw-data) or `"rawData"`
+- <a id="decodeddata"></a>[`ControlEvent.DECODED_DATA`](docs/src/content/docs/events/control.md#decoded-data) or `"decodedData"`
+- <a id="websocketconnected"></a>[`ControlEvent.WEBSOCKET_CONNECTED`](docs/src/content/docs/events/control.md#websocket-connected) or `"websocketConnected"`
+- <a id="error"></a>[`ControlEvent.ERROR`](docs/src/content/docs/events/control.md#error) or `"error"`
+- <a id="websocketdata"></a>[`ControlEvent.WEBSOCKET_DATA`](docs/src/content/docs/events/control.md#websocket-bytes) or `"websocketData"`
 
 ### Message Events:
 
+<a id="message-events-1"></a>
+
 See the [message event reference](docs/src/content/docs/events/index.md) for payloads and examples.
 
-- [`WebcastEvent.CHAT`](docs/src/content/docs/events/chat-and-audience.md#chat) or `"chat"`
-- [`WebcastEvent.GIFT`](docs/src/content/docs/events/gifts-and-goals.md#gift) or `"gift"`
-- [`WebcastEvent.MEMBER`](docs/src/content/docs/events/chat-and-audience.md#member) or `"member"`
-- [`WebcastEvent.LIKE`](docs/src/content/docs/events/chat-and-audience.md#like) or `"like"`
-- [`WebcastEvent.SOCIAL`](docs/src/content/docs/events/chat-and-audience.md#social) or `"social"`
-- [`WebcastEvent.ENVELOPE`](docs/src/content/docs/events/gifts-and-goals.md#envelope) or `"envelope"`
-- [`WebcastEvent.QUESTION_NEW`](docs/src/content/docs/events/chat-and-audience.md#question-new) or `"questionNew"`
-- [`WebcastEvent.LINK_MIC_BATTLE`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-battle) or `"linkMicBattle"`
-- [`WebcastEvent.LINK_MIC_ARMIES`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-armies) or `"linkMicArmies"`
-- [`WebcastEvent.LIVE_INTRO`](docs/src/content/docs/events/room-and-display.md#live-intro) or `"liveIntro"`
-- [`WebcastEvent.SUPER_FAN`](docs/src/content/docs/events/subscriptions-and-fans.md#super-fan) or `"superFan"`
-- [`WebcastEvent.SUPER_FAN_JOIN`](docs/src/content/docs/events/subscriptions-and-fans.md#super-fan-join) or `"superFanJoin"`
-- [`WebcastEvent.FOLLOW`](docs/src/content/docs/events/chat-and-audience.md#follow) or `"follow"`
-- [`WebcastEvent.SHARE`](docs/src/content/docs/events/chat-and-audience.md#share) or `"share"`
-- [`WebcastEvent.STREAM_END`](docs/src/content/docs/events/stream-control.md#stream-end) or `"streamEnd"`
-- [`WebcastEvent.ROOM_USER`](docs/src/content/docs/events/chat-and-audience.md#room-user) or `"roomUser"`
-- [`WebcastEvent.EMOTE`](docs/src/content/docs/events/chat-and-audience.md#emote) or `"emote"`
-- [`WebcastEvent.GOAL_UPDATE`](docs/src/content/docs/events/gifts-and-goals.md#goal-update) or `"goalUpdate"`
-- [`WebcastEvent.ROOM_MESSAGE`](docs/src/content/docs/events/room-and-display.md#room-message) or `"roomMessage"`
-- [`WebcastEvent.CAPTION_MESSAGE`](docs/src/content/docs/events/room-and-display.md#caption-message) or `"captionMessage"`
-- [`WebcastEvent.IM_DELETE`](docs/src/content/docs/events/moderation-and-access.md#im-delete) or `"imDelete"`
-- [`WebcastEvent.IN_ROOM_BANNER`](docs/src/content/docs/events/room-and-display.md#in-room-banner) or `"inRoomBanner"`
-- [`WebcastEvent.RANK_UPDATE`](docs/src/content/docs/events/rankings.md#rank-update) or `"rankUpdate"`
-- [`WebcastEvent.POLL_MESSAGE`](docs/src/content/docs/events/room-and-display.md#poll-message) or `"pollMessage"`
-- [`WebcastEvent.RANK_TEXT`](docs/src/content/docs/events/rankings.md#rank-text) or `"rankText"`
-- [`WebcastEvent.LINK_MIC_BATTLE_PUNISH_FINISH`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-battle-punish-finish) or `"linkMicBattlePunishFinish"`
-- [`WebcastEvent.LINK_MIC_BATTLE_TASK`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-battle-task) or `"linkMicBattleTask"`
-- [`WebcastEvent.LINK_MIC_FAN_TICKET_METHOD`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-fan-ticket-method) or `"linkMicFanTicketMethod"`
-- [`WebcastEvent.LINK_MIC_METHOD`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-method) or `"linkMicMethod"`
-- [`WebcastEvent.UNAUTHORIZED_MEMBER`](docs/src/content/docs/events/moderation-and-access.md#unauthorized-member) or `"unauthorizedMember"`
-- [`WebcastEvent.OEC_LIVE_SHOPPING`](docs/src/content/docs/events/games-and-commerce.md#oec-live-shopping) or `"oecLiveShopping"`
-- [`WebcastEvent.MSG_DETECT`](docs/src/content/docs/events/moderation-and-access.md#msg-detect) or `"msgDetect"`
-- [`WebcastEvent.LINK_MESSAGE`](docs/src/content/docs/events/battles-and-cohosting.md#link-message) or `"linkMessage"`
-- [`WebcastEvent.ROOM_VERIFY`](docs/src/content/docs/events/moderation-and-access.md#room-verify) or `"roomVerify"`
-- [`WebcastEvent.LINK_LAYER`](docs/src/content/docs/events/battles-and-cohosting.md#link-layer) or `"linkLayer"`
-- [`WebcastEvent.ROOM_PIN`](docs/src/content/docs/events/room-and-display.md#room-pin) or `"roomPin"`
-- [`WebcastEvent.SUPER_FAN_BOX`](docs/src/content/docs/events/subscriptions-and-fans.md#super-fan-box) or `"superFanBox"`
+- <a id="chat"></a>[`WebcastEvent.CHAT`](docs/src/content/docs/events/chat-and-audience.md#chat) or `"chat"`
+- <a id="gift"></a>[`WebcastEvent.GIFT`](docs/src/content/docs/events/gifts-and-goals.md#gift) or `"gift"`
+- <a id="member"></a>[`WebcastEvent.MEMBER`](docs/src/content/docs/events/chat-and-audience.md#member) or `"member"`
+- <a id="like"></a>[`WebcastEvent.LIKE`](docs/src/content/docs/events/chat-and-audience.md#like) or `"like"`
+- <a id="social"></a>[`WebcastEvent.SOCIAL`](docs/src/content/docs/events/chat-and-audience.md#social) or `"social"`
+- <a id="envelope"></a>[`WebcastEvent.ENVELOPE`](docs/src/content/docs/events/gifts-and-goals.md#envelope) or `"envelope"`
+- <a id="questionnew"></a>[`WebcastEvent.QUESTION_NEW`](docs/src/content/docs/events/chat-and-audience.md#question-new) or `"questionNew"`
+- <a id="linkmicbattle"></a>[`WebcastEvent.LINK_MIC_BATTLE`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-battle) or `"linkMicBattle"`
+- <a id="linkmicarmies"></a>[`WebcastEvent.LINK_MIC_ARMIES`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-armies) or `"linkMicArmies"`
+- <a id="liveintro"></a>[`WebcastEvent.LIVE_INTRO`](docs/src/content/docs/events/room-and-display.md#live-intro) or `"liveIntro"`
+- <a id="superfan"></a>[`WebcastEvent.SUPER_FAN`](docs/src/content/docs/events/subscriptions-and-fans.md#super-fan) or `"superFan"`
+- <a id="superfanjoin"></a>[`WebcastEvent.SUPER_FAN_JOIN`](docs/src/content/docs/events/subscriptions-and-fans.md#super-fan-join) or `"superFanJoin"`
+- <a id="custom-events"></a><a id="follow"></a>[`WebcastEvent.FOLLOW`](docs/src/content/docs/events/chat-and-audience.md#follow) or `"follow"`
+- <a id="share"></a>[`WebcastEvent.SHARE`](docs/src/content/docs/events/chat-and-audience.md#share) or `"share"`
+- <a id="streamend"></a>[`WebcastEvent.STREAM_END`](docs/src/content/docs/events/stream-control.md#stream-end) or `"streamEnd"`
+- <a id="roomuser"></a>[`WebcastEvent.ROOM_USER`](docs/src/content/docs/events/chat-and-audience.md#room-user) or `"roomUser"`
+- <a id="emote"></a>[`WebcastEvent.EMOTE`](docs/src/content/docs/events/chat-and-audience.md#emote) or `"emote"`
+- <a id="goalupdate"></a>[`WebcastEvent.GOAL_UPDATE`](docs/src/content/docs/events/gifts-and-goals.md#goal-update) or `"goalUpdate"`
+- <a id="roommessage"></a>[`WebcastEvent.ROOM_MESSAGE`](docs/src/content/docs/events/room-and-display.md#room-message) or `"roomMessage"`
+- <a id="captionmessage"></a>[`WebcastEvent.CAPTION_MESSAGE`](docs/src/content/docs/events/room-and-display.md#caption-message) or `"captionMessage"`
+- <a id="imdelete"></a>[`WebcastEvent.IM_DELETE`](docs/src/content/docs/events/moderation-and-access.md#im-delete) or `"imDelete"`
+- <a id="inroombanner"></a>[`WebcastEvent.IN_ROOM_BANNER`](docs/src/content/docs/events/room-and-display.md#in-room-banner) or `"inRoomBanner"`
+- <a id="rankupdate"></a>[`WebcastEvent.RANK_UPDATE`](docs/src/content/docs/events/rankings.md#rank-update) or `"rankUpdate"`
+- <a id="pollmessage"></a>[`WebcastEvent.POLL_MESSAGE`](docs/src/content/docs/events/room-and-display.md#poll-message) or `"pollMessage"`
+- <a id="ranktext"></a>[`WebcastEvent.RANK_TEXT`](docs/src/content/docs/events/rankings.md#rank-text) or `"rankText"`
+- <a id="linkmicbattlepunishfinish"></a>[`WebcastEvent.LINK_MIC_BATTLE_PUNISH_FINISH`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-battle-punish-finish) or `"linkMicBattlePunishFinish"`
+- <a id="linkmicbattletask"></a>[`WebcastEvent.LINK_MIC_BATTLE_TASK`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-battle-task) or `"linkMicBattleTask"`
+- <a id="linkmicfanticketmethod"></a>[`WebcastEvent.LINK_MIC_FAN_TICKET_METHOD`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-fan-ticket-method) or `"linkMicFanTicketMethod"`
+- <a id="linkmicmethod"></a>[`WebcastEvent.LINK_MIC_METHOD`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-method) or `"linkMicMethod"`
+- <a id="unauthorizedmember"></a>[`WebcastEvent.UNAUTHORIZED_MEMBER`](docs/src/content/docs/events/moderation-and-access.md#unauthorized-member) or `"unauthorizedMember"`
+- <a id="oecliveshopping"></a>[`WebcastEvent.OEC_LIVE_SHOPPING`](docs/src/content/docs/events/games-and-commerce.md#oec-live-shopping) or `"oecLiveShopping"`
+- <a id="msgdetect"></a>[`WebcastEvent.MSG_DETECT`](docs/src/content/docs/events/moderation-and-access.md#msg-detect) or `"msgDetect"`
+- <a id="linkmessage"></a>[`WebcastEvent.LINK_MESSAGE`](docs/src/content/docs/events/battles-and-cohosting.md#link-message) or `"linkMessage"`
+- <a id="roomverify"></a>[`WebcastEvent.ROOM_VERIFY`](docs/src/content/docs/events/moderation-and-access.md#room-verify) or `"roomVerify"`
+- <a id="linklayer"></a>[`WebcastEvent.LINK_LAYER`](docs/src/content/docs/events/battles-and-cohosting.md#link-layer) or `"linkLayer"`
+- <a id="roompin"></a>[`WebcastEvent.ROOM_PIN`](docs/src/content/docs/events/room-and-display.md#room-pin) or `"roomPin"`
+- <a id="superfanbox"></a>[`WebcastEvent.SUPER_FAN_BOX`](docs/src/content/docs/events/subscriptions-and-fans.md#super-fan-box) or `"superFanBox"`
 - [`WebcastEvent.ACCESS_CONTROL`](docs/src/content/docs/events/moderation-and-access.md#access-control) or `"accessControl"`
 - [`WebcastEvent.ACCESS_RECALL`](docs/src/content/docs/events/moderation-and-access.md#access-recall) or `"accessRecall"`
 - [`WebcastEvent.BOOST_CARD`](docs/src/content/docs/events/gifts-and-goals.md#boost-card) or `"boostCard"`

@@ -14,6 +14,7 @@ const connection = new TikTokLiveConnection('creator_username', {});
 connection.on(WebcastEvent.CHAT, (event) => {
     console.log(event.user?.displayId, event.content);
 });
+await connection.connect();
 ```
 
 The tables cover all 68 `WebcastEvent` members in this checkout. See [control events](/events/control/) for all eight `ControlEvent` members and their argument lists. Types are inferred from `ClientEventMap`; the [API reference](/api/) and [protobuf reference](/schema/) provide their full definitions.

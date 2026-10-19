@@ -21,6 +21,7 @@ connection.on(WebcastEvent.LINK_MIC_BATTLE, (event) => {
 connection.on(WebcastEvent.LINK_MIC_ARMIES, (event) => {
     console.log(event.battleId, event.armies, event.teamArmies);
 });
+await connection.connect();
 ```
 
 Do not add every score snapshot as though it were a new gift. A battle score can be affected by multipliers or other rules, and a score total is not a monetary total.

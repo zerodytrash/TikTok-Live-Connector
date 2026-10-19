@@ -23,6 +23,7 @@ connection.on(WebcastEvent.CHAT, (event) => {
     // Pass this object to your application's WebSocket or IPC transport.
     console.log(message);
 });
+await connection.connect();
 ```
 
 Render user text as text, not executable HTML. Keep stable string IDs for deduplication and use your own bounded queue for slow consumers.

@@ -5,6 +5,8 @@ description: Fetch room data and distinguish viewer snapshots from joins and lik
 
 `fetchRoomId(uniqueId?)` resolves and stores a room ID. `fetchRoomInfo(roomId?)` fetches room information, resolves an ID first if necessary, and caches its result in `roomInfo`. You can call these without opening a WebSocket.
 
+This example fetches room details first, then connects to receive viewer updates:
+
 ```ts
 import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
 
@@ -16,6 +18,7 @@ console.log(roomId, roomInfo);
 connection.on(WebcastEvent.ROOM_USER, (event) => {
     console.log({ viewers: event.total, totalUser: event.totalUser, ranks: event.ranks });
 });
+await connection.connect();
 ```
 
 The room-info response type is currently loose. Check the returned shape and `data.status` rather than treating every response as a complete, stable schema.

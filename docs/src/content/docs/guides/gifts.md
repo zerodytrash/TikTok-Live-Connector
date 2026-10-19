@@ -26,6 +26,7 @@ connection.on(WebcastEvent.GIFT, (event) => {
         diamondsPerGift: event.gift.diamondCount,
     });
 });
+await connection.connect();
 ```
 
 If you show intermediate progress, update a streak's displayed count rather than adding the cumulative value repeatedly. `groupId`, sender, gift, and room context can help distinguish concurrent streaks. Do not assume a gift ID identifies a unique transaction.
