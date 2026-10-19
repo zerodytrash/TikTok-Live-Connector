@@ -7,6 +7,8 @@ The three super-fan events are derived from barrage or envelope messages. SUB_NO
 
 Each entry below lists the listener alias and payload type. Field lists are selected schema fields, not guarantees that every nested value will be populated. The [protobuf reference](/schema/) contains the full message definitions.
 
+Replace `creator_username` with a live creator. Each example registers its listener before connecting.
+
 ## Super fan
 
 **Subscribe:** `WebcastEvent.SUPER_FAN` or `"superFan"`
@@ -16,6 +18,16 @@ Each entry below lists the listener alias and payload type. Field lists are sele
 A barrage identified by a `ttlive_superfan` content key, excluding the join-specific case. The same payload is also emitted as BARRAGE.
 
 Schema fields include `event`, `msgType`, `icon`, `content`, `duration`, `background`, `rightIcon`, `displayConfig`.
+
+```ts
+import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
+
+const connection = new TikTokLiveConnection('creator_username', {});
+connection.on(WebcastEvent.SUPER_FAN, (event) => {
+    console.log(event.content?.defaultPattern, event.commonBarrageContent?.defaultPattern);
+});
+await connection.connect();
+```
 
 ## Super fan join
 
@@ -27,6 +39,16 @@ A barrage identified by the `ttlive_superfan_commentnotif_superfanjoined` key. I
 
 Schema fields include `event`, `msgType`, `icon`, `content`, `duration`, `background`, `rightIcon`, `displayConfig`.
 
+```ts
+import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
+
+const connection = new TikTokLiveConnection('creator_username', {});
+connection.on(WebcastEvent.SUPER_FAN_JOIN, (event) => {
+    console.log(event.content?.defaultPattern, event.commonBarrageContent?.defaultPattern);
+});
+await connection.connect();
+```
+
 ## Super fan box
 
 **Subscribe:** `WebcastEvent.SUPER_FAN_BOX` or `"superFanBox"`
@@ -36,6 +58,16 @@ Schema fields include `event`, `msgType`, `icon`, `content`, `duration`, `backgr
 An envelope identified by its `ttlive_superfanbox` display key or `EnvelopeBusinessType.SUPER_FAN_BOX`. The same payload is also emitted as ENVELOPE.
 
 Schema fields include `envelopeInfo`, `display`, `publicAreaMsgCommon`.
+
+```ts
+import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
+
+const connection = new TikTokLiveConnection('creator_username', {});
+connection.on(WebcastEvent.SUPER_FAN_BOX, (event) => {
+    console.log('Super Fan Box:', event.envelopeInfo);
+});
+await connection.connect();
+```
 
 ## Sub notify
 

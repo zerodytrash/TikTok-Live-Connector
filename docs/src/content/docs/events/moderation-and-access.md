@@ -7,6 +7,8 @@ These are received notifications. Subscribing to them does not grant moderation 
 
 Each entry below lists the listener alias and payload type. Field lists are selected schema fields, not guarantees that every nested value will be populated. The [protobuf reference](/schema/) contains the full message definitions.
 
+Replace `creator_username` with a live creator. Each example registers its listener before connecting.
+
 ## Im delete
 
 **Subscribe:** `WebcastEvent.IM_DELETE` or `"imDelete"`
@@ -16,6 +18,17 @@ Each entry below lists the listener alias and payload type. Field lists are sele
 A message-deletion payload. Use its message identifiers to update your application's stored/displayed chat.
 
 Schema fields include `deleteMsgIds`, `deleteUserIds`.
+
+```ts
+import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
+
+const connection = new TikTokLiveConnection('creator_username', {});
+connection.on(WebcastEvent.IM_DELETE, (event) => {
+    console.log('Deleted message IDs:', event.deleteMsgIds);
+    console.log('Deleted user IDs:', event.deleteUserIds);
+});
+await connection.connect();
+```
 
 ## Unauthorized member
 
@@ -27,6 +40,16 @@ An unauthorized-member payload. The client forwards it without an application-le
 
 Schema fields include `action`, `nickNamePrefix`, `nickName`, `enterText`, `publicAreaCommon`.
 
+```ts
+import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
+
+const connection = new TikTokLiveConnection('creator_username', {});
+connection.on(WebcastEvent.UNAUTHORIZED_MEMBER, (event) => {
+    console.log({ action: event.action, nickname: event.nickName, text: event.enterText?.defaultPattern });
+});
+await connection.connect();
+```
+
 ## Msg detect
 
 **Subscribe:** `WebcastEvent.MSG_DETECT` or `"msgDetect"`
@@ -37,6 +60,21 @@ A message-detection payload. Its presence alone should not be treated as proof o
 
 Schema fields include `dType`, `tCondition`, `tInfo`, `triggerBy`, `fromRegion`.
 
+```ts
+import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
+
+const connection = new TikTokLiveConnection('creator_username', {});
+connection.on(WebcastEvent.MSG_DETECT, (event) => {
+    console.log({
+        detectType: event.dType,
+        triggerBy: event.triggerBy,
+        websocketDetection: event.tCondition?.uplinkDetectWebsocket,
+        apiReceivedAt: event.tInfo?.apiRecvTimeMs,
+    });
+});
+await connection.connect();
+```
+
 ## Room verify
 
 **Subscribe:** `WebcastEvent.ROOM_VERIFY` or `"roomVerify"`
@@ -46,6 +84,16 @@ Schema fields include `dType`, `tCondition`, `tInfo`, `triggerBy`, `fromRegion`.
 A room verification/control payload containing fields such as `action`, `content`, and `closeRoom`.
 
 Schema fields include `action`, `content`, `noticeType`, `closeRoom`.
+
+```ts
+import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
+
+const connection = new TikTokLiveConnection('creator_username', {});
+connection.on(WebcastEvent.ROOM_VERIFY, (event) => {
+    console.log({ noticeType: event.noticeType, action: event.action, closeRoom: event.closeRoom, content: event.content });
+});
+await connection.connect();
+```
 
 ## Access control
 

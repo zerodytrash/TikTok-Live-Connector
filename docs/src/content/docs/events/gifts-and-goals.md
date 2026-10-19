@@ -7,6 +7,8 @@ Gift actions, gift UI messages, envelopes, and goals are separate subscriptions.
 
 Each entry below lists the listener alias and payload type. Field lists are selected schema fields, not guarantees that every nested value will be populated. The [protobuf reference](/schema/) contains the full message definitions.
 
+Replace `creator_username` with a live creator. Each example registers its listener before connecting.
+
 ## Gift
 
 **Subscribe:** `WebcastEvent.GIFT` or `"gift"`
@@ -16,6 +18,29 @@ Each entry below lists the listener alias and payload type. Field lists are sele
 A gift message. Handle cumulative streak updates using `repeatCount`, `repeatEnd`, and the gift type before counting it.
 
 Schema fields include `giftId`, `fanTicketCount`, `groupCount`, `repeatCount`, `comboCount`, `user`, `toUser`, `repeatEnd`.
+
+```ts
+import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
+
+const connection = new TikTokLiveConnection('creator_username', { enableExtendedGiftInfo: true });
+connection.on(WebcastEvent.GIFT, (event) => {
+    if (!event.gift) return;
+    if (event.gift.type === 1 && event.repeatEnd !== 1) {
+        console.log('Streak in progress', event.user?.displayId, event.giftId, event.repeatCount);
+        return;
+    }
+    console.log({
+        sender: event.user?.displayId,
+        giftId: event.giftId,
+        name: event.gift.name,
+        count: event.repeatCount,
+        extendedGiftInfo: event.extendedGiftInfo,
+    });
+});
+await connection.connect();
+```
+
+See [gifts and streaks](/guides/gifts/) for cumulative counts and absent gift metadata.
 
 ## Envelope
 
@@ -27,6 +52,24 @@ An envelope or treasure-box message. A recognized super-fan box also emits SUPER
 
 Schema fields include `envelopeInfo`, `display`, `publicAreaMsgCommon`.
 
+```ts
+import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
+
+const connection = new TikTokLiveConnection('creator_username', {});
+connection.on(WebcastEvent.ENVELOPE, (event) => {
+    const envelope = event.envelopeInfo;
+    if (envelope) {
+        console.log({
+            envelopeId: envelope.envelopeId,
+            sender: envelope.sendUserName,
+            diamonds: envelope.diamondCount,
+            people: envelope.peopleCount,
+        });
+    }
+});
+await connection.connect();
+```
+
 ## Goal update
 
 **Subscribe:** `WebcastEvent.GOAL_UPDATE` or `"goalUpdate"`
@@ -36,6 +79,21 @@ Schema fields include `envelopeInfo`, `display`, `publicAreaMsgCommon`.
 A goal-state update. Inspect the payload's goal records and do not treat the update itself as another gift.
 
 Schema fields include `indicator`, `goal`, `contributorId`, `contributorAvatar`, `contributorDisplayId`, `contributeSubgoal`, `contributeCount`, `contributeScore`.
+
+```ts
+import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
+
+const connection = new TikTokLiveConnection('creator_username', {});
+connection.on(WebcastEvent.GOAL_UPDATE, (event) => {
+    console.log({
+        goal: event.goal?.description,
+        contributor: event.contributorDisplayId || event.contributorIdStr || event.contributorId,
+        count: event.contributeCount,
+        score: event.contributeScore,
+    });
+});
+await connection.connect();
+```
 
 ## Boost card
 

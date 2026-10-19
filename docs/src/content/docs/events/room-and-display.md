@@ -7,6 +7,8 @@ These events carry room announcements, captions, prompts, and other presentation
 
 Each entry below lists the listener alias and payload type. Field lists are selected schema fields, not guarantees that every nested value will be populated. The [protobuf reference](/schema/) contains the full message definitions.
 
+Replace `creator_username` with a live creator. Each example registers its listener before connecting.
+
 ## Live intro
 
 **Subscribe:** `WebcastEvent.LIVE_INTRO` or `"liveIntro"`
@@ -16,6 +18,16 @@ Each entry below lists the listener alias and payload type. Field lists are sele
 An introduction message for the livestream. It can arrive during a session rather than only at connection time.
 
 Schema fields include `id`, `auditStatus`, `content`, `user`, `introMode`, `badges`, `contentLanguage`.
+
+```ts
+import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
+
+const connection = new TikTokLiveConnection('creator_username', {});
+connection.on(WebcastEvent.LIVE_INTRO, (event) => {
+    console.log({ username: event.user?.displayId, nickname: event.user?.nickname, content: event.content });
+});
+await connection.connect();
+```
 
 ## Barrage
 
@@ -47,6 +59,16 @@ A room-level message or announcement. Read its payload before choosing how to di
 
 Schema fields include `content`, `supprotLandscape`, `source`, `icon`, `scene`, `isWelcome`, `publicAreaCommon`, `showDurationMs`.
 
+```ts
+import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
+
+const connection = new TikTokLiveConnection('creator_username', {});
+connection.on(WebcastEvent.ROOM_MESSAGE, (event) => {
+    console.log({ content: event.content, source: event.source, scene: event.scene });
+});
+await connection.connect();
+```
+
 ## Caption message
 
 **Subscribe:** `WebcastEvent.CAPTION_MESSAGE` or `"captionMessage"`
@@ -57,6 +79,18 @@ A caption payload. Inspect its timing and caption structure rather than assuming
 
 Schema fields include `timestampMs`, `durationMs`, `content`, `sentenceId`, `sequenceId`, `definite`.
 
+```ts
+import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
+
+const connection = new TikTokLiveConnection('creator_username', {});
+connection.on(WebcastEvent.CAPTION_MESSAGE, (event) => {
+    for (const caption of event.content) {
+        console.log(event.timestampMs, caption.lang, caption.content, 'final:', event.definite);
+    }
+});
+await connection.connect();
+```
+
 ## In room banner
 
 **Subscribe:** `WebcastEvent.IN_ROOM_BANNER` or `"inRoomBanner"`
@@ -64,6 +98,18 @@ Schema fields include `timestampMs`, `durationMs`, `content`, `sentenceId`, `seq
 **Payload:** `WebcastInRoomBannerMessage`
 
 An in-room banner payload. Display content may be structured or reference a resource.
+
+```ts
+import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
+
+const connection = new TikTokLiveConnection('creator_username', {});
+connection.on(WebcastEvent.IN_ROOM_BANNER, (event) => {
+    console.log('Banner message metadata:', event.common);
+});
+await connection.connect();
+```
+
+The installed v3 schema exposes only `common` here; older examples reading `jsonData` do not match this payload.
 
 ## Poll message
 
@@ -75,6 +121,17 @@ A poll payload. The connector does not maintain poll totals or interpret every p
 
 Schema fields include `messageType`, `pollId`, `startContent`, `endContent`, `updateVotesContent`, `pollKind`, `pollBasicInfo`, `templateContent`.
 
+```ts
+import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
+
+const connection = new TikTokLiveConnection('creator_username', {});
+connection.on(WebcastEvent.POLL_MESSAGE, (event) => {
+    console.log('Poll:', event.pollBasicInfo?.title);
+    console.log('Time remaining:', event.pollBasicInfo?.timeRemain);
+});
+await connection.connect();
+```
+
 ## Room pin
 
 **Subscribe:** `WebcastEvent.ROOM_PIN` or `"roomPin"`
@@ -84,6 +141,24 @@ Schema fields include `messageType`, `pollId`, `startContent`, `endContent`, `up
 A room pin action. Inspect its `action`, target message, and display-duration fields.
 
 Schema fields include `chatMessage`, `socialMessage`, `giftMessage`, `memberMessage`, `likeMessage`, `method`, `pinTime`, `operator`.
+
+```ts
+import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
+
+const connection = new TikTokLiveConnection('creator_username', {});
+connection.on(WebcastEvent.ROOM_PIN, (event) => {
+    console.log('Pinned by:', event.operator?.displayId, event.operator?.nickname);
+    console.log('Pin method:', event.method);
+    console.log({
+        chat: event.chatMessage?.content,
+        gift: event.giftMessage?.gift?.name,
+        socialAction: event.socialMessage?.action,
+        member: event.memberMessage?.user?.displayId,
+        likes: event.likeMessage?.count,
+    });
+});
+await connection.connect();
+```
 
 ## Bottom message
 

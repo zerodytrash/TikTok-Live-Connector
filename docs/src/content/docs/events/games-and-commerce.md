@@ -7,6 +7,8 @@ These protocol messages are available as subscriptions. Their detailed business 
 
 Each entry below lists the listener alias and payload type. Field lists are selected schema fields, not guarantees that every nested value will be populated. The [protobuf reference](/schema/) contains the full message definitions.
 
+Replace `creator_username` with a live creator. Each example registers its listener before connecting.
+
 ## Oec live shopping
 
 **Subscribe:** `WebcastEvent.OEC_LIVE_SHOPPING` or `"oecLiveShopping"`
@@ -16,6 +18,17 @@ Each entry below lists the listener alias and payload type. Field lists are sele
 A live-shopping protocol message. The connector does not fetch a complete shop catalog or execute a purchase.
 
 Schema fields include `actionType`, `liveProductNumber`, `popProduct`, `traceInfo`, `hotTags`, `atmosphereTagInfo`, `livePermissionInfo`, `productSnapShot`.
+
+```ts
+import { TikTokLiveConnection, WebcastEvent } from 'tiktok-live-connector';
+
+const connection = new TikTokLiveConnection('creator_username', {});
+connection.on(WebcastEvent.OEC_LIVE_SHOPPING, (event) => {
+    const product = event.popProduct;
+    if (product) console.log({ title: product.title, price: product.price, url: product.openUrl });
+});
+await connection.connect();
+```
 
 ## Live game intro
 
