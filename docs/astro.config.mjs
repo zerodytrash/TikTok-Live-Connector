@@ -34,8 +34,8 @@ export default defineConfig({
       editLink: { baseUrl: 'https://github.com/zerodytrash/TikTok-Live-Connector/edit/ts-rewrite/docs/' },
       sidebar: [
         { label: 'Start here', items: [
-          { label: 'Overview', slug: '' },
-          { label: 'Quickstart', slug: 'getting-started/quickstart' },
+          { label: 'Getting Started', slug: '' },
+
           { label: 'Connection lifecycle', slug: 'getting-started/connection' },
           { label: 'Migration', slug: 'getting-started/migration' },
         ] },
@@ -51,7 +51,7 @@ export default defineConfig({
       ],
       plugins: [lucode({
         navLinks: [
-          { label: 'Docs', link: `${base}getting-started/quickstart/` },
+          { label: 'Docs', link: base },
           { label: 'Events', link: `${base}events/` },
           { label: 'API', link: `${base}api/` },
         ],
