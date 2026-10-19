@@ -28,13 +28,13 @@ Do not add every score snapshot as though it were a new gift. A battle score can
 
 ## Related messages
 
-- `LINK_MIC_BATTLE_ITEM_CARD`: Power-Up use, awards, and notices. See [Power-Ups](/guides/power-ups/).
+- `LINK_MIC_BATTLE_ITEM_CARD`: Power-Up use, awards, and notices. See [Power-Ups](https://ttlc.docs.isaackogan.com/guides/power-ups/).
 - `LINK_MIC_BATTLE_TASK`: battle task payloads.
 - `LINK_MIC_BATTLE_PUNISH_FINISH`: punishment-phase completion, with its battle and channel context.
 - `LINK_MIC_FAN_TICKET_METHOD`: fan-ticket room notices.
 - `LINK_MIC_METHOD`, `LINK_MESSAGE`, `LINK_LAYER`, `LINK_STATE`, and `LINK_MIC_LAYOUT_STATE`: cohosting protocol state and layout messages.
 
-The [battle and cohost event reference](/events/battles-and-cohosting/) lists the payload types. Several are protocol-level messages with variant-specific nested content. The connector does not combine them into a normalized cohost graph.
+The [battle and cohost event reference](https://ttlc.docs.isaackogan.com/events/battles-and-cohosting/) lists the payload types. Several are protocol-level messages with variant-specific nested content. The connector does not combine them into a normalized cohost graph.
 
 ## Handling incomplete data
 

@@ -87,4 +87,4 @@ The connector delivers these fields but does not resolve a complete team topolog
 
 The offline fixtures verify decoding and modern-client dispatch for all nine use variants, guide/award/effect notices, absent nested fields, unknown action values, and multiple affected anchor pairs. They establish schema compatibility, not live delivery frequency or every rule of TikTok's battle UI.
 
-See the generated [protobuf reference](/schema/) for all card fields and enums, and [battles](/guides/battles/) for participant and score messages.
+See the generated [protobuf reference](https://ttlc.docs.isaackogan.com/schema/) for all card fields and enums, and [battles](https://ttlc.docs.isaackogan.com/guides/battles/) for participant and score messages.

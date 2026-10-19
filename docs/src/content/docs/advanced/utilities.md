@@ -3,7 +3,7 @@ title: Public types and utilities
 description: Find exported configuration types, helpers, decorators, and runtime identifiers.
 ---
 
-The [API reference](/api/) is generated from the package's public entry point. It includes every connector export that is declared in this repository. Re-exported protobuf definitions have their own [schema reference](/schema/).
+The [API reference](https://ttlc.docs.isaackogan.com/api/) is generated from the package's public entry point. It includes every connector export that is declared in this repository. Re-exported protobuf definitions have their own [schema reference](https://ttlc.docs.isaackogan.com/schema/).
 
 ## Types by purpose
 
@@ -42,4 +42,4 @@ Some types are mapped types over the schema. A type alias documents compile-time
 
 `ConnectState` names the internal connection states. `VERSION` identifies this build, and `LIBRARY_IDENTITY` identifies the library in provider requests. The default identity should remain intact.
 
-See [presets](/configuration/presets/), [routes](/advanced/routes/), [WebSocket client](/advanced/websocket/), and [decoding](/advanced/protocol/) for examples and behavior.
+See [presets](https://ttlc.docs.isaackogan.com/configuration/presets/), [routes](https://ttlc.docs.isaackogan.com/advanced/routes/), [WebSocket client](https://ttlc.docs.isaackogan.com/advanced/websocket/), and [decoding](https://ttlc.docs.isaackogan.com/advanced/protocol/) for examples and behavior.

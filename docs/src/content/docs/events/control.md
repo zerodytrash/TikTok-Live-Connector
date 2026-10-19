@@ -38,7 +38,7 @@ connection.on(ControlEvent.DISCONNECTED, ({ code, reason }) => {
 await connection.connect();
 ```
 
-See [connection lifecycle](/getting-started/connection/) for reconnecting and retry timing.
+See [connection lifecycle](https://ttlc.docs.isaackogan.com/getting-started/connection/) for reconnecting and retry timing.
 
 ## Error
 

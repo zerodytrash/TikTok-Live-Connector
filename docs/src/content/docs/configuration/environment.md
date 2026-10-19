@@ -14,7 +14,7 @@ Set these in your process environment before importing or constructing the clien
 | `TIKTOK_CLIENT_TIMEOUT` | `10000` | Default HTTP request timeout in milliseconds, parsed when a `WebcastHttpClient` is constructed. See the timeout limitation below. |
 | `WS_CONNECT_TIMEOUT_MS` | `20000` | High-level wait for the WebSocket to open, in milliseconds. |
 | `WS_DISCONNECT_TIMEOUT_MS` | `2000` | Time before a closing socket is forcefully terminated, in milliseconds. |
-| `WHITELIST_AUTHENTICATED_SESSION_ID_HOST` | Unset | Exact allowed signing-provider host for authenticated signing requests. See [authentication](/configuration/authentication/). |
+| `WHITELIST_AUTHENTICATED_SESSION_ID_HOST` | Unset | Exact allowed signing-provider host for authenticated signing requests. See [authentication](https://ttlc.docs.isaackogan.com/configuration/authentication/). |
 | `SIGN_SERVER_MESSAGE_DISABLED` | Unset | Any nonempty value suppresses the provider's extra message for handled 429 responses. See the 402 formatting limitation below. |
 | `DISABLE_ACK_LOG_WARNING` | Unset | Any nonempty value suppresses the warning for an acknowledgement skipped because `internalExt` is missing. |
 | `DEBUG_DESERIALIZE_XD` | Unset | Any nonempty value logs unknown message names and their Base64 payloads. These can contain personal data. |

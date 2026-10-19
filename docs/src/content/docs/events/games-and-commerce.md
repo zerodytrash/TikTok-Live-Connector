@@ -5,7 +5,7 @@ description: Games, commerce, and partnerships events, payloads, and dispatch be
 
 These protocol messages are available as subscriptions. Their detailed business workflows remain outside the connector; consult the schema for the exact fields and preserve unknown subtypes.
 
-Each entry below lists the listener alias and payload type. Field lists are selected schema fields, not guarantees that every nested value will be populated. The [protobuf reference](/schema/) contains the full message definitions.
+Each entry below lists the listener alias and payload type. Field lists are selected schema fields, not guarantees that every nested value will be populated. The [protobuf reference](https://ttlc.docs.isaackogan.com/schema/) contains the full message definitions.
 
 Replace `creator_username` with a live creator. Each example registers its listener before connecting.
 

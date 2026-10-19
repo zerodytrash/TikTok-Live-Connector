@@ -7,13 +7,17 @@ import { readFileSync } from 'node:fs';
 import { unified } from '@astrojs/markdown-remark';
 
 const [schemaTypeDoc] = createStarlightTypeDocPlugin();
+const docsSite = 'https://ttlc.docs.isaackogan.com';
 const base = `/${(process.env.DOCS_BASE || '').replace(/^\/+|\/+$/g, '')}/`.replace('//', '/');
 const { version } = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 const { version: schemaVersion } = JSON.parse(readFileSync(new URL('../node_modules/tiktok-live-proto/package.json', import.meta.url), 'utf8'));
 
-// TypeDoc already includes the base in its links; authored Markdown does not.
+// Published URLs work on GitHub; the site keeps navigation on its current host and base.
 function prefixLinks() {
   return (tree) => visit(tree, 'link', (node) => {
+    if (node.url.startsWith(`${docsSite}/`)) {
+      node.url = node.url.slice(docsSite.length);
+    }
     if (node.url.startsWith('/') && !node.url.startsWith('//') && !node.url.startsWith(base)) {
       node.url = `${base}${node.url.slice(1)}`;
     }
@@ -21,7 +25,7 @@ function prefixLinks() {
 }
 
 export default defineConfig({
-  site: process.env.DOCS_SITE || process.env.CF_PAGES_URL,
+  site: process.env.DOCS_SITE || docsSite,
   base,
   trailingSlash: 'always',
   markdown: { processor: unified({ remarkPlugins: [prefixLinks] }) },

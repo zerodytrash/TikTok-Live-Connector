@@ -29,7 +29,7 @@ The room-info response type is currently loose. Check the returned shape and `da
 
 `MEMBER` is a join/member message. Counting it is not a reliable substitute for an exact current viewer count, and a corresponding leave event is not guaranteed for each viewer.
 
-`LIKE` carries both the update's `count` and a `total` field. Likes are not unique viewers. See [chat and audience events](/events/chat-and-audience/).
+`LIKE` carries both the update's `count` and a `total` field. Likes are not unique viewers. See [chat and audience events](https://ttlc.docs.isaackogan.com/events/chat-and-audience/).
 
 ## Polling
 

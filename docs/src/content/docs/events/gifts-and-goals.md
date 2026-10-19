@@ -3,9 +3,9 @@ title: Gifts and goals
 description: Gifts and goals events, payloads, and dispatch behavior.
 ---
 
-Gift actions, gift UI messages, envelopes, and goals are separate subscriptions. Only a GIFT message represents the gift event used by the streak-handling guide. See [gifts and streaks](/guides/gifts/).
+Gift actions, gift UI messages, envelopes, and goals are separate subscriptions. Only a GIFT message represents the gift event used by the streak-handling guide. See [gifts and streaks](https://ttlc.docs.isaackogan.com/guides/gifts/).
 
-Each entry below lists the listener alias and payload type. Field lists are selected schema fields, not guarantees that every nested value will be populated. The [protobuf reference](/schema/) contains the full message definitions.
+Each entry below lists the listener alias and payload type. Field lists are selected schema fields, not guarantees that every nested value will be populated. The [protobuf reference](https://ttlc.docs.isaackogan.com/schema/) contains the full message definitions.
 
 Replace `creator_username` with a live creator. Each example registers its listener before connecting.
 
@@ -40,7 +40,7 @@ connection.on(WebcastEvent.GIFT, (event) => {
 await connection.connect();
 ```
 
-See [gifts and streaks](/guides/gifts/) for cumulative counts and absent gift metadata.
+See [gifts and streaks](https://ttlc.docs.isaackogan.com/guides/gifts/) for cumulative counts and absent gift metadata.
 
 ## Envelope
 

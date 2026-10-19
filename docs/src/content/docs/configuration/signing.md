@@ -53,6 +53,6 @@ Configure headers before the first client is cached, or use an explicit SDK inst
 
 Override `RouteConfig.fetchSignedWebSocketFromProvider` to use a different provider. It must return `fetchResult`, `fetchResultCookieHeader`, and optionally `fetchResultRoomId`, matching `FetchSignedWebSocketFromEulerRouteResponse`.
 
-The decoded initial response must include the cursor and connection information required by `TikTokLiveConnection`. An ordinary JSON response or a URL string alone is insufficient. See [routes](/advanced/routes/) for the override pattern.
+The decoded initial response must include the cursor and connection information required by `TikTokLiveConnection`. An ordinary JSON response or a URL string alone is insufficient. See [routes](https://ttlc.docs.isaackogan.com/advanced/routes/) for the override pattern.
 
-Signing limits, authentication permissions, and premium routes are enforced by the provider. Handle their errors and retry delays; see [troubleshooting](/troubleshooting/).
+Signing limits, authentication permissions, and premium routes are enforced by the provider. Handle their errors and retry delays; see [troubleshooting](https://ttlc.docs.isaackogan.com/troubleshooting/).

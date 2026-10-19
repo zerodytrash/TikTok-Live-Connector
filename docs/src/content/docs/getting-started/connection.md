@@ -42,7 +42,7 @@ The `streamEnd` event is emitted for ended and suspended stream control actions,
 
 ## Check live status
 
-Use `fetchIsLive(uniqueId?)` to check status without opening a WebSocket. Room lookup and live-status checks try HTML, TikTok's API, and then the provider. [Fallback configuration](/advanced/routes/) can disable individual sources.
+Use `fetchIsLive(uniqueId?)` to check status without opening a WebSocket. Room lookup and live-status checks try HTML, TikTok's API, and then the provider. [Fallback configuration](https://ttlc.docs.isaackogan.com/advanced/routes/) can disable individual sources.
 
 ```ts
 import { TikTokLiveConnection } from 'tiktok-live-connector';

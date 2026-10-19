@@ -28,7 +28,7 @@ Configure a Got `agent` object for HTTP/HTTPS proxying and a suitable `agent` fo
 
 Use the documentation for your chosen proxy agent to construct it; proxy libraries differ in HTTP, HTTPS, and SOCKS support. Test the three network paths separately: TikTok HTTP, provider requests, and TikTok WebSocket.
 
-The constructor currently drops `webClientOptions.timeout`; see [environment variables](/configuration/environment/) for the supported default timeout in this checkout.
+The constructor currently drops `webClientOptions.timeout`; see [environment variables](https://ttlc.docs.isaackogan.com/configuration/environment/) for the supported default timeout in this checkout.
 
 ## Cookie jar
 

@@ -5,7 +5,7 @@ description: Subscriptions and super fans events, payloads, and dispatch behavio
 
 The three super-fan events are derived from barrage or envelope messages. SUB_NOTIFY and SUB_PIN_EVENT are separate protocol messages. Do not treat every subscription notification as a newly purchased subscription.
 
-Each entry below lists the listener alias and payload type. Field lists are selected schema fields, not guarantees that every nested value will be populated. The [protobuf reference](/schema/) contains the full message definitions.
+Each entry below lists the listener alias and payload type. Field lists are selected schema fields, not guarantees that every nested value will be populated. The [protobuf reference](https://ttlc.docs.isaackogan.com/schema/) contains the full message definitions.
 
 Replace `creator_username` with a live creator. Each example registers its listener before connecting.
 

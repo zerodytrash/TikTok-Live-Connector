@@ -5,7 +5,7 @@ description: Room messages and display events, payloads, and dispatch behavior.
 
 These events carry room announcements, captions, prompts, and other presentation data. Most are passed through directly. Decode structured Text messages according to their schema rather than treating every nested field as plain text.
 
-Each entry below lists the listener alias and payload type. Field lists are selected schema fields, not guarantees that every nested value will be populated. The [protobuf reference](/schema/) contains the full message definitions.
+Each entry below lists the listener alias and payload type. Field lists are selected schema fields, not guarantees that every nested value will be populated. The [protobuf reference](https://ttlc.docs.isaackogan.com/schema/) contains the full message definitions.
 
 Replace `creator_username` with a live creator. Each example registers its listener before connecting.
 

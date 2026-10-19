@@ -26,7 +26,7 @@ Start with the smallest quickstart example, the exact installed package version,
 | `SignatureRateLimitError` | Signing was rate-limited. `retryAfter` is already milliseconds; `resetTime`, if present, is a Unix timestamp in milliseconds. Coordinate retries across all rooms. |
 | `SignatureMissingTokensError` | HTTP URL signing returned no usable token bundle or a failing response. It does not by itself establish a particular account-plan requirement. |
 | `PremiumFeatureError` | The provider rejected a protected operation. Check credentials and the specific endpoint's current permissions. |
-| `AuthenticatedWebSocketConnectionError` | Authenticated signing failed a host-allowlist or cookie check. Review [authentication](/configuration/authentication/). |
+| `AuthenticatedWebSocketConnectionError` | Authenticated signing failed a host-allowlist or cookie check. Review [authentication](https://ttlc.docs.isaackogan.com/configuration/authentication/). |
 
 `ErrorReason` contains `RATE_LIMIT`, `CONNECT_ERROR`, `EMPTY_PAYLOAD`, `SIGN_NOT_200`, `EMPTY_COOKIES`, `PREMIUM_FEATURE`, and `AUTHENTICATED_WS`. These classify signing errors; they do not all refer to the same HTTP stage. `TikTokLiveError` is the base class for signing errors; other exported errors also extend standard `Error` hierarchies.
 

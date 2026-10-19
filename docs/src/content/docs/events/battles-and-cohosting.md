@@ -3,9 +3,9 @@ title: Battles and cohosting
 description: Battles and cohosting events, payloads, and dispatch behavior.
 ---
 
-These messages retain their original battle, channel, anchor, and team fields. The client does not normalize them into a single battle model. See [battles](/guides/battles/) and [Power-Ups](/guides/power-ups/) for interpretation and limits.
+These messages retain their original battle, channel, anchor, and team fields. The client does not normalize them into a single battle model. See [battles](https://ttlc.docs.isaackogan.com/guides/battles/) and [Power-Ups](https://ttlc.docs.isaackogan.com/guides/power-ups/) for interpretation and limits.
 
-Each entry below lists the listener alias and payload type. Field lists are selected schema fields, not guarantees that every nested value will be populated. The [protobuf reference](/schema/) contains the full message definitions.
+Each entry below lists the listener alias and payload type. Field lists are selected schema fields, not guarantees that every nested value will be populated. The [protobuf reference](https://ttlc.docs.isaackogan.com/schema/) contains the full message definitions.
 
 Replace `creator_username` with a live creator. Each example registers its listener before connecting.
 

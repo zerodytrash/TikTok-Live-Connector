@@ -10,9 +10,9 @@ TikTokLiveConnector reads TikTok's internal Webcast push service directly, which
 TikTok chat bots, gift trackers, OBS overlays, donation alerts, moderation tools and livestream analytics.
 It works for your own live chat and for any other creator's.
 
-Tracked events include [Chat Comments](docs/src/content/docs/events/chat-and-audience.md#chat), [Members Joining](docs/src/content/docs/events/chat-and-audience.md#member), [Gifts](docs/src/content/docs/events/gifts-and-goals.md#gift),
-[Viewers](docs/src/content/docs/events/chat-and-audience.md#room-user), [Follows](docs/src/content/docs/events/chat-and-audience.md#social), [Shares](docs/src/content/docs/events/chat-and-audience.md#social), [Questions](docs/src/content/docs/events/chat-and-audience.md#question-new),
-[Likes](docs/src/content/docs/events/chat-and-audience.md#like), [Super Fans](docs/src/content/docs/events/subscriptions-and-fans.md#super-fan) and [Battles](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-battle).
+Tracked events include [Chat Comments](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#chat), [Members Joining](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#member), [Gifts](https://ttlc.docs.isaackogan.com/events/gifts-and-goals/#gift),
+[Viewers](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#room-user), [Follows](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#follow), [Shares](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#share), [Questions](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#question-new),
+[Likes](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#like), [Super Fans](https://ttlc.docs.isaackogan.com/events/subscriptions-and-fans/#super-fan) and [Battles](https://ttlc.docs.isaackogan.com/events/battles-and-cohosting/#link-mic-battle).
 
 [![Discord](https://img.shields.io/discord/977648006063091742?logo=discord&label=TikTokLive%20Discord&labelColor=%23171717&color=%231877af)](https://discord.gg/N3KSxzvDX8)
 ![Connections](https://api.eulerstream.com/analytics/pips?client=ttlive-node)
@@ -41,6 +41,7 @@ Tracked events include [Chat Comments](docs/src/content/docs/events/chat-and-aud
 
 ### Table of Contents
 
+- [Documentation](https://ttlc.docs.isaackogan.com/)
 - [Getting Started](#getting-started)
 - [Run with Docker](#run-with-docker)
 - [Params and Options](#params-and-options)
@@ -316,86 +317,86 @@ connection.on(ControlEvent.CONNECTED, () => console.log("Connected!"));
 
 <a id="control-events-1"></a>
 
-See the [control event reference](docs/src/content/docs/events/control.md) for arguments and examples.
+See the [control event reference](https://ttlc.docs.isaackogan.com/events/control/) for arguments and examples.
 
-- <a id="connected"></a>[`ControlEvent.CONNECTED`](docs/src/content/docs/events/control.md#connected) or `"connected"`
-- <a id="disconnected"></a>[`ControlEvent.DISCONNECTED`](docs/src/content/docs/events/control.md#disconnected) or `"disconnected"`
-- <a id="rawdata"></a>[`ControlEvent.RAW_DATA`](docs/src/content/docs/events/control.md#raw-data) or `"rawData"`
-- <a id="decodeddata"></a>[`ControlEvent.DECODED_DATA`](docs/src/content/docs/events/control.md#decoded-data) or `"decodedData"`
-- <a id="websocketconnected"></a>[`ControlEvent.WEBSOCKET_CONNECTED`](docs/src/content/docs/events/control.md#websocket-connected) or `"websocketConnected"`
-- <a id="error"></a>[`ControlEvent.ERROR`](docs/src/content/docs/events/control.md#error) or `"error"`
-- <a id="websocketdata"></a>[`ControlEvent.WEBSOCKET_DATA`](docs/src/content/docs/events/control.md#websocket-bytes) or `"websocketData"`
+- <a id="connected"></a>[`ControlEvent.CONNECTED`](https://ttlc.docs.isaackogan.com/events/control/#connected) or `"connected"`
+- <a id="disconnected"></a>[`ControlEvent.DISCONNECTED`](https://ttlc.docs.isaackogan.com/events/control/#disconnected) or `"disconnected"`
+- <a id="rawdata"></a>[`ControlEvent.RAW_DATA`](https://ttlc.docs.isaackogan.com/events/control/#raw-data) or `"rawData"`
+- <a id="decodeddata"></a>[`ControlEvent.DECODED_DATA`](https://ttlc.docs.isaackogan.com/events/control/#decoded-data) or `"decodedData"`
+- <a id="websocketconnected"></a>[`ControlEvent.WEBSOCKET_CONNECTED`](https://ttlc.docs.isaackogan.com/events/control/#websocket-connected) or `"websocketConnected"`
+- <a id="error"></a>[`ControlEvent.ERROR`](https://ttlc.docs.isaackogan.com/events/control/#error) or `"error"`
+- <a id="websocketdata"></a>[`ControlEvent.WEBSOCKET_DATA`](https://ttlc.docs.isaackogan.com/events/control/#websocket-bytes) or `"websocketData"`
 
 ### Message Events:
 
 <a id="message-events-1"></a>
 
-See the [message event reference](docs/src/content/docs/events/index.md) for payloads and examples.
+See the [message event reference](https://ttlc.docs.isaackogan.com/events/) for payloads and examples.
 
-- <a id="chat"></a>[`WebcastEvent.CHAT`](docs/src/content/docs/events/chat-and-audience.md#chat) or `"chat"`
-- <a id="gift"></a>[`WebcastEvent.GIFT`](docs/src/content/docs/events/gifts-and-goals.md#gift) or `"gift"`
-- <a id="member"></a>[`WebcastEvent.MEMBER`](docs/src/content/docs/events/chat-and-audience.md#member) or `"member"`
-- <a id="like"></a>[`WebcastEvent.LIKE`](docs/src/content/docs/events/chat-and-audience.md#like) or `"like"`
-- <a id="social"></a>[`WebcastEvent.SOCIAL`](docs/src/content/docs/events/chat-and-audience.md#social) or `"social"`
-- <a id="envelope"></a>[`WebcastEvent.ENVELOPE`](docs/src/content/docs/events/gifts-and-goals.md#envelope) or `"envelope"`
-- <a id="questionnew"></a>[`WebcastEvent.QUESTION_NEW`](docs/src/content/docs/events/chat-and-audience.md#question-new) or `"questionNew"`
-- <a id="linkmicbattle"></a>[`WebcastEvent.LINK_MIC_BATTLE`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-battle) or `"linkMicBattle"`
-- <a id="linkmicarmies"></a>[`WebcastEvent.LINK_MIC_ARMIES`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-armies) or `"linkMicArmies"`
-- <a id="liveintro"></a>[`WebcastEvent.LIVE_INTRO`](docs/src/content/docs/events/room-and-display.md#live-intro) or `"liveIntro"`
-- <a id="superfan"></a>[`WebcastEvent.SUPER_FAN`](docs/src/content/docs/events/subscriptions-and-fans.md#super-fan) or `"superFan"`
-- <a id="superfanjoin"></a>[`WebcastEvent.SUPER_FAN_JOIN`](docs/src/content/docs/events/subscriptions-and-fans.md#super-fan-join) or `"superFanJoin"`
-- <a id="custom-events"></a><a id="follow"></a>[`WebcastEvent.FOLLOW`](docs/src/content/docs/events/chat-and-audience.md#follow) or `"follow"`
-- <a id="share"></a>[`WebcastEvent.SHARE`](docs/src/content/docs/events/chat-and-audience.md#share) or `"share"`
-- <a id="streamend"></a>[`WebcastEvent.STREAM_END`](docs/src/content/docs/events/stream-control.md#stream-end) or `"streamEnd"`
-- <a id="roomuser"></a>[`WebcastEvent.ROOM_USER`](docs/src/content/docs/events/chat-and-audience.md#room-user) or `"roomUser"`
-- <a id="emote"></a>[`WebcastEvent.EMOTE`](docs/src/content/docs/events/chat-and-audience.md#emote) or `"emote"`
-- <a id="goalupdate"></a>[`WebcastEvent.GOAL_UPDATE`](docs/src/content/docs/events/gifts-and-goals.md#goal-update) or `"goalUpdate"`
-- <a id="roommessage"></a>[`WebcastEvent.ROOM_MESSAGE`](docs/src/content/docs/events/room-and-display.md#room-message) or `"roomMessage"`
-- <a id="captionmessage"></a>[`WebcastEvent.CAPTION_MESSAGE`](docs/src/content/docs/events/room-and-display.md#caption-message) or `"captionMessage"`
-- <a id="imdelete"></a>[`WebcastEvent.IM_DELETE`](docs/src/content/docs/events/moderation-and-access.md#im-delete) or `"imDelete"`
-- <a id="inroombanner"></a>[`WebcastEvent.IN_ROOM_BANNER`](docs/src/content/docs/events/room-and-display.md#in-room-banner) or `"inRoomBanner"`
-- <a id="rankupdate"></a>[`WebcastEvent.RANK_UPDATE`](docs/src/content/docs/events/rankings.md#rank-update) or `"rankUpdate"`
-- <a id="pollmessage"></a>[`WebcastEvent.POLL_MESSAGE`](docs/src/content/docs/events/room-and-display.md#poll-message) or `"pollMessage"`
-- <a id="ranktext"></a>[`WebcastEvent.RANK_TEXT`](docs/src/content/docs/events/rankings.md#rank-text) or `"rankText"`
-- <a id="linkmicbattlepunishfinish"></a>[`WebcastEvent.LINK_MIC_BATTLE_PUNISH_FINISH`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-battle-punish-finish) or `"linkMicBattlePunishFinish"`
-- <a id="linkmicbattletask"></a>[`WebcastEvent.LINK_MIC_BATTLE_TASK`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-battle-task) or `"linkMicBattleTask"`
-- <a id="linkmicfanticketmethod"></a>[`WebcastEvent.LINK_MIC_FAN_TICKET_METHOD`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-fan-ticket-method) or `"linkMicFanTicketMethod"`
-- <a id="linkmicmethod"></a>[`WebcastEvent.LINK_MIC_METHOD`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-method) or `"linkMicMethod"`
-- <a id="unauthorizedmember"></a>[`WebcastEvent.UNAUTHORIZED_MEMBER`](docs/src/content/docs/events/moderation-and-access.md#unauthorized-member) or `"unauthorizedMember"`
-- <a id="oecliveshopping"></a>[`WebcastEvent.OEC_LIVE_SHOPPING`](docs/src/content/docs/events/games-and-commerce.md#oec-live-shopping) or `"oecLiveShopping"`
-- <a id="msgdetect"></a>[`WebcastEvent.MSG_DETECT`](docs/src/content/docs/events/moderation-and-access.md#msg-detect) or `"msgDetect"`
-- <a id="linkmessage"></a>[`WebcastEvent.LINK_MESSAGE`](docs/src/content/docs/events/battles-and-cohosting.md#link-message) or `"linkMessage"`
-- <a id="roomverify"></a>[`WebcastEvent.ROOM_VERIFY`](docs/src/content/docs/events/moderation-and-access.md#room-verify) or `"roomVerify"`
-- <a id="linklayer"></a>[`WebcastEvent.LINK_LAYER`](docs/src/content/docs/events/battles-and-cohosting.md#link-layer) or `"linkLayer"`
-- <a id="roompin"></a>[`WebcastEvent.ROOM_PIN`](docs/src/content/docs/events/room-and-display.md#room-pin) or `"roomPin"`
-- <a id="superfanbox"></a>[`WebcastEvent.SUPER_FAN_BOX`](docs/src/content/docs/events/subscriptions-and-fans.md#super-fan-box) or `"superFanBox"`
-- [`WebcastEvent.ACCESS_CONTROL`](docs/src/content/docs/events/moderation-and-access.md#access-control) or `"accessControl"`
-- [`WebcastEvent.ACCESS_RECALL`](docs/src/content/docs/events/moderation-and-access.md#access-recall) or `"accessRecall"`
-- [`WebcastEvent.BOOST_CARD`](docs/src/content/docs/events/gifts-and-goals.md#boost-card) or `"boostCard"`
-- [`WebcastEvent.BOTTOM_MESSAGE`](docs/src/content/docs/events/room-and-display.md#bottom-message) or `"bottomMessage"`
-- [`WebcastEvent.CAPSULE`](docs/src/content/docs/events/room-and-display.md#capsule) or `"capsule"`
-- [`WebcastEvent.GAME_RANK_NOTIFY`](docs/src/content/docs/events/rankings.md#game-rank-notify) or `"gameRankNotify"`
-- [`WebcastEvent.GIFT_BROADCAST`](docs/src/content/docs/events/gifts-and-goals.md#gift-broadcast) or `"giftBroadcast"`
-- [`WebcastEvent.GIFT_DYNAMIC_RESTRICTION`](docs/src/content/docs/events/gifts-and-goals.md#gift-dynamic-restriction) or `"giftDynamicRestriction"`
-- [`WebcastEvent.GIFT_PANEL_UPDATE`](docs/src/content/docs/events/gifts-and-goals.md#gift-panel-update) or `"giftPanelUpdate"`
-- [`WebcastEvent.GIFT_PROMPT`](docs/src/content/docs/events/gifts-and-goals.md#gift-prompt) or `"giftPrompt"`
-- [`WebcastEvent.GUIDE`](docs/src/content/docs/events/room-and-display.md#guide) or `"guide"`
-- [`WebcastEvent.HOURLY_RANK`](docs/src/content/docs/events/rankings.md#hourly-rank) or `"hourlyRank"`
-- [`WebcastEvent.LINK_MIC_LAYOUT_STATE`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-layout-state) or `"linkMicLayoutState"`
-- [`WebcastEvent.LINK_STATE`](docs/src/content/docs/events/battles-and-cohosting.md#link-state) or `"linkState"`
-- [`WebcastEvent.LIVE_GAME_INTRO`](docs/src/content/docs/events/games-and-commerce.md#live-game-intro) or `"liveGameIntro"`
-- [`WebcastEvent.MARQUEE_ANNOUNCEMENT`](docs/src/content/docs/events/room-and-display.md#marquee-announcement) or `"marqueeAnnouncement"`
-- [`WebcastEvent.NOTICE`](docs/src/content/docs/events/room-and-display.md#notice) or `"notice"`
-- [`WebcastEvent.PARTNERSHIP_DROPS_UPDATE`](docs/src/content/docs/events/games-and-commerce.md#partnership-drops-update) or `"partnershipDropsUpdate"`
-- [`WebcastEvent.PARTNERSHIP_GAME_OFFLINE`](docs/src/content/docs/events/games-and-commerce.md#partnership-game-offline) or `"partnershipGameOffline"`
-- [`WebcastEvent.PARTNERSHIP_PUNISH`](docs/src/content/docs/events/games-and-commerce.md#partnership-punish) or `"partnershipPunish"`
-- [`WebcastEvent.PERCEPTION`](docs/src/content/docs/events/moderation-and-access.md#perception) or `"perception"`
-- [`WebcastEvent.ROOM_NOTIFY`](docs/src/content/docs/events/room-and-display.md#room-notify) or `"roomNotify"`
-- [`WebcastEvent.SPEAKER`](docs/src/content/docs/events/battles-and-cohosting.md#speaker) or `"speaker"`
-- [`WebcastEvent.SUB_NOTIFY`](docs/src/content/docs/events/subscriptions-and-fans.md#sub-notify) or `"subNotify"`
-- [`WebcastEvent.SUB_PIN_EVENT`](docs/src/content/docs/events/subscriptions-and-fans.md#sub-pin-event) or `"subPinEvent"`
-- [`WebcastEvent.TOAST`](docs/src/content/docs/events/room-and-display.md#toast) or `"toast"`
-- [`WebcastEvent.VIEWER_PICKS_UPDATE`](docs/src/content/docs/events/room-and-display.md#viewer-picks-update) or `"viewerPicksUpdate"`
+- <a id="chat"></a>[`WebcastEvent.CHAT`](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#chat) or `"chat"`
+- <a id="gift"></a>[`WebcastEvent.GIFT`](https://ttlc.docs.isaackogan.com/events/gifts-and-goals/#gift) or `"gift"`
+- <a id="member"></a>[`WebcastEvent.MEMBER`](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#member) or `"member"`
+- <a id="like"></a>[`WebcastEvent.LIKE`](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#like) or `"like"`
+- <a id="social"></a>[`WebcastEvent.SOCIAL`](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#social) or `"social"`
+- <a id="envelope"></a>[`WebcastEvent.ENVELOPE`](https://ttlc.docs.isaackogan.com/events/gifts-and-goals/#envelope) or `"envelope"`
+- <a id="questionnew"></a>[`WebcastEvent.QUESTION_NEW`](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#question-new) or `"questionNew"`
+- <a id="linkmicbattle"></a>[`WebcastEvent.LINK_MIC_BATTLE`](https://ttlc.docs.isaackogan.com/events/battles-and-cohosting/#link-mic-battle) or `"linkMicBattle"`
+- <a id="linkmicarmies"></a>[`WebcastEvent.LINK_MIC_ARMIES`](https://ttlc.docs.isaackogan.com/events/battles-and-cohosting/#link-mic-armies) or `"linkMicArmies"`
+- <a id="liveintro"></a>[`WebcastEvent.LIVE_INTRO`](https://ttlc.docs.isaackogan.com/events/room-and-display/#live-intro) or `"liveIntro"`
+- <a id="superfan"></a>[`WebcastEvent.SUPER_FAN`](https://ttlc.docs.isaackogan.com/events/subscriptions-and-fans/#super-fan) or `"superFan"`
+- <a id="superfanjoin"></a>[`WebcastEvent.SUPER_FAN_JOIN`](https://ttlc.docs.isaackogan.com/events/subscriptions-and-fans/#super-fan-join) or `"superFanJoin"`
+- <a id="custom-events"></a><a id="follow"></a>[`WebcastEvent.FOLLOW`](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#follow) or `"follow"`
+- <a id="share"></a>[`WebcastEvent.SHARE`](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#share) or `"share"`
+- <a id="streamend"></a>[`WebcastEvent.STREAM_END`](https://ttlc.docs.isaackogan.com/events/stream-control/#stream-end) or `"streamEnd"`
+- <a id="roomuser"></a>[`WebcastEvent.ROOM_USER`](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#room-user) or `"roomUser"`
+- <a id="emote"></a>[`WebcastEvent.EMOTE`](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#emote) or `"emote"`
+- <a id="goalupdate"></a>[`WebcastEvent.GOAL_UPDATE`](https://ttlc.docs.isaackogan.com/events/gifts-and-goals/#goal-update) or `"goalUpdate"`
+- <a id="roommessage"></a>[`WebcastEvent.ROOM_MESSAGE`](https://ttlc.docs.isaackogan.com/events/room-and-display/#room-message) or `"roomMessage"`
+- <a id="captionmessage"></a>[`WebcastEvent.CAPTION_MESSAGE`](https://ttlc.docs.isaackogan.com/events/room-and-display/#caption-message) or `"captionMessage"`
+- <a id="imdelete"></a>[`WebcastEvent.IM_DELETE`](https://ttlc.docs.isaackogan.com/events/moderation-and-access/#im-delete) or `"imDelete"`
+- <a id="inroombanner"></a>[`WebcastEvent.IN_ROOM_BANNER`](https://ttlc.docs.isaackogan.com/events/room-and-display/#in-room-banner) or `"inRoomBanner"`
+- <a id="rankupdate"></a>[`WebcastEvent.RANK_UPDATE`](https://ttlc.docs.isaackogan.com/events/rankings/#rank-update) or `"rankUpdate"`
+- <a id="pollmessage"></a>[`WebcastEvent.POLL_MESSAGE`](https://ttlc.docs.isaackogan.com/events/room-and-display/#poll-message) or `"pollMessage"`
+- <a id="ranktext"></a>[`WebcastEvent.RANK_TEXT`](https://ttlc.docs.isaackogan.com/events/rankings/#rank-text) or `"rankText"`
+- <a id="linkmicbattlepunishfinish"></a>[`WebcastEvent.LINK_MIC_BATTLE_PUNISH_FINISH`](https://ttlc.docs.isaackogan.com/events/battles-and-cohosting/#link-mic-battle-punish-finish) or `"linkMicBattlePunishFinish"`
+- <a id="linkmicbattletask"></a>[`WebcastEvent.LINK_MIC_BATTLE_TASK`](https://ttlc.docs.isaackogan.com/events/battles-and-cohosting/#link-mic-battle-task) or `"linkMicBattleTask"`
+- <a id="linkmicfanticketmethod"></a>[`WebcastEvent.LINK_MIC_FAN_TICKET_METHOD`](https://ttlc.docs.isaackogan.com/events/battles-and-cohosting/#link-mic-fan-ticket-method) or `"linkMicFanTicketMethod"`
+- <a id="linkmicmethod"></a>[`WebcastEvent.LINK_MIC_METHOD`](https://ttlc.docs.isaackogan.com/events/battles-and-cohosting/#link-mic-method) or `"linkMicMethod"`
+- <a id="unauthorizedmember"></a>[`WebcastEvent.UNAUTHORIZED_MEMBER`](https://ttlc.docs.isaackogan.com/events/moderation-and-access/#unauthorized-member) or `"unauthorizedMember"`
+- <a id="oecliveshopping"></a>[`WebcastEvent.OEC_LIVE_SHOPPING`](https://ttlc.docs.isaackogan.com/events/games-and-commerce/#oec-live-shopping) or `"oecLiveShopping"`
+- <a id="msgdetect"></a>[`WebcastEvent.MSG_DETECT`](https://ttlc.docs.isaackogan.com/events/moderation-and-access/#msg-detect) or `"msgDetect"`
+- <a id="linkmessage"></a>[`WebcastEvent.LINK_MESSAGE`](https://ttlc.docs.isaackogan.com/events/battles-and-cohosting/#link-message) or `"linkMessage"`
+- <a id="roomverify"></a>[`WebcastEvent.ROOM_VERIFY`](https://ttlc.docs.isaackogan.com/events/moderation-and-access/#room-verify) or `"roomVerify"`
+- <a id="linklayer"></a>[`WebcastEvent.LINK_LAYER`](https://ttlc.docs.isaackogan.com/events/battles-and-cohosting/#link-layer) or `"linkLayer"`
+- <a id="roompin"></a>[`WebcastEvent.ROOM_PIN`](https://ttlc.docs.isaackogan.com/events/room-and-display/#room-pin) or `"roomPin"`
+- <a id="superfanbox"></a>[`WebcastEvent.SUPER_FAN_BOX`](https://ttlc.docs.isaackogan.com/events/subscriptions-and-fans/#super-fan-box) or `"superFanBox"`
+- [`WebcastEvent.ACCESS_CONTROL`](https://ttlc.docs.isaackogan.com/events/moderation-and-access/#access-control) or `"accessControl"`
+- [`WebcastEvent.ACCESS_RECALL`](https://ttlc.docs.isaackogan.com/events/moderation-and-access/#access-recall) or `"accessRecall"`
+- [`WebcastEvent.BOOST_CARD`](https://ttlc.docs.isaackogan.com/events/gifts-and-goals/#boost-card) or `"boostCard"`
+- [`WebcastEvent.BOTTOM_MESSAGE`](https://ttlc.docs.isaackogan.com/events/room-and-display/#bottom-message) or `"bottomMessage"`
+- [`WebcastEvent.CAPSULE`](https://ttlc.docs.isaackogan.com/events/room-and-display/#capsule) or `"capsule"`
+- [`WebcastEvent.GAME_RANK_NOTIFY`](https://ttlc.docs.isaackogan.com/events/rankings/#game-rank-notify) or `"gameRankNotify"`
+- [`WebcastEvent.GIFT_BROADCAST`](https://ttlc.docs.isaackogan.com/events/gifts-and-goals/#gift-broadcast) or `"giftBroadcast"`
+- [`WebcastEvent.GIFT_DYNAMIC_RESTRICTION`](https://ttlc.docs.isaackogan.com/events/gifts-and-goals/#gift-dynamic-restriction) or `"giftDynamicRestriction"`
+- [`WebcastEvent.GIFT_PANEL_UPDATE`](https://ttlc.docs.isaackogan.com/events/gifts-and-goals/#gift-panel-update) or `"giftPanelUpdate"`
+- [`WebcastEvent.GIFT_PROMPT`](https://ttlc.docs.isaackogan.com/events/gifts-and-goals/#gift-prompt) or `"giftPrompt"`
+- [`WebcastEvent.GUIDE`](https://ttlc.docs.isaackogan.com/events/room-and-display/#guide) or `"guide"`
+- [`WebcastEvent.HOURLY_RANK`](https://ttlc.docs.isaackogan.com/events/rankings/#hourly-rank) or `"hourlyRank"`
+- [`WebcastEvent.LINK_MIC_LAYOUT_STATE`](https://ttlc.docs.isaackogan.com/events/battles-and-cohosting/#link-mic-layout-state) or `"linkMicLayoutState"`
+- [`WebcastEvent.LINK_STATE`](https://ttlc.docs.isaackogan.com/events/battles-and-cohosting/#link-state) or `"linkState"`
+- [`WebcastEvent.LIVE_GAME_INTRO`](https://ttlc.docs.isaackogan.com/events/games-and-commerce/#live-game-intro) or `"liveGameIntro"`
+- [`WebcastEvent.MARQUEE_ANNOUNCEMENT`](https://ttlc.docs.isaackogan.com/events/room-and-display/#marquee-announcement) or `"marqueeAnnouncement"`
+- [`WebcastEvent.NOTICE`](https://ttlc.docs.isaackogan.com/events/room-and-display/#notice) or `"notice"`
+- [`WebcastEvent.PARTNERSHIP_DROPS_UPDATE`](https://ttlc.docs.isaackogan.com/events/games-and-commerce/#partnership-drops-update) or `"partnershipDropsUpdate"`
+- [`WebcastEvent.PARTNERSHIP_GAME_OFFLINE`](https://ttlc.docs.isaackogan.com/events/games-and-commerce/#partnership-game-offline) or `"partnershipGameOffline"`
+- [`WebcastEvent.PARTNERSHIP_PUNISH`](https://ttlc.docs.isaackogan.com/events/games-and-commerce/#partnership-punish) or `"partnershipPunish"`
+- [`WebcastEvent.PERCEPTION`](https://ttlc.docs.isaackogan.com/events/moderation-and-access/#perception) or `"perception"`
+- [`WebcastEvent.ROOM_NOTIFY`](https://ttlc.docs.isaackogan.com/events/room-and-display/#room-notify) or `"roomNotify"`
+- [`WebcastEvent.SPEAKER`](https://ttlc.docs.isaackogan.com/events/battles-and-cohosting/#speaker) or `"speaker"`
+- [`WebcastEvent.SUB_NOTIFY`](https://ttlc.docs.isaackogan.com/events/subscriptions-and-fans/#sub-notify) or `"subNotify"`
+- [`WebcastEvent.SUB_PIN_EVENT`](https://ttlc.docs.isaackogan.com/events/subscriptions-and-fans/#sub-pin-event) or `"subPinEvent"`
+- [`WebcastEvent.TOAST`](https://ttlc.docs.isaackogan.com/events/room-and-display/#toast) or `"toast"`
+- [`WebcastEvent.VIEWER_PICKS_UPDATE`](https://ttlc.docs.isaackogan.com/events/room-and-display/#viewer-picks-update) or `"viewerPicksUpdate"`
 
 ## Examples
 
@@ -575,7 +576,7 @@ listen for `WebcastEvent.CHAT`. See [Getting Started](#getting-started) above â€
 
 ### Can I track TikTok gifts, likes and viewer counts in real time?
 
-Yes. [`GIFT`](docs/src/content/docs/events/gifts-and-goals.md#gift) (with streak handling), [`LIKE`](docs/src/content/docs/events/chat-and-audience.md#like) and [`ROOM_USER`](docs/src/content/docs/events/chat-and-audience.md#room-user) deliver gifts, likes and
+Yes. [`GIFT`](https://ttlc.docs.isaackogan.com/events/gifts-and-goals/#gift) (with streak handling), [`LIKE`](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#like) and [`ROOM_USER`](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#room-user) deliver gifts, likes and
 live viewer counts as they happen, alongside follows, shares, subscriptions, questions and battles.
 
 ### Does it work without logging in?

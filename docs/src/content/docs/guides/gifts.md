@@ -52,4 +52,4 @@ console.log(gifts);
 
 ## Related events
 
-Gift-panel changes, gift prompts, broadcast notices, restrictions, and goal updates have their own events. They are not additional paid gifts. See the [gift event reference](/events/gifts-and-goals/).
+Gift-panel changes, gift prompts, broadcast notices, restrictions, and goal updates have their own events. They are not additional paid gifts. See the [gift event reference](https://ttlc.docs.isaackogan.com/events/gifts-and-goals/).

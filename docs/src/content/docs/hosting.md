@@ -3,9 +3,9 @@ title: Cloudflare Pages hosting
 description: Host the static documentation in a maintainer's Cloudflare account.
 ---
 
-Deploy `docs/dist` to Cloudflare Pages and use the project's assigned `pages.dev` address. Hosting can live in a maintainer's account while the documentation source stays in the public upstream repository. This is a static site; it does not need Pages Functions, a Cloudflare Astro adapter, or TikTok credentials.
+The documentation is hosted on Cloudflare Pages at [ttlc.docs.isaackogan.com](https://ttlc.docs.isaackogan.com/). Deploy the static output in `docs/dist`. Hosting lives in a maintainer's account while the documentation source stays in the public upstream repository. The site does not need Pages Functions, a Cloudflare Astro adapter, or TikTok credentials.
 
-Choose the project name in Cloudflare before setting `DOCS_SITE` or adding a public site link to the README. Until the first deployment, the README links to the checked-in documentation. Once the address is confirmed, replace those event-reference links with the corresponding hosted paths.
+Use `https://ttlc.docs.isaackogan.com` as the public origin for documentation links, canonical URLs, and the sitemap.
 
 ## Build settings
 
@@ -20,7 +20,7 @@ When building a checkout of TikTok-Live-Connector, use these settings:
 | `NODE_VERSION` | `24` |
 | `PNPM_VERSION` | `10.34.2` |
 | `SKIP_DEPENDENCY_INSTALL` | `1` |
-| `DOCS_SITE` | The actual public origin, such as the assigned `https://PROJECT.pages.dev` |
+| `DOCS_SITE` | `https://ttlc.docs.isaackogan.com` |
 | `DOCS_BASE` | `/` |
 
 Build command:
@@ -31,7 +31,7 @@ pnpm install --frozen-lockfile && pnpm --dir docs install --frozen-lockfile && p
 
 Keep the root at the repository root: TypeDoc needs the connector source and its installed protobuf dependency outside `docs/`. The two installs use separate lockfiles. `SKIP_DEPENDENCY_INSTALL` avoids a separate automatic install choosing another package manager.
 
-Cloudflare provides `CF_PAGES_URL` for each deployment. The site uses it when `DOCS_SITE` is unset. Set `DOCS_SITE` explicitly when production and preview builds should share one canonical origin. No DNS changes are needed for the assigned `pages.dev` address.
+The site configuration defaults to the public origin above, so preview deployments share the production canonical origin. Set `DOCS_SITE` to override it when intentionally hosting a separate copy of the documentation.
 
 See Cloudflare's [build configuration](https://developers.cloudflare.com/pages/configuration/build-configuration/) and [build image settings](https://developers.cloudflare.com/pages/configuration/build-image/).
 
@@ -41,7 +41,7 @@ After the documentation has merged into `ts-rewrite`:
 
 1. Sign into the maintainer's Cloudflare account and open **Workers & Pages → Create application → Pages → Import an existing Git repository**.
 2. Connect GitHub and select `zerodytrash/TikTok-Live-Connector`. The Cloudflare GitHub integration must have access to that repository; request approval from its owner if it is not available in the picker.
-3. Choose an available project name. Cloudflare assigns its `pages.dev` address from that name.
+3. Choose an available project name. Cloudflare assigns a `pages.dev` address from that name; configure the public domain in the project's **Custom domains** settings.
 4. Set the production branch to `ts-rewrite`, then apply the build settings and environment variables above to production and any enabled previews.
 5. Select **Save and Deploy**. Future pushes to `ts-rewrite` build and publish the site automatically.
 
@@ -56,7 +56,7 @@ If Git integration cannot be authorized, the maintainer can publish a build from
 ```sh
 npx wrangler@4 login
 npx wrangler@4 pages project create YOUR_PROJECT --production-branch=ts-rewrite
-DOCS_SITE=https://YOUR_PROJECT.pages.dev DOCS_BASE=/ pnpm --dir docs build
+DOCS_SITE=https://ttlc.docs.isaackogan.com DOCS_BASE=/ pnpm --dir docs build
 npx wrangler@4 pages deploy docs/dist --project-name=YOUR_PROJECT --branch=ts-rewrite
 ```
 
@@ -64,6 +64,6 @@ Run the two dependency-install commands above before building. Replace `YOUR_PRO
 
 ## Verify a deployment
 
-Open the assigned `pages.dev` address and a direct nested URL such as `/guides/power-ups/`. Check the event references, generated API and schema pages, and search for “Power-Ups.” Confirm that links use `/`, not a GitHub repository subpath, and that the canonical origin is the deployed site.
+Open [the documentation](https://ttlc.docs.isaackogan.com/) and a direct nested page such as [Power-Ups](https://ttlc.docs.isaackogan.com/guides/power-ups/). Check the event references, generated API and schema pages, and search for “Power-Ups.” Confirm that links use `/`, not a GitHub repository subpath, and that the canonical origin is `https://ttlc.docs.isaackogan.com`.
 
-For a later custom domain, add the domain in the Pages project's **Custom domains** settings, follow Cloudflare's DNS instructions, update `DOCS_SITE`, and rebuild. A custom domain is optional; the initial deployment can stay on `pages.dev`.
+When changing the public domain, update the Pages project's **Custom domains** settings and DNS, change the default site origin and public documentation links in this repository, update `DOCS_SITE`, and rebuild.

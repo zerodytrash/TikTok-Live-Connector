@@ -3,7 +3,7 @@ title: Protobuf and decoding
 description: Generated message types, decode filters, raw frames, and unknown messages.
 ---
 
-The connector uses `tiktok-live-proto/v3` and re-exports its types, enums, and codecs from the package root. The [protobuf schema reference](/schema/) is generated from the dependency installed with this checkout. The connector [API reference](/api/) covers its own clients, options, routes, and helpers.
+The connector uses `tiktok-live-proto/v3` and re-exports its types, enums, and codecs from the package root. The [protobuf schema reference](https://ttlc.docs.isaackogan.com/schema/) is generated from the dependency installed with this checkout. The connector [API reference](https://ttlc.docs.isaackogan.com/api/) covers its own clients, options, routes, and helpers.
 
 ## Decode a message
 
@@ -46,7 +46,7 @@ Filtering out a message also filters derived events. For example, skipping `Webc
 
 ## Inspect frames
 
-Use `ControlEvent.WEBSOCKET_DATA` for socket bytes. `ControlEvent.DECODED_DATA` provides a method name, the **decoded wrapper** `{ type, data }`, and the original nested payload bytes. The declared `RAW_DATA` event is not emitted by the modern dispatcher in this checkout; see [control events](/events/control/).
+Use `ControlEvent.WEBSOCKET_DATA` for socket bytes. `ControlEvent.DECODED_DATA` provides a method name, the **decoded wrapper** `{ type, data }`, and the original nested payload bytes. The declared `RAW_DATA` event is not emitted by the modern dispatcher in this checkout; see [control events](https://ttlc.docs.isaackogan.com/events/control/).
 
 `createBaseWebcastPushFrame(overrides)` creates a `BinaryWriter`; call `.finish()` to get bytes. The default encoding is `pb`, the payload type is `msg`, and string-encoded numeric fields use `"0"` unless overridden. `generateUniqId()` makes a random decimal identifier for room-entry packets; it is not a durable application ID or cryptographic credential.
 

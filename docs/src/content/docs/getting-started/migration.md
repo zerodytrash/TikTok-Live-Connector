@@ -28,7 +28,7 @@ await connection.connect();
 | `data.msgId` or flattened room fields | Usually `data.common?.msgId` and `data.common?.roomId`; consult the event's schema. |
 | Flat gift metadata | `data.gift` and optional `data.extendedGiftInfo`. |
 
-The small `BattleUserInfo` nested in Power-Up cards uses `userId`, `displayId`, and `nickName`. It is a different message from the regular event `User`; see [Power-Ups](/guides/power-ups/).
+The small `BattleUserInfo` nested in Power-Up cards uses `userId`, `displayId`, and `nickName`. It is a different message from the regular event `User`; see [Power-Ups](https://ttlc.docs.isaackogan.com/guides/power-ups/).
 
 ## Configuration changes
 
@@ -47,12 +47,12 @@ Routes are functions accepting one argument object. Use `RouteConfig` or the exp
 
 `WebcastWebSocketClient` replaces `TikTokWsClient`. Most applications should use `connection.wsClient` rather than instantiate it themselves.
 
-Protobuf v3 types are re-exported from the package root. Do not combine v2 message codecs with v3 payloads. The generated [schema reference](/schema/) describes the installed dependency.
+Protobuf v3 types are re-exported from the package root. Do not combine v2 message codecs with v3 payloads. The generated [schema reference](https://ttlc.docs.isaackogan.com/schema/) describes the installed dependency.
 
 ## Events and errors
 
 Listen to `SUPER_FAN_JOIN` separately from `SUPER_FAN`. Listen to `FOLLOW` and `SHARE` directly; recognized follow/share messages are routed to those events instead of `SOCIAL`.
 
-`InvalidResponseError` takes a config object containing `routeId`. Composite lookup failures expose individual errors in `config.requestErrs`. [Troubleshooting](/troubleshooting/) covers the current error classes and units for retry delays.
+`InvalidResponseError` takes a config object containing `routeId`. Composite lookup failures expose individual errors in `config.requestErrs`. [Troubleshooting](https://ttlc.docs.isaackogan.com/troubleshooting/) covers the current error classes and units for retry delays.
 
 The repository's [BREAKING.md](https://github.com/zerodytrash/TikTok-Live-Connector/blob/ts-rewrite/BREAKING.md) contains historical migration notes. Compare older notes with the current generated API when updating an application.

@@ -31,7 +31,7 @@ Other standard `ws` events remain available through the inherited socket interfa
 
 Dynamic socket headers are applied after custom `wsClientOptions.headers`. Query parameters come from resolved defaults plus the dynamic `wsParams`, followed by the configured append-parameter string. `autoPong` is forced to `false` by the connector.
 
-The high-level client supplies the full cookie jar when `authenticateWs` is enabled. Otherwise, it uses `getAnonymousCookieString()` to omit configured session and target-IDC cookies. See [authentication](/configuration/authentication/) for the separate signing request and its host allowlist.
+The high-level client supplies the full cookie jar when `authenticateWs` is enabled. Otherwise, it uses `getAnonymousCookieString()` to omit configured session and target-IDC cookies. See [authentication](https://ttlc.docs.isaackogan.com/configuration/authentication/) for the separate signing request and its host allowlist.
 
 ## Heartbeats and acknowledgements
 
@@ -39,4 +39,4 @@ The default heartbeat interval is 10,000 ms. The timer begins when switching int
 
 When a decoded batch requests an acknowledgement, the client sends one using the container's `logId` and batch `internalExt`. Missing `internalExt` skips the acknowledgement and can produce a warning. `DISABLE_ACK_LOG_WARNING` suppresses that warning; it does not repair the missing data.
 
-See [protocol decoding](/advanced/protocol/) for frame structure and [control events](/events/control/) for high-level connection notifications.
+See [protocol decoding](https://ttlc.docs.isaackogan.com/advanced/protocol/) for frame structure and [control events](https://ttlc.docs.isaackogan.com/events/control/) for high-level connection notifications.

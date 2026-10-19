@@ -56,11 +56,11 @@ Nested messages can be absent. Use optional chaining, and keep IDs as strings so
 
 ## Signing
 
-The default signing provider is Euler Stream. A TikTok login is normally unnecessary for public rooms; provider limits and feature permissions still apply. Supply your provider API key through `signApiKey` or `SIGN_API_KEY` when needed. See [signing](/configuration/signing/) and [troubleshooting](/troubleshooting/).
+The default signing provider is Euler Stream. A TikTok login is normally unnecessary for public rooms; provider limits and feature permissions still apply. Supply your provider API key through `signApiKey` or `SIGN_API_KEY` when needed. See [signing](https://ttlc.docs.isaackogan.com/configuration/signing/) and [troubleshooting](https://ttlc.docs.isaackogan.com/troubleshooting/).
 
 ## Next steps
 
-- [Connection lifecycle](/getting-started/connection/): room resolution, disconnects, and reconnecting.
-- [Events](/events/): the complete list of subscriptions.
-- [Gift streaks](/guides/gifts/): avoid counting cumulative streak updates repeatedly.
-- [Configuration](/configuration/options/): options and their defaults.
+- [Connection lifecycle](https://ttlc.docs.isaackogan.com/getting-started/connection/): room resolution, disconnects, and reconnecting.
+- [Events](https://ttlc.docs.isaackogan.com/events/): the complete list of subscriptions.
+- [Gift streaks](https://ttlc.docs.isaackogan.com/guides/gifts/): avoid counting cumulative streak updates repeatedly.
+- [Configuration](https://ttlc.docs.isaackogan.com/configuration/options/): options and their defaults.

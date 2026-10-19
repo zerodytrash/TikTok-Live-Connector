@@ -93,7 +93,7 @@
     "bugs": {
         "url": "https://github.com/zerodytrash/TikTok-Live-Connector/issues"
     },
-    "homepage": "https://github.com/zerodytrash/TikTok-Live-Connector#readme",
+    "homepage": "https://ttlc.docs.isaackogan.com/",
     "dependencies": {
         "@bufbuild/protobuf": "^2.2.5",
         "tiktok-live-api-sdk": "0.4.0-beta1",

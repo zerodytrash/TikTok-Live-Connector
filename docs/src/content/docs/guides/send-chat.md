@@ -28,6 +28,6 @@ console.log(response);
 
 The method defaults to the connection's current `roomId`. Supplying a room ID lets you use it without opening a WebSocket. The response is the provider's `WebcastRoomChatRouteResponse`, not a received `WebcastChatMessage` event.
 
-The current handler prefers the cookie header over OAuth when the cookie jar is nonempty. Provider responses 401 and 403 become `PremiumFeatureError`; other non-200 responses become `InvalidResponseError`. Consult [authentication](/configuration/authentication/) for the session shapes and [troubleshooting](/troubleshooting/) for failures.
+The current handler prefers the cookie header over OAuth when the cookie jar is nonempty. Provider responses 401 and 403 become `PremiumFeatureError`; other non-200 responses become `InvalidResponseError`. Consult [authentication](https://ttlc.docs.isaackogan.com/configuration/authentication/) for the session shapes and [troubleshooting](https://ttlc.docs.isaackogan.com/troubleshooting/) for failures.
 
 Avoid automatically replying to every message without your own rate control and loop prevention. The connector does not implement a send queue or per-user moderation policy.

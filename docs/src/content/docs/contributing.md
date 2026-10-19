@@ -43,6 +43,6 @@ Use synthetic or sanitized data in fixtures. Replaying a fixture verifies decodi
 
 ## Deployment
 
-The documentation workflow validates pull requests and uploads the static site as a review artifact. Hosting is configured separately in the maintainer's Cloudflare account. See [Cloudflare Pages hosting](/hosting/) for connecting this repository, build settings, and a `pages.dev` address in the maintainer's account.
+The documentation workflow validates pull requests and uploads the static site as a review artifact. Hosting is configured separately in the maintainer's Cloudflare account. See [Cloudflare Pages hosting](https://ttlc.docs.isaackogan.com/hosting/) for connecting this repository, build settings, and a `pages.dev` address in the maintainer's account.
 
-`DOCS_SITE` sets the public origin and `DOCS_BASE` sets the deployment subpath. Cloudflare Pages normally serves the site at `/`. When `DOCS_SITE` is not set, the build uses Cloudflare's `CF_PAGES_URL` if available; local builds do not assume a production hostname.
+`DOCS_SITE` overrides the public origin, which defaults to `https://ttlc.docs.isaackogan.com`, and `DOCS_BASE` sets the deployment subpath. Production uses `/`. Documentation links in Markdown use the public address; the site build keeps those links on the current host and deployment subpath so local previews remain navigable.

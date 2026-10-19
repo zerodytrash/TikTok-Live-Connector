@@ -23,7 +23,7 @@ Each route is an async function accepting one argument object. Base routes need 
 | `fetchRoomIdComposite` | `fetchRoomIdComposite` | `uniqueId` | Room ID string. |
 | `fetchIsLiveComposite` | `fetchIsLiveComposite` | `uniqueId` | Live-status boolean. |
 
-The generated [API reference](/api/) provides the exact parameter and response types for each function. Provider response envelopes are not interchangeable with the arrays returned by the base TikTok routes.
+The generated [API reference](https://ttlc.docs.isaackogan.com/api/) provides the exact parameter and response types for each function. Provider response envelopes are not interchangeable with the arrays returned by the base TikTok routes.
 
 ```ts
 import { RouteConfig, TikTokLiveConnection } from 'tiktok-live-connector';
