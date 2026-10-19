@@ -17,6 +17,9 @@ importers:
       astro:
         specifier: 7.4.1
         version: 7.4.1(@astrojs/markdown-remark@7.3.3)(@types/node@24.19.2)(esbuild@0.28.2)(yaml@2.9.1)
+      lucode-starlight:
+        specifier: 1.0.0
+        version: 1.0.0(@astrojs/starlight@0.42.6(@astrojs/markdown-remark@7.3.3)(astro@7.4.1(@astrojs/markdown-remark@7.3.3)(@types/node@24.19.2)(esbuild@0.28.2)(yaml@2.9.1))(typescript@5.9.3))
       starlight-links-validator:
         specifier: 0.27.0
         version: 0.27.0(@astrojs/starlight@0.42.6(@astrojs/markdown-remark@7.3.3)(astro@7.4.1(@astrojs/markdown-remark@7.3.3)(@types/node@24.19.2)(esbuild@0.28.2)(yaml@2.9.1))(typescript@5.9.3))(astro@7.4.1(@astrojs/markdown-remark@7.3.3)(@types/node@24.19.2)(esbuild@0.28.2)(yaml@2.9.1))
@@ -1447,6 +1450,11 @@ packages:
     resolution: {integrity: sha512-U4N8FgzmWxc8k1VH8Kr6lQg18U7Fjvby6wXHVRX/ZZ7IwWbRMgrRbP0Wrb5q5NVinryp4SQampHKdvtecItxUg==}
     engines: {node: 20 || >=22}
 
+  lucode-starlight@1.0.0:
+    resolution: {integrity: sha512-VOWIUFZnbfdXm45MbjnbJ79KlKqcNr66ADpb67meesw6lUZOKDjpkzF8Gb4oZE8gY8UhS1d2qRzDN7KBRqzmIA==}
+    peerDependencies:
+      '@astrojs/starlight': '>=0.41.4'
+
   lunr@2.3.9:
     resolution: {integrity: sha512-zTU3DaZaF3Rt9rhN3uBMGQD3dD2/vFQqnvZCDv4dl5iOzq2IZQqTxu90r4E5J+nP70J3ilqVCrbho2eWaeW8Ow==}
 
@@ -1466,6 +1474,11 @@ packages:
 
   markdown-table@3.0.4:
     resolution: {integrity: sha512-wiYz4+JrLyb/DqW2hkFJxP7Vd7JuTDm77fvbM8VfEQdmSMqcImWeeRbHwZjBjIFki/VaMK2BhFi7oUUZeM5bqw==}
+
+  marked@18.1.1:
+    resolution: {integrity: sha512-zEGgrtUG8crk+TrMacJSVABU4DYDDkS8uqgU3ohrn/2fW9C2AEfUrO3m6IhpIpQpl7YcVpiXXC9cSMWDANT3dg==}
+    engines: {node: '>= 20'}
+    hasBin: true
 
   mdast-util-definitions@6.0.0:
     resolution: {integrity: sha512-scTllyX6pnYNZH/AIp/0ePz6s4cZtARxImwoPJ7kS42n+MnVsI4XbnG6d4ibehRIldYMWM2LD7ImQblVhUejVQ==}
@@ -3697,6 +3710,12 @@ snapshots:
 
   lru-cache@11.5.3: {}
 
+  lucode-starlight@1.0.0(@astrojs/starlight@0.42.6(@astrojs/markdown-remark@7.3.3)(astro@7.4.1(@astrojs/markdown-remark@7.3.3)(@types/node@24.19.2)(esbuild@0.28.2)(yaml@2.9.1))(typescript@5.9.3)):
+    dependencies:
+      '@astrojs/starlight': 0.42.6(@astrojs/markdown-remark@7.3.3)(astro@7.4.1(@astrojs/markdown-remark@7.3.3)(@types/node@24.19.2)(esbuild@0.28.2)(yaml@2.9.1))(typescript@5.9.3)
+      '@pagefind/default-ui': 1.5.2
+      marked: 18.1.1
+
   lunr@2.3.9: {}
 
   magic-string@1.4.3:
@@ -3721,6 +3740,8 @@ snapshots:
       uc.micro: 2.1.0
 
   markdown-table@3.0.4: {}
+
+  marked@18.1.1: {}
 
   mdast-util-definitions@6.0.0:
     dependencies:

@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightTypeDoc, { typeDocSidebarGroup, createStarlightTypeDocPlugin } from 'starlight-typedoc';
 import starlightLinksValidator from 'starlight-links-validator';
+import lucode from 'lucode-starlight';
 import { visit } from 'unist-util-visit';
 import { readFileSync } from 'node:fs';
 import { unified } from '@astrojs/markdown-remark';
@@ -48,7 +49,14 @@ export default defineConfig({
         typeDocSidebarGroup,
         { label: 'Protobuf schema', slug: 'schema' },
       ],
-      plugins: [starlightTypeDoc({
+      plugins: [lucode({
+        navLinks: [
+          { label: 'Docs', link: `${base}getting-started/quickstart/` },
+          { label: 'Events', link: `${base}events/` },
+          { label: 'API', link: `${base}api/` },
+        ],
+        footerText: 'Unofficial project, not affiliated with TikTok or ByteDance Ltd. Source on [GitHub](https://github.com/zerodytrash/TikTok-Live-Connector).',
+      }), starlightTypeDoc({
         entryPoints: ['../src/index.ts'],
         tsconfig: '../tsconfig.json',
         output: 'api',
