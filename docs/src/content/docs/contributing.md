@@ -43,6 +43,6 @@ Use synthetic or sanitized data in fixtures. Replaying a fixture verifies decodi
 
 ## Deployment
 
-The documentation workflow validates pull requests and uploads the static site as a review artifact. Hosting is configured separately in the maintainer's Cloudflare account. See [Cloudflare Pages hosting](/hosting/) for connecting this repository, build settings, and a `pages.dev` address in the maintainer's account.
+The documentation workflow validates pull requests and uploads the static site as a review artifact. Pushes to `ts-rewrite` also deploy the site to Cloudflare Workers at `https://ttlc.docs.isaackogan.com/` when the repository has the Cloudflare secrets. See [Cloudflare Workers hosting](/hosting/) for the Worker configuration, the secrets, and how to deploy from a checkout.
 
-`DOCS_SITE` sets the public origin and `DOCS_BASE` sets the deployment subpath. Cloudflare Pages normally serves the site at `/`. When `DOCS_SITE` is not set, the build uses Cloudflare's `CF_PAGES_URL` if available; local builds do not assume a production hostname.
+`DOCS_SITE` sets the public origin and defaults to the custom domain. `DOCS_BASE` sets the deployment subpath and defaults to `/`. Neither needs to be set for a normal build.

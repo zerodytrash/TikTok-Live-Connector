@@ -21,7 +21,7 @@ function prefixLinks() {
 }
 
 export default defineConfig({
-  site: process.env.DOCS_SITE || process.env.CF_PAGES_URL,
+  site: process.env.DOCS_SITE || 'https://ttlc.docs.isaackogan.com',
   base,
   trailingSlash: 'always',
   markdown: { processor: unified({ remarkPlugins: [prefixLinks] }) },

@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tiktok-live-connector-docs",
+  "compatibility_date": "2026-10-19",
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  "workers_dev": false,
+  "routes": [
+    {
+      "pattern": "ttlc.docs.isaackogan.com",
+      "custom_domain": true
+    }
+  ]
+}

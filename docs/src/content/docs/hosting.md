@@ -1,69 +1,71 @@
 ---
-title: Cloudflare Pages hosting
-description: Host the static documentation in a maintainer's Cloudflare account.
+title: Cloudflare Workers hosting
+description: Host the static documentation on Cloudflare Workers static assets under a custom domain.
 ---
 
-Deploy `docs/dist` to Cloudflare Pages and use the project's assigned `pages.dev` address. Hosting can live in a maintainer's account while the documentation source stays in the public upstream repository. This is a static site; it does not need Pages Functions, a Cloudflare Astro adapter, or TikTok credentials.
+The site is deployed to Cloudflare Workers as static assets and served at `https://ttlc.docs.isaackogan.com/`. Hosting lives in a maintainer's Cloudflare account while the documentation source stays in the public upstream repository. There is no Worker script: `docs/wrangler.jsonc` only declares the asset directory, HTML handling, and the custom domain. The site needs no Pages Functions, no Cloudflare Astro adapter, and no TikTok credentials.
 
-Choose the project name in Cloudflare before setting `DOCS_SITE` or adding a public site link to the README. Until the first deployment, the README links to the checked-in documentation. Once the address is confirmed, replace those event-reference links with the corresponding hosted paths.
+## Configuration
 
-## Build settings
+```jsonc
+{
+  "name": "tiktok-live-connector-docs",
+  "compatibility_date": "2026-10-19",
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  "workers_dev": false,
+  "routes": [
+    { "pattern": "ttlc.docs.isaackogan.com", "custom_domain": true }
+  ]
+}
+```
 
-When building a checkout of TikTok-Live-Connector, use these settings:
+- `html_handling: auto-trailing-slash` matches Astro's `trailingSlash: 'always'`. A request for `/guides/power-ups` redirects to `/guides/power-ups/`, which serves `guides/power-ups/index.html`.
+- `not_found_handling: 404-page` serves Starlight's generated `404.html` with a 404 status.
+- `workers_dev: false` keeps the site off the `workers.dev` hostname so the custom domain is the only public origin.
+- The `routes` entry with `custom_domain: true` makes Cloudflare create the DNS record and the certificate for the hostname on deploy. The `isaackogan.com` zone must be in the same Cloudflare account as the Worker, and the hostname must not already have a DNS record.
 
-| Setting | Value |
+`DOCS_SITE` overrides the canonical origin and defaults to the custom domain. `DOCS_BASE` sets the deployment subpath and defaults to `/`. Neither needs to be set for a production build.
+
+See Cloudflare's [static assets](https://developers.cloudflare.com/workers/static-assets/) and [custom domains](https://developers.cloudflare.com/workers/configuration/routing/custom-domains/) documentation for the underlying behavior.
+
+## Deploy from a checkout
+
+Wrangler is pinned in `docs/package.json`, so the second install below provides it. Run `pnpm --dir docs exec wrangler login` once on a new machine.
+
+```sh
+pnpm install --frozen-lockfile
+pnpm --dir docs install --frozen-lockfile
+pnpm --dir docs build
+pnpm --dir docs run deploy:cloudflare
+```
+
+The first deploy creates the Worker and attaches the custom domain. Later deploys upload only the files that changed.
+
+## Continuous deployment
+
+The documentation workflow in `.github/workflows/docs.yml` validates pull requests and uploads the built site as a review artifact. On pushes to `ts-rewrite` it also deploys with `cloudflare/wrangler-action` when the repository has two Actions secrets:
+
+| Secret | Value |
 | --- | --- |
-| Production source branch | `ts-rewrite` |
-| Root directory | Repository root; leave the field empty |
-| Framework preset | None; use the explicit command below |
-| Build output directory | `docs/dist` |
-| `NODE_VERSION` | `24` |
-| `PNPM_VERSION` | `10.34.2` |
-| `SKIP_DEPENDENCY_INSTALL` | `1` |
-| `DOCS_SITE` | The actual public origin, such as the assigned `https://PROJECT.pages.dev` |
-| `DOCS_BASE` | `/` |
+| `CLOUDFLARE_API_TOKEN` | A token created from the **Edit Cloudflare Workers** template, scoped to the hosting account and the `isaackogan.com` zone |
+| `CLOUDFLARE_ACCOUNT_ID` | The hosting account's ID, shown by `wrangler whoami` |
 
-Build command:
-
-```sh
-pnpm install --frozen-lockfile && pnpm --dir docs install --frozen-lockfile && pnpm --dir docs build
-```
-
-Keep the root at the repository root: TypeDoc needs the connector source and its installed protobuf dependency outside `docs/`. The two installs use separate lockfiles. `SKIP_DEPENDENCY_INSTALL` avoids a separate automatic install choosing another package manager.
-
-Cloudflare provides `CF_PAGES_URL` for each deployment. The site uses it when `DOCS_SITE` is unset. Set `DOCS_SITE` explicitly when production and preview builds should share one canonical origin. No DNS changes are needed for the assigned `pages.dev` address.
-
-See Cloudflare's [build configuration](https://developers.cloudflare.com/pages/configuration/build-configuration/) and [build image settings](https://developers.cloudflare.com/pages/configuration/build-image/).
-
-## Connect this repository
-
-After the documentation has merged into `ts-rewrite`:
-
-1. Sign into the maintainer's Cloudflare account and open **Workers & Pages → Create application → Pages → Import an existing Git repository**.
-2. Connect GitHub and select `zerodytrash/TikTok-Live-Connector`. The Cloudflare GitHub integration must have access to that repository; request approval from its owner if it is not available in the picker.
-3. Choose an available project name. Cloudflare assigns its `pages.dev` address from that name.
-4. Set the production branch to `ts-rewrite`, then apply the build settings and environment variables above to production and any enabled previews.
-5. Select **Save and Deploy**. Future pushes to `ts-rewrite` build and publish the site automatically.
-
-The Cloudflare account owns the hosting project; the Markdown, TypeScript source, and build configuration stay in TikTok-Live-Connector. No GitHub Pages setup or deployment secrets in this repository are needed for Git integration.
-
-Cloudflare does not create Git-integration previews for pull requests from forks. Use the GitHub documentation build artifact or a local preview for those reviews. See [Cloudflare's GitHub integration](https://developers.cloudflare.com/pages/configuration/git-integration/github-integration/).
-
-## Direct Upload alternative
-
-If Git integration cannot be authorized, the maintainer can publish a build from a checkout of this same repository using [Cloudflare Direct Upload](https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/):
-
-```sh
-npx wrangler@4 login
-npx wrangler@4 pages project create YOUR_PROJECT --production-branch=ts-rewrite
-DOCS_SITE=https://YOUR_PROJECT.pages.dev DOCS_BASE=/ pnpm --dir docs build
-npx wrangler@4 pages deploy docs/dist --project-name=YOUR_PROJECT --branch=ts-rewrite
-```
-
-Run the two dependency-install commands above before building. Replace `YOUR_PROJECT` with the available project name chosen in Cloudflare. Choose Git integration or Direct Upload when creating the Pages project; a Direct Upload project does not automatically follow upstream commits. Rebuild and upload after changes, or configure an authorized CI runner using Cloudflare's linked instructions.
+Without the secrets the deploy step is skipped and the workflow still validates the build, so forks and pull requests are unaffected. Adding repository secrets requires admin access to the upstream repository.
 
 ## Verify a deployment
 
-Open the assigned `pages.dev` address and a direct nested URL such as `/guides/power-ups/`. Check the event references, generated API and schema pages, and search for “Power-Ups.” Confirm that links use `/`, not a GitHub repository subpath, and that the canonical origin is the deployed site.
+```sh
+curl -I https://ttlc.docs.isaackogan.com/guides/power-ups/
+curl -I https://ttlc.docs.isaackogan.com/guides/power-ups
+curl -I https://ttlc.docs.isaackogan.com/missing/
+```
 
-For a later custom domain, add the domain in the Pages project's **Custom domains** settings, follow Cloudflare's DNS instructions, update `DOCS_SITE`, and rebuild. A custom domain is optional; the initial deployment can stay on `pages.dev`.
+Expect a 200, a 307 redirect to the trailing-slash form, and a 404 in that order. Then open the site, check the event references and the generated API and schema pages, and search for "Power-Ups". The canonical link in the page head must use the custom domain.
+
+## Changing the hostname
+
+Edit `pattern` in `docs/wrangler.jsonc`, change the default `site` in `docs/astro.config.mjs`, update the hosted links in the repository README, and deploy. Cloudflare provisions the new hostname on the next deploy. Remove the old one under the Worker's **Settings → Domains & Routes** in the Cloudflare dashboard.
