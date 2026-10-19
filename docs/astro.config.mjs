@@ -58,7 +58,7 @@ export default defineConfig({
           { label: 'Events', link: `${base}events/` },
           { label: 'API', link: `${base}api/` },
         ],
-        footerText: 'Unofficial project, not affiliated with TikTok or ByteDance Ltd. Source on [GitHub](https://github.com/zerodytrash/TikTok-Live-Connector).',
+        footerText: 'Unofficial project, not affiliated with TikTok or ByteDance Ltd. Signing by [Euler Stream](https://www.eulerstream.com/). Source on [GitHub](https://github.com/zerodytrash/TikTok-Live-Connector).',
       }), starlightTypeDoc({
         entryPoints: ['../src/index.ts'],
         tsconfig: '../tsconfig.json',
