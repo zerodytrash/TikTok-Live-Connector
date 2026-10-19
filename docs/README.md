@@ -24,8 +24,13 @@ Authored pages live in `src/content/docs/`. The `api/` and `schema/` directories
 
 ## Hosting
 
-Use Cloudflare Pages in the maintainer's account with a `pages.dev` address. The GitHub workflow only validates and uploads review artifacts; it does not deploy to GitHub Pages.
+The site is served from Cloudflare Workers static assets at <https://ttlc.docs.isaackogan.com/>. `wrangler.jsonc` in this directory declares the asset directory and the custom domain; there is no Worker script. The GitHub workflow validates every change and deploys pushes to `ts-rewrite` when the repository has the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets.
 
-See [Cloudflare Pages hosting](src/content/docs/hosting.md) for exact build settings, connecting this repository to Cloudflare, and publishing into the maintainer's Cloudflare account.
+To deploy from a checkout after the two installs above:
 
-Set `DOCS_SITE` to the chosen public origin and use `DOCS_BASE=/`. Cloudflare's `CF_PAGES_URL` is used when `DOCS_SITE` is unset. A local build does not need a production hostname.
+```sh
+pnpm --dir docs build
+pnpm --dir docs run deploy:cloudflare
+```
+
+See [Cloudflare Workers hosting](src/content/docs/hosting.md) for the configuration, secrets, and verification steps. `DOCS_SITE` defaults to the custom domain and `DOCS_BASE` to `/`; neither needs to be set.

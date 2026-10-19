@@ -3,7 +3,7 @@ title: Troubleshooting
 description: Diagnose connection failures, signing errors, missing events, and schema problems.
 ---
 
-Start with the smallest quickstart example, the exact installed package version, the failing operation, and the original exception. Separate TikTok HTTP requests, provider requests, and the final WebSocket connection: succeeding at one does not establish that all three work.
+Start with the smallest [Getting Started](/) example, the exact installed package version, the failing operation, and the original exception. Separate TikTok HTTP requests, provider requests, and the final WebSocket connection: succeeding at one does not establish that all three work.
 
 ## Connection errors
 

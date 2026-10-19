@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightTypeDoc, { typeDocSidebarGroup, createStarlightTypeDocPlugin } from 'starlight-typedoc';
 import starlightLinksValidator from 'starlight-links-validator';
+import lucode from 'lucode-starlight';
 import { visit } from 'unist-util-visit';
 import { readFileSync } from 'node:fs';
 import { unified } from '@astrojs/markdown-remark';
@@ -21,7 +22,7 @@ function prefixLinks() {
 }
 
 export default defineConfig({
-  site: process.env.DOCS_SITE || process.env.CF_PAGES_URL,
+  site: process.env.DOCS_SITE || 'https://ttlc.docs.isaackogan.com',
   base,
   trailingSlash: 'always',
   markdown: { processor: unified({ remarkPlugins: [prefixLinks] }) },
@@ -29,12 +30,15 @@ export default defineConfig({
     starlight({
       title: 'TikTok LIVE Connector',
       description: 'Connect to TikTok LIVE with Node.js. Guides, events, and TypeScript API reference.',
-      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/zerodytrash/TikTok-Live-Connector' }],
+      favicon: '/favicon.png',
+      social: [
+        { icon: 'github', label: 'GitHub', href: 'https://github.com/zerodytrash/TikTok-Live-Connector' },
+        { icon: 'discord', label: 'Discord', href: 'https://discord.gg/2c6kX6g3Pa' },
+      ],
       editLink: { baseUrl: 'https://github.com/zerodytrash/TikTok-Live-Connector/edit/ts-rewrite/docs/' },
       sidebar: [
         { label: 'Start here', items: [
-          { label: 'Overview', slug: '' },
-          { label: 'Quickstart', slug: 'getting-started/quickstart' },
+          { label: 'Getting Started', slug: '' },
           { label: 'Connection lifecycle', slug: 'getting-started/connection' },
           { label: 'Migration', slug: 'getting-started/migration' },
         ] },
@@ -48,7 +52,14 @@ export default defineConfig({
         typeDocSidebarGroup,
         { label: 'Protobuf schema', slug: 'schema' },
       ],
-      plugins: [starlightTypeDoc({
+      plugins: [lucode({
+        navLinks: [
+          { label: 'Docs', link: base },
+          { label: 'Events', link: `${base}events/` },
+          { label: 'API', link: `${base}api/` },
+        ],
+        footerText: 'Unofficial project, not affiliated with TikTok or ByteDance Ltd. Source on [GitHub](https://github.com/zerodytrash/TikTok-Live-Connector).',
+      }), starlightTypeDoc({
         entryPoints: ['../src/index.ts'],
         tsconfig: '../tsconfig.json',
         output: 'api',
