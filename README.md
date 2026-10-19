@@ -606,6 +606,7 @@ Java, Go and C# ports.
 
 * **Zerody** - *Initial Reverse-Engineering and Protobuf-Decoding* - [Zerody](https://github.com/zerodytrash/)
 * **Isaac Kogan** - *TypeScript Rewrite, Sign-Server Maintainer* - [isaackogan](https://github.com/isaackogan)
+* **sleepylessons** - *Docs & QoL Updates* - [sleepylessons](https://github.com/sleepylessons)
 
 ## License
 
