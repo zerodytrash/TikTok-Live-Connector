@@ -44,7 +44,6 @@ Tracked events include [Chat Comments](https://ttlc.docs.isaackogan.com/events/c
 ### Table of Contents
 
 - [Getting Started](#getting-started)
-- [Run with Docker](#run-with-docker)
 - [Params and Options](#params-and-options)
 - [Methods](#methods)
 - [Properties](#properties)
@@ -610,4 +609,4 @@ Java, Go and C# ports.
 
 ## License
 
-This project is licensed under a modified AGPL License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under a modified AGPL License. See the [LICENSE](https://github.com/zerodytrash/TikTok-Live-Connector/blob/ts-rewrite/LICENSE) file for details.
