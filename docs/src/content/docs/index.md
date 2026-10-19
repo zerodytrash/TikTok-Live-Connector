@@ -9,7 +9,7 @@ TikTok LIVE Connector receives comments, gifts, likes, follows, viewer counts, b
 
 - Node.js 20 or newer, with the connector running in a Node.js process. It uses Node HTTP and WebSocket libraries; a webpage should receive selected events through your own backend.
 - An ESM entry point. Use an `.mjs` file, or set `"type": "module"` in your application's `package.json`.
-- No TikTok login for public livestreams. Signing uses a third-party provider, Euler Stream by default. Authenticated and mobile connections have additional requirements; see [authentication](/configuration/authentication/).
+- No TikTok login for public livestreams. Signing uses a third-party provider, [Euler Stream](https://www.eulerstream.com/) by default. Authenticated and mobile connections have additional requirements; see [authentication](/configuration/authentication/).
 
 This is an unofficial reverse-engineering project. TikTok can change its protocol without notice, and a defined event may not be sent in every room or region. See [protocol types](/advanced/protocol/) for how to distinguish schema definitions from verified event behavior.
 
@@ -64,7 +64,7 @@ Nested messages can be absent. Use optional chaining, and keep IDs as strings so
 
 ## Signing
 
-The default signing provider is Euler Stream. A TikTok login is normally unnecessary for public rooms; provider limits and feature permissions still apply. Supply your provider API key through `signApiKey` or `SIGN_API_KEY` when needed. See [signing](/configuration/signing/) and [troubleshooting](/troubleshooting/).
+The default signing provider is Euler Stream, a hosted [TikTok LIVE signing API](https://www.eulerstream.com/). A TikTok login is normally unnecessary for public rooms; provider limits and feature permissions still apply. Supply your provider API key through `signApiKey` or `SIGN_API_KEY` when needed. For production workloads that need an uptime guarantee, the managed [TikTok LIVE WebSocket API](https://www.eulerstream.com/websockets) handles signing, scaling, and protocol changes for you. See [signing](/configuration/signing/) and [troubleshooting](/troubleshooting/).
 
 ## Next steps
 
