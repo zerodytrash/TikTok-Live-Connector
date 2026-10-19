@@ -104,13 +104,14 @@ export class WebcastHttpClient {
      * (headers, search params, cookie jar) and optionally routing the URL through the
      * sign server first.
      *
-     * @param options.host Host portion of the request URL.
-     * @param options.path Path appended to the host.
-     * @param options.searchParams Per-call query parameters. Merged on top of `clientParams`; per-call values win on key collision.
-     * @param options.signRequest If true, the URL is signed via `RouteConfig.fetchWebcastSignatureFromProvider` and any returned signed URL / User-Agent are honored.
-     * @param options.method HTTP method. Defaults to `GET`.
-     * @param options.headers Per-call headers. Merged on top of `clientHeaders`; per-call values win on key collision.
-     * @param options Any other field is forwarded to `got` as-is (body, responseType, retry, etc.).
+     * - `host`: host portion of the request URL.
+     * - `path`: path appended to the host.
+     * - `searchParams`: merged on top of `clientParams`; per-call values win.
+     * - `signRequest`: sign through `RouteConfig.fetchWebcastSignatureFromProvider` and honor the returned URL and User-Agent.
+     * - `method`: HTTP method, defaulting to `GET`.
+     * - `headers`: merged on top of `clientHeaders`; per-call values win.
+     *
+     * Other fields are forwarded to `got` (body, responseType, retry, etc.).
      */
     public async request(
         {

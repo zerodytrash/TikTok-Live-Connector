@@ -19,9 +19,10 @@ export const IsLiveRouteConfig = {
  * Determines whether a user is currently live, falling back progressively:
  *   1. HTML scrape (SIGI_STATE status field)
  *   2. TikTok API Live endpoint (liveRoom.status)
- *   3. Euler Stream (is_live flag — skipped if `disableEulerFallback` is true)
+ *   3. Euler Stream (is_live flag)
  *
- * Errors from each source are accumulated and surfaced via `FetchIsLiveError` if every source fails.
+ * Each source can be disabled with the corresponding `IsLiveRouteConfig` flag. Errors from each source
+ * are accumulated and surfaced via `InvalidResponseCompositeError` if every enabled source fails.
  */
 export const fetchIsLiveComposite = createRoute<FetchIsLiveRouteParams, boolean>(
     CompositeFetchRoute.FETCH_IS_LIVE,

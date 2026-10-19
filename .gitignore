@@ -146,3 +146,8 @@ unzip-test.ts
 
 # TEMP: ws url/ttwid expiry test cache
 ws-cache.json
+
+# Documentation build output
+docs/.astro/
+docs/src/content/docs/api/
+docs/src/content/docs/schema/

@@ -10,9 +10,9 @@ TikTokLiveConnector reads TikTok's internal Webcast push service directly, which
 TikTok chat bots, gift trackers, OBS overlays, donation alerts, moderation tools and livestream analytics.
 It works for your own live chat and for any other creator's.
 
-Tracked events include [Chat Comments](#chat), [Members Joining](#member), [Gifts](#gift),
-[Viewers](#roomuser), [Follows](#social), [Shares](#social), [Questions](#questionnew),
-[Likes](#like), [Super Fans](#superfan) and [Battles](#linkmicbattle).
+Tracked events include [Chat Comments](docs/src/content/docs/events/chat-and-audience.md#chat), [Members Joining](docs/src/content/docs/events/chat-and-audience.md#member), [Gifts](docs/src/content/docs/events/gifts-and-goals.md#gift),
+[Viewers](docs/src/content/docs/events/chat-and-audience.md#room-user), [Follows](docs/src/content/docs/events/chat-and-audience.md#social), [Shares](docs/src/content/docs/events/chat-and-audience.md#social), [Questions](docs/src/content/docs/events/chat-and-audience.md#question-new),
+[Likes](docs/src/content/docs/events/chat-and-audience.md#like), [Super Fans](docs/src/content/docs/events/subscriptions-and-fans.md#super-fan) and [Battles](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-battle).
 
 [![Discord](https://img.shields.io/discord/977648006063091742?logo=discord&label=TikTokLive%20Discord&labelColor=%23171717&color=%231877af)](https://discord.gg/N3KSxzvDX8)
 ![Connections](https://api.eulerstream.com/analytics/pips?client=ttlive-node)
@@ -314,834 +314,88 @@ connection.on(ControlEvent.CONNECTED, () => console.log("Connected!"));
 
 ### Control Events:
 
-- [`ControlEvent.CONNECTED`](#connected) or `"connected"`
-- [`ControlEvent.DISCONNECTED`](#disconnected) or `"disconnected"`
-- [`ControlEvent.RAW_DATA`](#rawdata) or `"rawData"`
-- [`ControlEvent.DECODED_DATA`](#decodeddata) or `"decodedData"`
-- [`ControlEvent.WEBSOCKET_CONNECTED`](#websocketconnected) or `"websocketConnected"`
-- [`ControlEvent.ERROR`](#error) or `"error"`
-- [`ControlEvent.WEBSOCKET_DATA`](#websocketdata) or `"websocketData"`
+<a id="control-events-1"></a>
+
+See the [control event reference](docs/src/content/docs/events/control.md) for arguments and examples.
+
+- <a id="connected"></a>[`ControlEvent.CONNECTED`](docs/src/content/docs/events/control.md#connected) or `"connected"`
+- <a id="disconnected"></a>[`ControlEvent.DISCONNECTED`](docs/src/content/docs/events/control.md#disconnected) or `"disconnected"`
+- <a id="rawdata"></a>[`ControlEvent.RAW_DATA`](docs/src/content/docs/events/control.md#raw-data) or `"rawData"`
+- <a id="decodeddata"></a>[`ControlEvent.DECODED_DATA`](docs/src/content/docs/events/control.md#decoded-data) or `"decodedData"`
+- <a id="websocketconnected"></a>[`ControlEvent.WEBSOCKET_CONNECTED`](docs/src/content/docs/events/control.md#websocket-connected) or `"websocketConnected"`
+- <a id="error"></a>[`ControlEvent.ERROR`](docs/src/content/docs/events/control.md#error) or `"error"`
+- <a id="websocketdata"></a>[`ControlEvent.WEBSOCKET_DATA`](docs/src/content/docs/events/control.md#websocket-bytes) or `"websocketData"`
 
 ### Message Events:
 
-- [`WebcastEvent.CHAT`](#chat) or `"chat"`
-- [`WebcastEvent.GIFT`](#gift) or `"gift"`
-- [`WebcastEvent.MEMBER`](#member) or `"member"`
-- [`WebcastEvent.LIKE`](#like) or `"like"`
-- [`WebcastEvent.SOCIAL`](#social) or `"social"`
-- [`WebcastEvent.ENVELOPE`](#envelope) or `"envelope"`
-- [`WebcastEvent.QUESTION_NEW`](#questionnew) or `"questionNew"`
-- [`WebcastEvent.LINK_MIC_BATTLE`](#linkmicbattle) or `"linkMicBattle"`
-- [`WebcastEvent.LINK_MIC_ARMIES`](#linkmicarmies) or `"linkMicArmies"`
-- [`WebcastEvent.LIVE_INTRO`](#liveintro) or `"liveIntro"`
-- [`WebcastEvent.SUPER_FAN`](#superfan) or `"superFan"`
-- [`WebcastEvent.SUPER_FAN_JOIN`](#superfanjoin) or `"superFanJoin"`
-- [`WebcastEvent.FOLLOW`](#follow) or `"follow"`
-- [`WebcastEvent.SHARE`](#share) or `"share"`
-- [`WebcastEvent.STREAM_END`](#streamend) or `"streamEnd"`
-- [`WebcastEvent.ROOM_USER`](#roomuser) or `"roomUser"`
-- [`WebcastEvent.EMOTE`](#emote) or `"emote"`
-- [`WebcastEvent.GOAL_UPDATE`](#goalupdate) or `"goalUpdate"`
-- [`WebcastEvent.ROOM_MESSAGE`](#roommessage) or `"roomMessage"`
-- [`WebcastEvent.CAPTION_MESSAGE`](#captionmessage) or `"captionMessage"`
-- [`WebcastEvent.IM_DELETE`](#imdelete) or `"imDelete"`
-- [`WebcastEvent.IN_ROOM_BANNER`](#inroombanner) or `"inRoomBanner"`
-- [`WebcastEvent.RANK_UPDATE`](#rankupdate) or `"rankUpdate"`
-- [`WebcastEvent.POLL_MESSAGE`](#pollmessage) or `"pollMessage"`
-- [`WebcastEvent.RANK_TEXT`](#ranktext) or `"rankText"`
-- [`WebcastEvent.LINK_MIC_BATTLE_PUNISH_FINISH`](#linkmicbattlepunishfinish) or `"linkMicBattlePunishFinish"`
-- [`WebcastEvent.LINK_MIC_BATTLE_TASK`](#linkmicbattletask) or `"linkMicBattleTask"`
-- [`WebcastEvent.LINK_MIC_FAN_TICKET_METHOD`](#linkmicfanticketmethod) or `"linkMicFanTicketMethod"`
-- [`WebcastEvent.LINK_MIC_METHOD`](#linkmicmethod) or `"linkMicMethod"`
-- [`WebcastEvent.UNAUTHORIZED_MEMBER`](#unauthorizedmember) or `"unauthorizedMember"`
-- [`WebcastEvent.OEC_LIVE_SHOPPING`](#oecliveshopping) or `"oecLiveShopping"`
-- [`WebcastEvent.MSG_DETECT`](#msgdetect) or `"msgDetect"`
-- [`WebcastEvent.LINK_MESSAGE`](#linkmessage) or `"linkMessage"`
-- [`WebcastEvent.ROOM_VERIFY`](#roomverify) or `"roomVerify"`
-- [`WebcastEvent.LINK_LAYER`](#linklayer) or `"linkLayer"`
-- [`WebcastEvent.ROOM_PIN`](#roompin) or `"roomPin"`
-- [`WebcastEvent.SUPER_FAN_BOX`](#superfanbox) or `"superFanBox"`
-- [`WebcastEvent.ACCESS_CONTROL`](#accesscontrol) or `"accessControl"`
-- [`WebcastEvent.ACCESS_RECALL`](#accessrecall) or `"accessRecall"`
-- [`WebcastEvent.BOOST_CARD`](#boostcard) or `"boostCard"`
-- [`WebcastEvent.BOTTOM_MESSAGE`](#bottommessage) or `"bottomMessage"`
-- [`WebcastEvent.CAPSULE`](#capsule) or `"capsule"`
-- [`WebcastEvent.GAME_RANK_NOTIFY`](#gameranknotify) or `"gameRankNotify"`
-- [`WebcastEvent.GIFT_BROADCAST`](#giftbroadcast) or `"giftBroadcast"`
-- [`WebcastEvent.GIFT_DYNAMIC_RESTRICTION`](#giftdynamicrestriction) or `"giftDynamicRestriction"`
-- [`WebcastEvent.GIFT_PANEL_UPDATE`](#giftpanelupdate) or `"giftPanelUpdate"`
-- [`WebcastEvent.GIFT_PROMPT`](#giftprompt) or `"giftPrompt"`
-- [`WebcastEvent.GUIDE`](#guide) or `"guide"`
-- [`WebcastEvent.HOURLY_RANK`](#hourlyrank) or `"hourlyRank"`
-- [`WebcastEvent.LINK_MIC_LAYOUT_STATE`](#linkmiclayoutstate) or `"linkMicLayoutState"`
-- [`WebcastEvent.LINK_STATE`](#linkstate) or `"linkState"`
-- [`WebcastEvent.LIVE_GAME_INTRO`](#livegameintro) or `"liveGameIntro"`
-- [`WebcastEvent.MARQUEE_ANNOUNCEMENT`](#marqueeannouncement) or `"marqueeAnnouncement"`
-- [`WebcastEvent.NOTICE`](#notice) or `"notice"`
-- [`WebcastEvent.PARTNERSHIP_DROPS_UPDATE`](#partnershipdropsupdate) or `"partnershipDropsUpdate"`
-- [`WebcastEvent.PARTNERSHIP_GAME_OFFLINE`](#partnershipgameoffline) or `"partnershipGameOffline"`
-- [`WebcastEvent.PARTNERSHIP_PUNISH`](#partnershippunish) or `"partnershipPunish"`
-- [`WebcastEvent.PERCEPTION`](#perception) or `"perception"`
-- [`WebcastEvent.ROOM_NOTIFY`](#roomnotify) or `"roomNotify"`
-- [`WebcastEvent.SPEAKER`](#speaker) or `"speaker"`
-- [`WebcastEvent.SUB_NOTIFY`](#subnotify) or `"subNotify"`
-- [`WebcastEvent.SUB_PIN_EVENT`](#subpinevent) or `"subPinEvent"`
-- [`WebcastEvent.TOAST`](#toast) or `"toast"`
-- [`WebcastEvent.VIEWER_PICKS_UPDATE`](#viewerpicksupdate) or `"viewerPicksUpdate"`
-
-## Control Events
-
-### `connected`
-
-Triggered when the connection is successfully established.
-
-```ts
-connection.on(
-    ControlEvent.CONNECTED,
-    (state: TikTokLiveConnectionState) => {
-        console.log(`Hurray! Connected to roomId ${state.roomId}`);
-        console.log(`Room info loaded: ${Boolean(state.roomInfo)}`);
-    }
-);
-```
-
-### `disconnected`
-
-Triggered when the connection gets disconnected. In that case you can call `connect()` again to have a reconnect logic.
-Note that you should wait a little bit before attempting a reconnect to to avoid being rate-limited.
-
-```ts
-connection.on(ControlEvent.DISCONNECTED, ({ code, reason }) => {
-    console.log(`Disconnected :(${code})`);
-    if (reason) {
-        console.log(`Reason: ${reason}`);
-    }
-});
-```
-
-### `rawData`
-
-Triggered every time a protobuf encoded webcast message arrives. You can deserialize the binary object depending on the
-use case with <a href="https://www.npmjs.com/package/protobufjs">protobufjs</a>.
-
-```ts
-connection.on(ControlEvent.RAW_DATA, (messageTypeName, binary) => {
-    console.log(messageTypeName, binary);
-});
-```
-
-### `decodedData`
-
-Triggered every time a decoded message arrives. This is the same as the `rawData` event but the binary object is already
-decoded. You can use this event to handle the protobuf messages without the need of deserializing them yourself.
-
-```ts
-connection.on(ControlEvent.DECODED_DATA, (event: string, decodedData: any, binary: Uint8Array) => {
-    console.log(event, decodedData);
-});
-```
-
-### `websocketConnected`
-
-Will be triggered as soon as a WebSocket connection is established. The WebSocket client object is passed.
-
-```ts
-connection.on(ControlEvent.WEBSOCKET_CONNECTED, (client: TikTokWsClient) => {
-    console.log('WebSocket open:', client.open);
-});
-```
-
-### `websocketData`
-
-Triggered every time a WebSocket message arrives. This is the same as the `rawData` event but the binary object is
-
-```ts
-connection.on(ControlEvent.WEBSOCKET_DATA, (data: Uint8Array) => {
-    console.log(`WebSocket bytes: ${data.length}`);
-});
-```
-
-### `error`
-
-General error event. You should handle this.
-
-```ts
-connection.on(ControlEvent.ERROR, ({ info, exception }) => {
-    console.error('Error!', info, exception);
-});
-```
-
-## Message Events
-
-### `member`
-
-Triggered every time a new viewer joins the live stream.
-
-```ts
-connection.on(WebcastEvent.MEMBER, (data: WebcastMemberMessage) => {
-    const uniqueId = data.user?.uniqueId;
-    const nickname = data.user?.nickname;
-    if (uniqueId) {
-        console.log(`User uniqueId: ${uniqueId}`);
-    }
-    if (nickname) {
-        console.log(`User nickname: ${nickname}`);
-    }
-    if (uniqueId || nickname) {
-        console.log('User joined the stream!');
-    }
-    console.log(`Viewers: ${data.memberCount}`);
-});
-```
-
-### `chat`
-
-Triggered every time a new chat comment arrives.
-
-```ts
-connection.on(WebcastEvent.CHAT, (data: WebcastChatMessage) => {
-    const uniqueId = data.user?.uniqueId;
-    const nickname = data.user?.nickname;
-    if (uniqueId) {
-        console.log(`User uniqueId: ${uniqueId}`);
-    }
-    if (nickname) {
-        console.log(`User nickname: ${nickname}`);
-    }
-    if (data.comment) {
-        console.log(`Comment: ${data.comment}`);
-    }
-});
-```
-
-### `gift`
-
-Triggered every time a gift arrives. You will receive additional information via the `extendedGiftInfo` attribute when
-you enable the [`enableExtendedGiftInfo`](#params-and-options) option.
-
-> **NOTE:** Users have the capability to send gifts in a streak. This increases the `repeatCount` value until the user
-> terminates the streak. During this time new gift events are triggered again and again with an increased `repeatCount`
-> value. It should be noted that after the end of the streak, another gift event is triggered, which signals the end of
-> the streak via `repeatEnd`:`true`. This applies only to gifts with `giftType`:`1`. This means that even if the user
-> sends a `giftType`:`1` gift only once, you will receive the event twice. Once with `repeatEnd`:`false` and once
-> with `repeatEnd`:`true`. Therefore, the event should be handled as follows:
-
-```ts
-connection.on(WebcastEvent.GIFT, (data: WebcastGiftMessage) => {
-    const giftType = data.giftDetails?.giftType;
-    const giftName = data.giftDetails?.giftName;
-    const uniqueId = data.user?.uniqueId;
-    const nickname = data.user?.nickname;
-
-    if (giftType === 1 && !data.repeatEnd) {
-        // Streak in progress => show only temporary
-        console.log('Gift streak in progress');
-    } else {
-        // Streak ended or non-streakable gift => process the gift with final repeat_count
-        console.log('Gift streak ended or non-streakable gift');
-    }
-    if (uniqueId) {
-        console.log(`User uniqueId: ${uniqueId}`);
-    }
-    if (nickname) {
-        console.log(`User nickname: ${nickname}`);
-    }
-    console.log(`GiftId: ${data.giftId}, repeatCount: ${data.repeatCount}`);
-    if (giftName) {
-        console.log(`Gift name: ${giftName}`);
-    }
-});
-```
-
-### `roomUser`
-
-Triggered every time a statistic message arrives. This message currently contains the viewer count and a top gifter
-list.
-
-```ts
-connection.on(WebcastEvent.ROOM_USER, data => {
-    console.log(`Viewer Count: ${data.viewerCount}`);
-    const topGifter = data.ranksList[0];
-    if (topGifter?.user) {
-        const uniqueId = topGifter.user.uniqueId;
-        const nickname = topGifter.user.nickname;
-        if (uniqueId) {
-            console.log(`Top gifter uniqueId: ${uniqueId} (${topGifter.coinCount})`);
-        }
-        if (nickname) {
-            console.log(`Top gifter nickname: ${nickname} (${topGifter.coinCount})`);
-        }
-    }
-});
-```
-
-### `like`
-
-Triggered when a viewer sends likes to the streamer. For streams with many viewers, this event is not always triggered
-by TikTok.
-
-```ts
-connection.on(WebcastEvent.LIKE, data => {
-    const uniqueId = data.user?.uniqueId;
-    const nickname = data.user?.nickname;
-    if (uniqueId) {
-        console.log(`User uniqueId: ${uniqueId}`);
-    }
-    if (nickname) {
-        console.log(`User nickname: ${nickname}`);
-    }
-    console.log(`Likes: ${data.likeCount}, total likes: ${data.totalLikeCount}`);
-});
-```
-
-### `social`
-
-Triggered every time someone shares the stream or follows the host.
-
-```ts
-connection.on(WebcastEvent.SOCIAL, data => {
-    if (data.action) {
-        console.log(`Social action: ${data.action}`);
-    }
-    const uniqueId = data.user?.uniqueId;
-    const nickname = data.user?.nickname;
-    if (uniqueId) {
-        console.log(`User uniqueId: ${uniqueId}`);
-    }
-    if (nickname) {
-        console.log(`User nickname: ${nickname}`);
-    }
-    if (data.shareType || data.shareTarget) {
-        console.log(`Share type: ${data.shareType}, share target: ${data.shareTarget}`);
-    }
-});
-```
-
-### `emote`
-
-Triggered every time a subscriber sends an emote (sticker).
-
-```ts
-connection.on(WebcastEvent.EMOTE, (data: WebcastEmoteChatMessage) => {
-    const uniqueId = data.user?.uniqueId;
-    const nickname = data.user?.nickname;
-    if (uniqueId) {
-        console.log(`User uniqueId: ${uniqueId}`);
-    }
-    if (nickname) {
-        console.log(`User nickname: ${nickname}`);
-    }
-    const emoteId = data.emoteList[0]?.emoteId;
-    if (emoteId) {
-        console.log(`Emote id: ${emoteId}`);
-    }
-});
-```
-
-### `envelope`
-
-Triggered every time someone sends a treasure chest.
-
-```ts
-connection.on(WebcastEvent.ENVELOPE, data => {
-    const envelope = data.envelopeInfo;
-    if (envelope) {
-        if (envelope.envelopeId) {
-            console.log(`Envelope ${envelope.envelopeId}`);
-        }
-        if (envelope.sendUserName) {
-            console.log(`From: ${envelope.sendUserName}`);
-        }
-        console.log(`Diamonds: ${envelope.diamondCount}, People: ${envelope.peopleCount}`);
-    }
-});
-```
-
-### `questionNew`
-
-Triggered every time someone asks a new question via the question feature.
-
-```ts
-connection.on(WebcastEvent.QUESTION_NEW, data => {
-    const question = data.details?.questionText;
-    if (question) {
-        console.log(`Question: ${question}`);
-    }
-    const uniqueId = data.details?.user?.uniqueId;
-    const nickname = data.details?.user?.nickname;
-    if (uniqueId) {
-        console.log(`Asked by (uniqueId): ${uniqueId}`);
-    }
-    if (nickname) {
-        console.log(`Asked by (nickname): ${nickname}`);
-    }
-});
-```
-
-### `linkMicBattle`
-
-Triggered every time a battle starts.
-
-```ts
-connection.on(WebcastEvent.LINK_MIC_BATTLE, (data) => {
-    const participants = Object.values(data.anchorInfo)
-        .map(info => info.user?.displayId || info.user?.nickName)
-        .filter(Boolean);
-    console.log(`New Battle ${data.battleId}`);
-    if (participants.length) {
-        console.log(`Participants: ${participants.join(' VS ')}`);
-    }
-});
-```
-
-### `linkMicArmies`
-
-Triggered every time a battle participant receives points. Contains the current status of the battle and the army that
-suported the group.
-
-```ts
-connection.on(WebcastEvent.LINK_MIC_ARMIES, (data) => {
-    console.log(`Battle ${data.battleId}: gift ${data.giftId} x${data.giftCount}`);
-    console.log(`Total diamonds: ${data.totalDiamondCount}`);
-});
-```
-
-### `liveIntro`
-
-Triggered when a live intro message appears.
-
-```ts
-connection.on(WebcastEvent.LIVE_INTRO, (msg) => {
-    const uniqueId = msg.host?.uniqueId;
-    const nickname = msg.host?.nickname;
-    if (uniqueId) {
-        console.log(`Host uniqueId: ${uniqueId}`);
-    }
-    if (nickname) {
-        console.log(`Host nickname: ${nickname}`);
-    }
-    if (msg.description) {
-        console.log(`Description: ${msg.description}`);
-    }
-});
-```
-
-### `streamEnd`
-
-Triggered when the live stream gets terminated by the host. Will also trigger the [`disconnected`](#disconnected) event.
-
-```ts
-connection.on(WebcastEvent.STREAM_END, ({ action }: { action: ControlAction }) => {
-    if (action === ControlAction.CONTROL_ACTION_STREAM_ENDED) {
-        console.log('Stream ended by user');
-    }
-    if (action === ControlAction.CONTROL_ACTION_STREAM_SUSPENDED) {
-        console.log('Stream ended by platform moderator (ban)');
-    }
-});
-```
-
-### `superFan`
-
-Triggers when a user becomes a Super Fan.
-
-```ts
-connection.on(WebcastEvent.SUPER_FAN, (data) => {
-    if (data.content?.defaultPattern) {
-        console.log(data.content.defaultPattern);
-    }
-    if (data.commonBarrageContent?.defaultPattern) {
-        console.log(data.commonBarrageContent.defaultPattern);
-    }
-});
-```
-
-### `superFanJoin`
-
-Triggers when an existing Super Fan joins the live.
-
-```ts
-connection.on(WebcastEvent.SUPER_FAN_JOIN, (data) => {
-    if (data.content?.defaultPattern) {
-        console.log(data.content.defaultPattern);
-    }
-    if (data.commonBarrageContent?.defaultPattern) {
-        console.log(data.commonBarrageContent.defaultPattern);
-    }
-});
-```
-
-### `superFanBox`
-
-Triggers when a user sends a Super Fan Box.
-
-```ts
-connection.on(WebcastEvent.SUPER_FAN_BOX, (data) => {
-    console.log('A Super Fan Box was sent!', data.envelopeInfo);
-});
-```
-
-### Custom Events
-
-These events are based on message events.
-
-### `follow`
-
-Triggers when a user follows the streamer. Based on `social` event.
-
-```ts
-connection.on(WebcastEvent.FOLLOW, (data) => {
-    const uniqueId = data.user?.uniqueId;
-    const nickname = data.user?.nickname;
-    if (uniqueId) {
-        console.log(`${uniqueId} followed!`);
-    }
-    if (nickname) {
-        console.log(`${nickname} followed!`);
-    }
-});
-```
-
-### `share`
-
-Triggers when a user shares the stream. Based on `social` event.
-
-```ts
-connection.on(WebcastEvent.SHARE, (data) => {
-    const uniqueId = data.user?.uniqueId;
-    const nickname = data.user?.nickname;
-    if (uniqueId) {
-        console.log(`${uniqueId} shared the stream!`);
-    }
-    if (nickname) {
-        console.log(`${nickname} shared the stream!`);
-    }
-})
-```
-
-### `goalUpdate`
-
-Triggered when a channel goal is updated.
-
-```ts
-connection.on(WebcastEvent.GOAL_UPDATE, (data: WebcastGoalUpdateMessage) => {
-    const goalDescription = data.goal?.description;
-    const contributor = data.contributorDisplayId || data.contributorIdStr || data.contributorId;
-    if (goalDescription) {
-        console.log(`Goal update: ${goalDescription}`);
-    }
-    if (contributor) {
-        console.log(`Contributor: ${contributor}, count: ${data.contributeCount}, score: ${data.contributeScore}`);
-    }
-});
-```
-
-### `roomMessage`
-
-No information available.
-
-```ts
-connection.on(WebcastEvent.ROOM_MESSAGE, (data: WebcastRoomMessage) => {
-    if (data.content) {
-        console.log(`Room message: ${data.content}`);
-    }
-    if (data.source) {
-        console.log(`Source: ${data.source}`);
-    }
-    console.log(`Scene: ${data.scene}`);
-});
-```
-
-### `captionMessage`
-
-No information available.
-
-```ts
-connection.on(WebcastEvent.CAPTION_MESSAGE, (data: WebcastCaptionMessage) => {
-    if (data.content.length) {
-        const lines = data.content.map(c => `[${c.lang}] ${c.content}`).join(' ');
-        console.log(`Caption (${data.timestampMs}): ${lines}`);
-    }
-});
-```
-
-### `imDelete`
-
-Triggered when a message is deleted in the chat.
-
-```ts
-connection.on(WebcastEvent.IM_DELETE, (data: WebcastImDeleteMessage) => {
-    if (data.deleteMsgIdsList.length) {
-        console.log(`Deleted messages: ${data.deleteMsgIdsList.join(', ')}`);
-    }
-    if (data.deleteUserIdsList.length) {
-        console.log(`Deleted users: ${data.deleteUserIdsList.join(', ')}`);
-    }
-});
-```
-
-### `inRoomBanner`
-
-Triggered when a banner is shown in the room.
-
-```ts
-connection.on(WebcastEvent.IN_ROOM_BANNER, (data: WebcastInRoomBannerMessage) => {
-    if (data.jsonData) {
-        console.log('Banner payload:', data.jsonData);
-    }
-});
-```
-
-### `rankUpdate`
-
-Triggered when a ranking update is received.
-
-```ts
-connection.on(WebcastEvent.RANK_UPDATE, (data: WebcastRankUpdateMessage) => {
-    console.log(`Rank updates: ${data.updatesList.length}`);
-    const firstUpdate = data.updatesList[0];
-    if (firstUpdate) {
-        console.log(`Rank type: ${firstUpdate.rankType}, owner rank: ${firstUpdate.ownerRank}`);
-    }
-});
-```
-
-### `pollMessage`
-
-Triggered when a poll-related message is sent in the room.
-
-```ts
-connection.on(WebcastEvent.POLL_MESSAGE, (data: WebcastPollMessage) => {
-    const title = data.pollBasicInfo?.title;
-    if (title) {
-        console.log(`Poll: ${title}`);
-    }
-    if (data.pollBasicInfo?.timeRemain) {
-        console.log(`Time remaining: ${data.pollBasicInfo.timeRemain}`);
-    }
-});
-```
-
-### `rankText`
-
-Triggered when text related to rankings is displayed.
-
-```ts
-connection.on(WebcastEvent.RANK_TEXT, (data: WebcastRankTextMessage) => {
-    if (data.ownerIdxBeforeUpdate || data.ownerIdxAfterUpdate) {
-        console.log(`Rank change: ${data.ownerIdxBeforeUpdate} -> ${data.ownerIdxAfterUpdate}`);
-    }
-    if (data.selfGetBadgeMsg?.defaultPattern) {
-        console.log(`Self badge text: ${data.selfGetBadgeMsg.defaultPattern}`);
-    }
-});
-```
-
-### `linkMicBattlePunishFinish`
-
-Triggered when a link mic battle punishment is finished.
-
-```ts
-connection.on(WebcastEvent.LINK_MIC_BATTLE_PUNISH_FINISH, (data: WebcastLinkMicBattlePunishFinish) => {
-    console.log(`Battle punish finished: ${data.battleId}`);
-    console.log(`Reason: ${data.reason}, channel: ${data.channelId}`);
-});
-```
-
-### `linkMicBattleTask`
-
-Triggered when a new task is issued during a link mic battle.
-
-```ts
-connection.on(WebcastEvent.LINK_MIC_BATTLE_TASK, (data: WebcastLinkmicBattleTaskMessage) => {
-    console.log(`Battle task (${data.battleId}) type: ${data.battleTaskMessageType}`);
-    if (data.taskUpdate) {
-        console.log(`Progress: ${data.taskUpdate.taskProgress}`);
-    }
-    if (data.taskSettle) {
-        console.log(`Result: ${data.taskSettle.taskResult}`);
-    }
-});
-```
-
-### `linkMicFanTicketMethod`
-
-Triggered when a fan ticket-related method is invoked during a link mic session.
-
-```ts
-connection.on(WebcastEvent.LINK_MIC_FAN_TICKET_METHOD, (data: WebcastLinkMicFanTicketMethod) => {
-    const notice = data.FanTicketRoomNotice;
-    if (notice) {
-        console.log(`Total fan tickets: ${notice.TotalLinkMicFanTicket}`);
-        console.log(`Users in notice: ${notice.UserFanTicketList.length}`);
-    }
-});
-```
-
-### `linkMicMethod`
-
-Triggered when a link mic method is used.
-
-```ts
-connection.on(WebcastEvent.LINK_MIC_METHOD, (data: WebcastLinkMicMethod) => {
-    console.log(`LinkMic messageType: ${data.messageType}`);
-    if (data.channelId || data.userId || data.toUserId) {
-        console.log(`Channel: ${data.channelId}, user: ${data.userId}, toUser: ${data.toUserId}`);
-    }
-});
-```
-
-### `unauthorizedMember`
-
-Triggered when an unauthorized member tries to perform a restricted action.
-
-```ts
-connection.on(WebcastEvent.UNAUTHORIZED_MEMBER, (data: WebcastUnauthorizedMemberMessage) => {
-    console.log(`Unauthorized member action: ${data.action}`);
-    if (data.nickName) {
-        console.log(`Nickname: ${data.nickName}`);
-    }
-    if (data.enterText?.defaultPattern) {
-        console.log(`Enter text: ${data.enterText.defaultPattern}`);
-    }
-});
-```
-
-### `oecLiveShopping`
-
-Triggered when a live shopping event occurs.
-
-```ts
-connection.on(WebcastEvent.OEC_LIVE_SHOPPING, (data: WebcastOecLiveShoppingMessage) => {
-    const shop = data.shopData;
-    if (shop) {
-        if (shop.title || shop.priceString) {
-            console.log(`Product: ${shop.title} (${shop.priceString})`);
-        }
-        if (shop.shopName || shop.shopUrl) {
-            console.log(`Shop: ${shop.shopName}, URL: ${shop.shopUrl}`);
-        }
-    }
-});
-```
-
-### `msgDetect`
-
-Triggered when the system detects a message for moderation or other purposes.
-
-```ts
-connection.on(WebcastEvent.MSG_DETECT, (data: WebcastMsgDetectMessage) => {
-    console.log(`Detect type: ${data.detectType}, triggerBy: ${data.triggerBy}`);
-    if (data.triggerCondition?.uplinkDetectWebSocket !== undefined) {
-        console.log(`WebSocket detect: ${data.triggerCondition.uplinkDetectWebSocket}`);
-    }
-    if (data.timeInfo?.apiRecvTimeMs) {
-        console.log(`API recv time: ${data.timeInfo.apiRecvTimeMs}`);
-    }
-});
-```
-
-### `linkMessage`
-
-Triggered during a link mic session for various communication purposes.
-
-```ts
-connection.on(WebcastEvent.LINK_MESSAGE, (data: WebcastLinkMessage) => {
-    console.log(`Link message type: ${data.MessageType}, scene: ${data.Scene}`);
-    if (data.InviteContent) {
-        console.log(`Invite from ${data.InviteContent.fromUserId}`);
-        if (data.InviteContent.actionId) {
-            console.log(`Action: ${data.InviteContent.actionId}`);
-        }
-    }
-    if (data.ReplyContent) {
-        console.log(`Reply status: ${data.ReplyContent.replyStatus}`);
-        if (data.ReplyContent.fromUserId || data.ReplyContent.toUserId) {
-            console.log(`From ${data.ReplyContent.fromUserId} to ${data.ReplyContent.toUserId}`);
-        }
-    }
-});
-```
-
-### `roomVerify`
-
-Triggered when the system performs room verification.
-
-```ts
-connection.on(WebcastEvent.ROOM_VERIFY, (data: RoomVerifyMessage) => {
-    console.log(`Room verify: ${data.noticeType}`);
-    console.log(`Action: ${data.action}, closeRoom: ${data.closeRoom}`);
-    if (data.content) {
-        console.log(`Content: ${data.content}`);
-    }
-});
-```
-
-### `linkLayer`
-
-Triggered when a new link mic layer is added or updated.
-
-```ts
-connection.on(WebcastEvent.LINK_LAYER, (data: WebcastLinkLayerMessage) => {
-    console.log(`LinkLayer type: ${data.messageType}, channel: ${data.channelId}, scene: ${data.scene}`);
-    if (data.inviteContent) {
-        if (data.inviteContent.inviteeLinkMicId) {
-            console.log(`Invite linkMicId: ${data.inviteContent.inviteeLinkMicId}`);
-        }
-    }
-    if (data.createChannelContent) {
-        if (data.createChannelContent.ownerLinkMicId) {
-            console.log(`Owner linkMicId: ${data.createChannelContent.ownerLinkMicId}`);
-        }
-    }
-});
-```
-
-### `roomPin`
-
-Triggered when a message is pinned in the chat room.
-
-```ts
-connection.on(WebcastEvent.ROOM_PIN, (data: WebcastRoomPinMessage) => {
-    const operatorUniqueId = data.operator?.uniqueId;
-    const operatorNickname = data.operator?.nickname;
-    if (operatorUniqueId) {
-        console.log(`Pinned by (uniqueId): ${operatorUniqueId}`);
-    }
-    if (operatorNickname) {
-        console.log(`Pinned by (nickname): ${operatorNickname}`);
-    }
-    if (data.method) {
-        console.log(`Pin method: ${data.method}`);
-    }
-
-    const chatText = data.chatMessage?.comment;
-    const giftName = data.giftMessage?.giftDetails?.giftName;
-    const socialAction = data.socialMessage?.action;
-    const memberUniqueId = data.memberMessage?.user?.uniqueId;
-    const memberNickname = data.memberMessage?.user?.nickname;
-    const likeCount = data.likeMessage?.likeCount;
-
-    if (chatText) {
-        console.log(`Pinned chat: ${chatText}`);
-    }
-    if (giftName) {
-        console.log(`Pinned gift: ${giftName}`);
-    }
-    if (socialAction) {
-        console.log(`Pinned social action: ${socialAction}`);
-    }
-    if (memberUniqueId) {
-        console.log(`Pinned member (uniqueId): ${memberUniqueId}`);
-    }
-    if (memberNickname) {
-        console.log(`Pinned member (nickname): ${memberNickname}`);
-    }
-    if (typeof likeCount === 'number') {
-        console.log(`Pinned like count: ${likeCount}`);
-    }
-});
-```
+<a id="message-events-1"></a>
+
+See the [message event reference](docs/src/content/docs/events/index.md) for payloads and examples.
+
+- <a id="chat"></a>[`WebcastEvent.CHAT`](docs/src/content/docs/events/chat-and-audience.md#chat) or `"chat"`
+- <a id="gift"></a>[`WebcastEvent.GIFT`](docs/src/content/docs/events/gifts-and-goals.md#gift) or `"gift"`
+- <a id="member"></a>[`WebcastEvent.MEMBER`](docs/src/content/docs/events/chat-and-audience.md#member) or `"member"`
+- <a id="like"></a>[`WebcastEvent.LIKE`](docs/src/content/docs/events/chat-and-audience.md#like) or `"like"`
+- <a id="social"></a>[`WebcastEvent.SOCIAL`](docs/src/content/docs/events/chat-and-audience.md#social) or `"social"`
+- <a id="envelope"></a>[`WebcastEvent.ENVELOPE`](docs/src/content/docs/events/gifts-and-goals.md#envelope) or `"envelope"`
+- <a id="questionnew"></a>[`WebcastEvent.QUESTION_NEW`](docs/src/content/docs/events/chat-and-audience.md#question-new) or `"questionNew"`
+- <a id="linkmicbattle"></a>[`WebcastEvent.LINK_MIC_BATTLE`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-battle) or `"linkMicBattle"`
+- <a id="linkmicarmies"></a>[`WebcastEvent.LINK_MIC_ARMIES`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-armies) or `"linkMicArmies"`
+- <a id="liveintro"></a>[`WebcastEvent.LIVE_INTRO`](docs/src/content/docs/events/room-and-display.md#live-intro) or `"liveIntro"`
+- <a id="superfan"></a>[`WebcastEvent.SUPER_FAN`](docs/src/content/docs/events/subscriptions-and-fans.md#super-fan) or `"superFan"`
+- <a id="superfanjoin"></a>[`WebcastEvent.SUPER_FAN_JOIN`](docs/src/content/docs/events/subscriptions-and-fans.md#super-fan-join) or `"superFanJoin"`
+- <a id="custom-events"></a><a id="follow"></a>[`WebcastEvent.FOLLOW`](docs/src/content/docs/events/chat-and-audience.md#follow) or `"follow"`
+- <a id="share"></a>[`WebcastEvent.SHARE`](docs/src/content/docs/events/chat-and-audience.md#share) or `"share"`
+- <a id="streamend"></a>[`WebcastEvent.STREAM_END`](docs/src/content/docs/events/stream-control.md#stream-end) or `"streamEnd"`
+- <a id="roomuser"></a>[`WebcastEvent.ROOM_USER`](docs/src/content/docs/events/chat-and-audience.md#room-user) or `"roomUser"`
+- <a id="emote"></a>[`WebcastEvent.EMOTE`](docs/src/content/docs/events/chat-and-audience.md#emote) or `"emote"`
+- <a id="goalupdate"></a>[`WebcastEvent.GOAL_UPDATE`](docs/src/content/docs/events/gifts-and-goals.md#goal-update) or `"goalUpdate"`
+- <a id="roommessage"></a>[`WebcastEvent.ROOM_MESSAGE`](docs/src/content/docs/events/room-and-display.md#room-message) or `"roomMessage"`
+- <a id="captionmessage"></a>[`WebcastEvent.CAPTION_MESSAGE`](docs/src/content/docs/events/room-and-display.md#caption-message) or `"captionMessage"`
+- <a id="imdelete"></a>[`WebcastEvent.IM_DELETE`](docs/src/content/docs/events/moderation-and-access.md#im-delete) or `"imDelete"`
+- <a id="inroombanner"></a>[`WebcastEvent.IN_ROOM_BANNER`](docs/src/content/docs/events/room-and-display.md#in-room-banner) or `"inRoomBanner"`
+- <a id="rankupdate"></a>[`WebcastEvent.RANK_UPDATE`](docs/src/content/docs/events/rankings.md#rank-update) or `"rankUpdate"`
+- <a id="pollmessage"></a>[`WebcastEvent.POLL_MESSAGE`](docs/src/content/docs/events/room-and-display.md#poll-message) or `"pollMessage"`
+- <a id="ranktext"></a>[`WebcastEvent.RANK_TEXT`](docs/src/content/docs/events/rankings.md#rank-text) or `"rankText"`
+- <a id="linkmicbattlepunishfinish"></a>[`WebcastEvent.LINK_MIC_BATTLE_PUNISH_FINISH`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-battle-punish-finish) or `"linkMicBattlePunishFinish"`
+- <a id="linkmicbattletask"></a>[`WebcastEvent.LINK_MIC_BATTLE_TASK`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-battle-task) or `"linkMicBattleTask"`
+- <a id="linkmicfanticketmethod"></a>[`WebcastEvent.LINK_MIC_FAN_TICKET_METHOD`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-fan-ticket-method) or `"linkMicFanTicketMethod"`
+- <a id="linkmicmethod"></a>[`WebcastEvent.LINK_MIC_METHOD`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-method) or `"linkMicMethod"`
+- <a id="unauthorizedmember"></a>[`WebcastEvent.UNAUTHORIZED_MEMBER`](docs/src/content/docs/events/moderation-and-access.md#unauthorized-member) or `"unauthorizedMember"`
+- <a id="oecliveshopping"></a>[`WebcastEvent.OEC_LIVE_SHOPPING`](docs/src/content/docs/events/games-and-commerce.md#oec-live-shopping) or `"oecLiveShopping"`
+- <a id="msgdetect"></a>[`WebcastEvent.MSG_DETECT`](docs/src/content/docs/events/moderation-and-access.md#msg-detect) or `"msgDetect"`
+- <a id="linkmessage"></a>[`WebcastEvent.LINK_MESSAGE`](docs/src/content/docs/events/battles-and-cohosting.md#link-message) or `"linkMessage"`
+- <a id="roomverify"></a>[`WebcastEvent.ROOM_VERIFY`](docs/src/content/docs/events/moderation-and-access.md#room-verify) or `"roomVerify"`
+- <a id="linklayer"></a>[`WebcastEvent.LINK_LAYER`](docs/src/content/docs/events/battles-and-cohosting.md#link-layer) or `"linkLayer"`
+- <a id="roompin"></a>[`WebcastEvent.ROOM_PIN`](docs/src/content/docs/events/room-and-display.md#room-pin) or `"roomPin"`
+- <a id="superfanbox"></a>[`WebcastEvent.SUPER_FAN_BOX`](docs/src/content/docs/events/subscriptions-and-fans.md#super-fan-box) or `"superFanBox"`
+- [`WebcastEvent.ACCESS_CONTROL`](docs/src/content/docs/events/moderation-and-access.md#access-control) or `"accessControl"`
+- [`WebcastEvent.ACCESS_RECALL`](docs/src/content/docs/events/moderation-and-access.md#access-recall) or `"accessRecall"`
+- [`WebcastEvent.BOOST_CARD`](docs/src/content/docs/events/gifts-and-goals.md#boost-card) or `"boostCard"`
+- [`WebcastEvent.BOTTOM_MESSAGE`](docs/src/content/docs/events/room-and-display.md#bottom-message) or `"bottomMessage"`
+- [`WebcastEvent.CAPSULE`](docs/src/content/docs/events/room-and-display.md#capsule) or `"capsule"`
+- [`WebcastEvent.GAME_RANK_NOTIFY`](docs/src/content/docs/events/rankings.md#game-rank-notify) or `"gameRankNotify"`
+- [`WebcastEvent.GIFT_BROADCAST`](docs/src/content/docs/events/gifts-and-goals.md#gift-broadcast) or `"giftBroadcast"`
+- [`WebcastEvent.GIFT_DYNAMIC_RESTRICTION`](docs/src/content/docs/events/gifts-and-goals.md#gift-dynamic-restriction) or `"giftDynamicRestriction"`
+- [`WebcastEvent.GIFT_PANEL_UPDATE`](docs/src/content/docs/events/gifts-and-goals.md#gift-panel-update) or `"giftPanelUpdate"`
+- [`WebcastEvent.GIFT_PROMPT`](docs/src/content/docs/events/gifts-and-goals.md#gift-prompt) or `"giftPrompt"`
+- [`WebcastEvent.GUIDE`](docs/src/content/docs/events/room-and-display.md#guide) or `"guide"`
+- [`WebcastEvent.HOURLY_RANK`](docs/src/content/docs/events/rankings.md#hourly-rank) or `"hourlyRank"`
+- [`WebcastEvent.LINK_MIC_LAYOUT_STATE`](docs/src/content/docs/events/battles-and-cohosting.md#link-mic-layout-state) or `"linkMicLayoutState"`
+- [`WebcastEvent.LINK_STATE`](docs/src/content/docs/events/battles-and-cohosting.md#link-state) or `"linkState"`
+- [`WebcastEvent.LIVE_GAME_INTRO`](docs/src/content/docs/events/games-and-commerce.md#live-game-intro) or `"liveGameIntro"`
+- [`WebcastEvent.MARQUEE_ANNOUNCEMENT`](docs/src/content/docs/events/room-and-display.md#marquee-announcement) or `"marqueeAnnouncement"`
+- [`WebcastEvent.NOTICE`](docs/src/content/docs/events/room-and-display.md#notice) or `"notice"`
+- [`WebcastEvent.PARTNERSHIP_DROPS_UPDATE`](docs/src/content/docs/events/games-and-commerce.md#partnership-drops-update) or `"partnershipDropsUpdate"`
+- [`WebcastEvent.PARTNERSHIP_GAME_OFFLINE`](docs/src/content/docs/events/games-and-commerce.md#partnership-game-offline) or `"partnershipGameOffline"`
+- [`WebcastEvent.PARTNERSHIP_PUNISH`](docs/src/content/docs/events/games-and-commerce.md#partnership-punish) or `"partnershipPunish"`
+- [`WebcastEvent.PERCEPTION`](docs/src/content/docs/events/moderation-and-access.md#perception) or `"perception"`
+- [`WebcastEvent.ROOM_NOTIFY`](docs/src/content/docs/events/room-and-display.md#room-notify) or `"roomNotify"`
+- [`WebcastEvent.SPEAKER`](docs/src/content/docs/events/battles-and-cohosting.md#speaker) or `"speaker"`
+- [`WebcastEvent.SUB_NOTIFY`](docs/src/content/docs/events/subscriptions-and-fans.md#sub-notify) or `"subNotify"`
+- [`WebcastEvent.SUB_PIN_EVENT`](docs/src/content/docs/events/subscriptions-and-fans.md#sub-pin-event) or `"subPinEvent"`
+- [`WebcastEvent.TOAST`](docs/src/content/docs/events/room-and-display.md#toast) or `"toast"`
+- [`WebcastEvent.VIEWER_PICKS_UPDATE`](docs/src/content/docs/events/room-and-display.md#viewer-picks-update) or `"viewerPicksUpdate"`
 
 ## Examples
 
@@ -1321,7 +575,7 @@ listen for `WebcastEvent.CHAT`. See [Getting Started](#getting-started) above â€
 
 ### Can I track TikTok gifts, likes and viewer counts in real time?
 
-Yes. [`GIFT`](#gift) (with streak handling), [`LIKE`](#like) and [`ROOM_USER`](#roomuser) deliver gifts, likes and
+Yes. [`GIFT`](docs/src/content/docs/events/gifts-and-goals.md#gift) (with streak handling), [`LIKE`](docs/src/content/docs/events/chat-and-audience.md#like) and [`ROOM_USER`](docs/src/content/docs/events/chat-and-audience.md#room-user) deliver gifts, likes and
 live viewer counts as they happen, alongside follows, shares, subscriptions, questions and battles.
 
 ### Does it work without logging in?

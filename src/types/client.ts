@@ -52,7 +52,8 @@ export type TikTokLiveConnectionBundledAuthOptions = {
 export type TikTokLiveConnectionProviderOptions = {
 
     /**
-     * Ignored if `eulerApiInstance` is provided. If not, an instance will be created with this API key (or the one from env vars if not provided).
+     * Writes the global SignConfig API key before client construction. An explicit eulerApiInstance uses
+     * its own configuration; an already cached provider client is not rebuilt when this value changes.
      */
     signApiKey?: string;
 
@@ -64,17 +65,24 @@ export type TikTokLiveConnectionProviderOptions = {
 
 
 export type TikTokLiveConnectionOptions = TikTokLiveConnectionProviderOptions & {
+    /** Emit messages from the initial signing response. Defaults to true. */
     processInitialData: boolean;
+    /** Fetch and cache room information before opening the socket. Defaults to true. */
     fetchRoomInfoOnConnect: boolean;
+    /** Fetch and cache gifts during connection, then attach matching metadata to gift events. Defaults to false. */
     enableExtendedGiftInfo: boolean;
 
-    // Replace client presets
+    /** Device, location, and screen presets. Randomization defaults are controlled by the environment. */
     clientPresets?: GetWebConfigParams;
 
+    /** Got options. Headers and searchParams are merged; the current constructor drops timeout. */
     webClientOptions?: WebcastGotHttpConfig;
+    /** ws transport options. Dynamic connection headers take precedence over supplied headers. */
     wsClientOptions?: WsWebSocketConfig;
 
+    /** Shallow replacement of resolved HTTP protocol config fields, including whole nested objects. */
     webConfigOverrides?: Partial<WebcastWebConfigDefaults>;
+    /** Shallow replacement of resolved WebSocket protocol config fields, including whole nested objects. */
     wsConfigOverrides?: Partial<WebcastWebSocketConfigDefaults>;
 }
 

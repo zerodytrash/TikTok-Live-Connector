@@ -1,0 +1,48 @@
+name: Documentation
+
+on:
+  pull_request:
+    paths:
+      - 'docs/**'
+      - 'src/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'tsconfig.json'
+      - 'README.md'
+      - '.github/workflows/docs.yml'
+  push:
+    branches: [ts-rewrite]
+    paths:
+      - 'docs/**'
+      - 'src/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'tsconfig.json'
+      - 'README.md'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install pnpm
+        run: npm install --global pnpm@10.34.2
+      - name: Install library dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install documentation dependencies
+        run: pnpm --dir docs install --frozen-lockfile
+      - name: Validate and build documentation
+        run: pnpm --dir docs build
+      - name: Upload site for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: docs/dist
