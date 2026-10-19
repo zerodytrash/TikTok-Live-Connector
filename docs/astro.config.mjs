@@ -31,7 +31,10 @@ export default defineConfig({
       title: 'TikTok LIVE Connector',
       description: 'Connect to TikTok LIVE with Node.js. Guides, events, and TypeScript API reference.',
       favicon: '/favicon.png',
-      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/zerodytrash/TikTok-Live-Connector' }],
+      social: [
+        { icon: 'github', label: 'GitHub', href: 'https://github.com/zerodytrash/TikTok-Live-Connector' },
+        { icon: 'discord', label: 'Discord', href: 'https://discord.gg/2c6kX6g3Pa' },
+      ],
       editLink: { baseUrl: 'https://github.com/zerodytrash/TikTok-Live-Connector/edit/ts-rewrite/docs/' },
       sidebar: [
         { label: 'Start here', items: [
