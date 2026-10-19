@@ -22,4 +22,10 @@ Authored pages live in `src/content/docs/`. The `api/` and `schema/` directories
 
 `check` verifies public-surface coverage and compiles the authored TypeScript examples. `build` also validates links and generates the search index. See the site's contributing page for authoring and deployment details.
 
-For a project Pages build, set `DOCS_SITE` to the owner's Pages origin and `DOCS_BASE` to the repository subpath. The GitHub Actions workflow sets these automatically. No site needs to be deployed to develop or review these changes locally.
+## Hosting
+
+Use Cloudflare Pages in the maintainer's account with a `pages.dev` address. The GitHub workflow only validates and uploads review artifacts; it does not deploy to GitHub Pages.
+
+See [Cloudflare Pages hosting](src/content/docs/hosting.md) for exact build settings, connecting this repository to Cloudflare, and publishing into the maintainer's Cloudflare account.
+
+Set `DOCS_SITE` to the chosen public origin and use `DOCS_BASE=/`. Cloudflare's `CF_PAGES_URL` is used when `DOCS_SITE` is unset. A local build does not need a production hostname.

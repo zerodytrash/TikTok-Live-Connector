@@ -112,14 +112,13 @@ for (const file of await filesIn(path.join(root, 'src'), '.ts')) {
 }
 for (const name of envNames) assert(envDocs.includes(`\`${name}\``), `Missing environment variable: ${name}`);
 
-// Compile the exact examples readers see, without making network requests.
+// Compile standalone examples in the documentation site without making network requests.
 const temporaryRoot = path.join(docsRoot, '.astro', 'examples');
 await rm(temporaryRoot, { recursive: true, force: true });
 await mkdir(temporaryRoot, { recursive: true });
 const snippets = [];
 try {
-    const examplePages = [...pages, { file: path.join(root, 'README.md'), text: await readFile(path.join(root, 'README.md'), 'utf8') }];
-    for (const page of examplePages) {
+    for (const page of pages) {
         let index = 0;
         for (const match of page.text.matchAll(/^```(?:ts|typescript)\s*\n([\s\S]*?)^```/gm)) {
             const relative = path.relative(root, page.file);

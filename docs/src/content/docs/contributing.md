@@ -43,8 +43,6 @@ Use synthetic or sanitized data in fixtures. Replaying a fixture verifies decodi
 
 ## Deployment
 
-The documentation workflow builds on relevant pull requests and pushes to `ts-rewrite`. Its manual workflow publishes the built static files through GitHub Pages when a maintainer runs it and Pages is configured to use GitHub Actions.
+The documentation workflow validates pull requests and uploads the static site as a review artifact. Hosting is configured separately in the maintainer's Cloudflare account. See [Cloudflare Pages hosting](/hosting/) for connecting this repository, build settings, and a `pages.dev` address in the maintainer's account.
 
-The build accepts `DOCS_SITE` (site origin) and `DOCS_BASE` (deployment subpath, with leading and trailing slashes). A typical project Pages deployment uses an owner GitHub Pages origin and `/TikTok-Live-Connector/` as its base. The workflow derives those values from the repository so forks can build under their own names.
-
-Check a production build when changing the base path: navigation, generated reference links, assets, and search must all work under that prefix. The site's local development preview uses `/` by default.
+`DOCS_SITE` sets the public origin and `DOCS_BASE` sets the deployment subpath. Cloudflare Pages normally serves the site at `/`. When `DOCS_SITE` is not set, the build uses Cloudflare's `CF_PAGES_URL` if available; local builds do not assume a production hostname.

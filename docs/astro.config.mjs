@@ -21,7 +21,7 @@ function prefixLinks() {
 }
 
 export default defineConfig({
-  site: process.env.DOCS_SITE || 'https://zerodytrash.github.io',
+  site: process.env.DOCS_SITE || process.env.CF_PAGES_URL,
   base,
   trailingSlash: 'always',
   markdown: { processor: unified({ remarkPlugins: [prefixLinks] }) },
@@ -44,6 +44,7 @@ export default defineConfig({
         { label: 'Advanced', items: [{ autogenerate: { directory: 'advanced' } }], collapsed: true },
         { label: 'Troubleshooting', slug: 'troubleshooting' },
         { label: 'Contributing to the docs', slug: 'contributing' },
+        { label: 'Hosting', slug: 'hosting' },
         typeDocSidebarGroup,
         { label: 'Protobuf schema', slug: 'schema' },
       ],
