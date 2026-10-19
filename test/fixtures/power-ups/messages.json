@@ -1,0 +1,190 @@
+{
+  "schema": "TikTokLiveProto==0.2.2 / v3",
+  "synthetic": true,
+  "fixtures": [
+    {
+      "name": "critical_strike",
+      "base64": "ChQQreGzz9PG5u1iGKzhs8/TxubtYhDO5rPP08bm7WIYAiqAAQp0ChdmaXh0dXJlX2NyaXRpY2FsX3N0cmlrZRjA44zVBiIsCioIq+Gzz9PG5u1iEg5GaXh0dXJlIFNlbmRlciIOZml4dHVyZV9zZW5kZXIoHljB44zVBmCq4bPP08bm7WJqEzcxMjM0NTY3ODkwMTIzNDUwMDIQqeGzz9PG5u1i",
+      "expected": {
+        "battleId": "7123456789012345678",
+        "msgType": 2,
+        "useField": "useCriticalStrikeCard",
+        "anchorId": "7123456789012345001",
+        "targetId": "7123456789012345002",
+        "senderId": "7123456789012345003"
+      }
+    },
+    {
+      "name": "smoke",
+      "base64": "ChQQreGzz9PG5u1iGKzhs8/TxubtYhDO5rPP08bm7WIYAzJ2CmoKDWZpeHR1cmVfc21va2UYwOOM1QYiLAoqCKvhs8/TxubtYhIORml4dHVyZSBTZW5kZXIiDmZpeHR1cmVfc2VuZGVyKB44weOM1QZgquGzz9PG5u1iahM3MTIzNDU2Nzg5MDEyMzQ1MDAyEKnhs8/TxubtYg==",
+      "expected": {
+        "battleId": "7123456789012345678",
+        "msgType": 3,
+        "useField": "useSmokeCard",
+        "anchorId": "7123456789012345001",
+        "targetId": "7123456789012345002",
+        "senderId": "7123456789012345003"
+      }
+    },
+    {
+      "name": "extra_time",
+      "base64": "ChQQreGzz9PG5u1iGKzhs8/TxubtYhDO5rPP08bm7WIYBUJ7Cm8KEmZpeHR1cmVfZXh0cmFfdGltZRjA44zVBiIsCioIq+Gzz9PG5u1iEg5GaXh0dXJlIFNlbmRlciIOZml4dHVyZV9zZW5kZXIoHjjB44zVBkCq4bPP08bm7WJSEzcxMjM0NTY3ODkwMTIzNDUwMDIQqeGzz9PG5u1i",
+      "expected": {
+        "battleId": "7123456789012345678",
+        "msgType": 5,
+        "useField": "useExtraTimeCard",
+        "anchorId": "7123456789012345001",
+        "targetId": "7123456789012345002",
+        "senderId": "7123456789012345003"
+      }
+    },
+    {
+      "name": "special_effect",
+      "base64": "ChQQreGzz9PG5u1iGKzhs8/TxubtYhDO5rPP08bm7WIYBkqtAQpzChZmaXh0dXJlX3NwZWNpYWxfZWZmZWN0GMDjjNUGIiwKKgir4bPP08bm7WISDkZpeHR1cmUgU2VuZGVyIg5maXh0dXJlX3NlbmRlcigeOMHjjNUGQKrhs8/TxubtYkoTNzEyMzQ1Njc4OTAxMjM0NTAwMhCp4bPP08bm7WIiFAip4bPP08bm7WIQquGzz9PG5u1iIhQIqeGzz9PG5u1iELThs8/TxubtYigC",
+      "expected": {
+        "battleId": "7123456789012345678",
+        "msgType": 6,
+        "useField": "useSpecialEffectCard",
+        "anchorId": "7123456789012345001",
+        "targetId": "7123456789012345002",
+        "senderId": "7123456789012345003"
+      }
+    },
+    {
+      "name": "potion",
+      "base64": "ChQQreGzz9PG5u1iGKzhs8/TxubtYhDO5rPP08bm7WIYB1JiClYKDmZpeHR1cmVfcG90aW9uGMDjjNUGIiwKKgir4bPP08bm7WISDkZpeHR1cmUgU2VuZGVyIg5maXh0dXJlX3NlbmRlcigeOMHjjNUGQKrhs8/TxubtYhCp4bPP08bm7WI=",
+      "expected": {
+        "battleId": "7123456789012345678",
+        "msgType": 7,
+        "useField": "usePotionCard",
+        "anchorId": "7123456789012345001",
+        "targetId": "7123456789012345002",
+        "senderId": "7123456789012345003"
+      }
+    },
+    {
+      "name": "wave",
+      "base64": "ChQQreGzz9PG5u1iGKzhs8/TxubtYhDO5rPP08bm7WIYCFpgClQKDGZpeHR1cmVfd2F2ZRjA44zVBiIsCioIq+Gzz9PG5u1iEg5GaXh0dXJlIFNlbmRlciIOZml4dHVyZV9zZW5kZXIoHjjB44zVBkCq4bPP08bm7WIQqeGzz9PG5u1i",
+      "expected": {
+        "battleId": "7123456789012345678",
+        "msgType": 8,
+        "useField": "useWaveCard",
+        "anchorId": "7123456789012345001",
+        "targetId": "7123456789012345002",
+        "senderId": "7123456789012345003"
+      }
+    },
+    {
+      "name": "top2",
+      "base64": "ChQQreGzz9PG5u1iGKzhs8/TxubtYhDO5rPP08bm7WIYCmp3CmsKaQoMZml4dHVyZV90b3AyGMDjjNUGIiwKKgir4bPP08bm7WISDkZpeHR1cmUgU2VuZGVyIg5maXh0dXJlX3NlbmRlcigeOMHjjNUGQKrhs8/TxubtYkoTNzEyMzQ1Njc4OTAxMjM0NTAwMhCp4bPP08bm7WI=",
+      "expected": {
+        "battleId": "7123456789012345678",
+        "msgType": 10,
+        "useField": "useTop2Card",
+        "anchorId": "7123456789012345001",
+        "targetId": "7123456789012345002",
+        "senderId": "7123456789012345003"
+      }
+    },
+    {
+      "name": "top3",
+      "base64": "ChQQreGzz9PG5u1iGKzhs8/TxubtYhDO5rPP08bm7WIYC3J3CmsKaQoMZml4dHVyZV90b3AzGMDjjNUGIiwKKgir4bPP08bm7WISDkZpeHR1cmUgU2VuZGVyIg5maXh0dXJlX3NlbmRlcigeOMHjjNUGQKrhs8/TxubtYkoTNzEyMzQ1Njc4OTAxMjM0NTAwMhCp4bPP08bm7WI=",
+      "expected": {
+        "battleId": "7123456789012345678",
+        "msgType": 11,
+        "useField": "useTop3Card",
+        "anchorId": "7123456789012345001",
+        "targetId": "7123456789012345002",
+        "senderId": "7123456789012345003"
+      }
+    },
+    {
+      "name": "vault_glove",
+      "base64": "ChQQreGzz9PG5u1iGKzhs8/TxubtYhDO5rPP08bm7WIYDHp+CnIKcAoTZml4dHVyZV92YXVsdF9nbG92ZRjA44zVBiIsCioIq+Gzz9PG5u1iEg5GaXh0dXJlIFNlbmRlciIOZml4dHVyZV9zZW5kZXIoHjjB44zVBkCq4bPP08bm7WJKEzcxMjM0NTY3ODkwMTIzNDUwMDIQqeGzz9PG5u1i",
+      "expected": {
+        "battleId": "7123456789012345678",
+        "msgType": 12,
+        "useField": "useVaultGloveCard",
+        "anchorId": "7123456789012345001",
+        "targetId": "7123456789012345002",
+        "senderId": "7123456789012345003"
+      }
+    },
+    {
+      "name": "guide",
+      "base64": "ChQQreGzz9PG5u1iGKzhs8/TxubtYhDO5rPP08bm7WIYASICCAE=",
+      "expected": {
+        "battleId": "7123456789012345678",
+        "msgType": 1
+      }
+    },
+    {
+      "name": "award",
+      "base64": "ChQQreGzz9PG5u1iGKzhs8/TxubtYhDO5rPP08bm7WIYBDouEiwKKgir4bPP08bm7WISDkZpeHR1cmUgU2VuZGVyIg5maXh0dXJlX3NlbmRlcg==",
+      "expected": {
+        "battleId": "7123456789012345678",
+        "msgType": 4
+      }
+    },
+    {
+      "name": "notice",
+      "base64": "ChQQreGzz9PG5u1iGKzhs8/TxubtYhDO5rPP08bm7WIYCWIWCGQQq+Gzz9PG5u1iGKrhs8/TxubtYg==",
+      "expected": {
+        "battleId": "7123456789012345678",
+        "msgType": 9
+      }
+    },
+    {
+      "name": "unknown",
+      "base64": "ChQQreGzz9PG5u1iGKzhs8/TxubtYhDO5rPP08bm7WI=",
+      "expected": {
+        "battleId": "7123456789012345678",
+        "msgType": 0
+      }
+    },
+    {
+      "name": "future",
+      "base64": "ChQQreGzz9PG5u1iGKzhs8/TxubtYhDO5rPP08bm7WIYYw==",
+      "expected": {
+        "battleId": "7123456789012345678",
+        "msgType": 99
+      }
+    },
+    {
+      "name": "missing_sender",
+      "base64": "ChQQreGzz9PG5u1iGKzhs8/TxubtYhDO5rPP08bm7WIYAioWCgpgquGzz9PG5u1iEKnhs8/TxubtYg==",
+      "expected": {
+        "battleId": "7123456789012345678",
+        "msgType": 2
+      }
+    },
+    {
+      "name": "missing_card_info",
+      "base64": "ChQQreGzz9PG5u1iGKzhs8/TxubtYhDO5rPP08bm7WIYAioKEKnhs8/TxubtYg==",
+      "expected": {
+        "battleId": "7123456789012345678",
+        "msgType": 2
+      }
+    },
+    {
+      "name": "missing_use_payload",
+      "base64": "ChQQreGzz9PG5u1iGKzhs8/TxubtYhDO5rPP08bm7WIYAg==",
+      "expected": {
+        "battleId": "7123456789012345678",
+        "msgType": 2
+      }
+    },
+    {
+      "name": "unknown_field",
+      "base64": "ChQQreGzz9PG5u1iGKzhs8/TxubtYhDO5rPP08bm7WIYAiqAAQp0ChdmaXh0dXJlX2NyaXRpY2FsX3N0cmlrZRjA44zVBiIsCioIq+Gzz9PG5u1iEg5GaXh0dXJlIFNlbmRlciIOZml4dHVyZV9zZW5kZXIoHljB44zVBmCq4bPP08bm7WJqEzcxMjM0NTY3ODkwMTIzNDUwMDIQqeGzz9PG5u1i+gcEdGVzdA==",
+      "expected": {
+        "battleId": "7123456789012345678",
+        "msgType": 2,
+        "useField": "useCriticalStrikeCard",
+        "anchorId": "7123456789012345001",
+        "targetId": "7123456789012345002",
+        "senderId": "7123456789012345003"
+      }
+    }
+  ]
+}

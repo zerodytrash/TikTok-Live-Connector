@@ -16,7 +16,8 @@ export type SendRoomChatFromEulerRouteParams = WebcastHttpEulerRouteArgs<{
 
 /**
  * Sends a chat message into a TikTok LIVE room via Euler Stream's premium endpoint. Supports either
- * cookie-based (`sessionId` + `ttTargetIdc`) or OAuth-token session bundles; OAuth takes precedence when present.
+ * cookie-based (`sessionId` + `ttTargetIdc`) or OAuth-token session bundles. A nonempty cookie header takes
+ * precedence; OAuth is used only when the cookie header is empty.
  *
  * Throws `PremiumFeatureError` when the sign server returns 401/403, and `InvalidResponseError` for
  * any other non-200 response.

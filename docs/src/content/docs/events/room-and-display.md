@@ -1,0 +1,166 @@
+---
+title: Room messages and display
+description: Room messages and display events, payloads, and dispatch behavior.
+---
+
+These events carry room announcements, captions, prompts, and other presentation data. Most are passed through directly. Decode structured Text messages according to their schema rather than treating every nested field as plain text.
+
+Each entry below lists the listener alias and payload type. Field lists are selected schema fields, not guarantees that every nested value will be populated. The [protobuf reference](/schema/) contains the full message definitions.
+
+## Live intro
+
+**Subscribe:** `WebcastEvent.LIVE_INTRO` or `"liveIntro"`
+
+**Payload:** `WebcastLiveIntroMessage`
+
+An introduction message for the livestream. It can arrive during a session rather than only at connection time.
+
+Schema fields include `id`, `auditStatus`, `content`, `user`, `introMode`, `badges`, `contentLanguage`.
+
+## Barrage
+
+**Subscribe:** `WebcastEvent.BARRAGE` or `"barrage"`
+
+**Payload:** `WebcastBarrageMessage`
+
+A barrage display message. Recognized super-fan variants also emit a derived super-fan event.
+
+Schema fields include `event`, `msgType`, `icon`, `content`, `duration`, `background`, `rightIcon`, `displayConfig`.
+
+## System
+
+**Subscribe:** `WebcastEvent.SYSTEM` or `"system"`
+
+**Payload:** `WebcastSystemMessage`
+
+A Webcast system message. It is not the connector's own ERROR event.
+
+Schema fields include `message`.
+
+## Room message
+
+**Subscribe:** `WebcastEvent.ROOM_MESSAGE` or `"roomMessage"`
+
+**Payload:** `WebcastRoomMessage`
+
+A room-level message or announcement. Read its payload before choosing how to display it.
+
+Schema fields include `content`, `supprotLandscape`, `source`, `icon`, `scene`, `isWelcome`, `publicAreaCommon`, `showDurationMs`.
+
+## Caption message
+
+**Subscribe:** `WebcastEvent.CAPTION_MESSAGE` or `"captionMessage"`
+
+**Payload:** `WebcastCaptionMessage`
+
+A caption payload. Inspect its timing and caption structure rather than assuming each message is a final transcript segment.
+
+Schema fields include `timestampMs`, `durationMs`, `content`, `sentenceId`, `sequenceId`, `definite`.
+
+## In room banner
+
+**Subscribe:** `WebcastEvent.IN_ROOM_BANNER` or `"inRoomBanner"`
+
+**Payload:** `WebcastInRoomBannerMessage`
+
+An in-room banner payload. Display content may be structured or reference a resource.
+
+## Poll message
+
+**Subscribe:** `WebcastEvent.POLL_MESSAGE` or `"pollMessage"`
+
+**Payload:** `WebcastPollMessage`
+
+A poll payload. The connector does not maintain poll totals or interpret every poll action for you.
+
+Schema fields include `messageType`, `pollId`, `startContent`, `endContent`, `updateVotesContent`, `pollKind`, `pollBasicInfo`, `templateContent`.
+
+## Room pin
+
+**Subscribe:** `WebcastEvent.ROOM_PIN` or `"roomPin"`
+
+**Payload:** `WebcastRoomPinMessage`
+
+A room pin action. Inspect its `action`, target message, and display-duration fields.
+
+Schema fields include `chatMessage`, `socialMessage`, `giftMessage`, `memberMessage`, `likeMessage`, `method`, `pinTime`, `operator`.
+
+## Bottom message
+
+**Subscribe:** `WebcastEvent.BOTTOM_MESSAGE` or `"bottomMessage"`
+
+**Payload:** `WebcastBottomMessage`
+
+A bottom-of-screen message payload. The display location alone does not establish its business meaning.
+
+Schema fields include `content`, `showType`, `textType`, `duration`, `bizType`, `violationUserId`, `punishInfo`, `style`.
+
+## Capsule
+
+**Subscribe:** `WebcastEvent.CAPSULE` or `"capsule"`
+
+**Payload:** `WebcastCapsuleMessage`
+
+A capsule/pill UI payload. Its schema defines the available data; detailed live behavior is not normalized by this client.
+
+Schema fields include `icon`, `desc`, `buttonText`, `schema`, `type`, `scene`, `bizParams`, `subScene`.
+
+## Guide
+
+**Subscribe:** `WebcastEvent.GUIDE` or `"guide"`
+
+**Payload:** `WebcastGuideMessage`
+
+An in-room guide or prompt payload. Do not interpret receiving it as the user completing the guided action.
+
+Schema fields include `guideType`, `giftId`, `description`, `duration`, `displayStyle`, `scene`, `frequencyRule`.
+
+## Marquee announcement
+
+**Subscribe:** `WebcastEvent.MARQUEE_ANNOUNCEMENT` or `"marqueeAnnouncement"`
+
+**Payload:** `WebcastMarqueeAnnouncementMessage`
+
+A marquee announcement payload. Read its structured content and display settings.
+
+Schema fields include `messageScene`, `messageEntity`.
+
+## Notice
+
+**Subscribe:** `WebcastEvent.NOTICE` or `"notice"`
+
+**Payload:** `WebcastNoticeMessage`
+
+A notice payload. Check the applicable subtype and content before mapping it to an application action.
+
+Schema fields include `content`, `noticeType`, `style`, `title`, `violationReason`, `displayText`, `tipsTitle`, `tipsUrl`.
+
+## Room notify
+
+**Subscribe:** `WebcastEvent.ROOM_NOTIFY` or `"roomNotify"`
+
+**Payload:** `WebcastRoomNotifyMessage`
+
+A room notification payload. It is separate from ROOM_MESSAGE and SYSTEM.
+
+Schema fields include `schema`, `notifyType`, `content`, `user`, `extra`, `notifyClass`, `flexSetting`, `source`.
+
+## Toast
+
+**Subscribe:** `WebcastEvent.TOAST` or `"toast"`
+
+**Payload:** `WebcastToastMessage`
+
+A transient toast payload. A toast message is not a durable application event by itself.
+
+Schema fields include `displayDurationMillisecond`, `delayDisplayDurationMillisecond`, `scene`.
+
+## Viewer picks update
+
+**Subscribe:** `WebcastEvent.VIEWER_PICKS_UPDATE` or `"viewerPicksUpdate"`
+
+**Payload:** `WebcastViewerPicksUpdateMessage`
+
+A viewer-picks update payload. No high-level viewer-picks state model is maintained by the connector.
+
+Schema fields include `updateType`, `info`.

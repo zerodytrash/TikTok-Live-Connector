@@ -58,17 +58,17 @@ export class TikTokLiveConnection extends (EventEmitter as WebcastTypedClient) {
    * Create a new TikTokLiveConnection instance.
    *
    * @param uniqueId TikTok username (with or without leading `@`, or a full `https://www.tiktok.com/@user/live` URL).
-   * @param options Connection options.
-   * @param options.signApiKey Optional Euler Stream API key. If provided, written to the global `SignConfig.apiKey` before the underlying Euler client is created. Ignored when `eulerApiInstance` is also passed.
+   * @param options Optional connection options.
+   * @param options.signApiKey Optional Euler Stream API key. Written to the global `SignConfig.apiKey` before the HTTP client is created. Does not rebuild an already cached provider client; an explicit `eulerApiInstance` uses its own configuration.
    * @param options.eulerApiInstance Optional pre-built Euler Stream API client. Takes precedence over `signApiKey`.
-   * @param options.session Authenticated session bundle. Pass `session.cookie` to seed the cookie jar with `sessionid` and `tt-target-idc`, and/or `session.oAuthToken` to send an OAuth token to the sign server. Required when `authenticateWs` or `useMobile` is true.
-   * @param options.authenticateWs Forward the session cookies / OAuth token to the sign server so the WebSocket is authenticated. Defaults to false.
+   * @param options.session Authenticated session bundle. `session.cookie` seeds the cookie jar; `session.oAuthToken` is stored for provider routes that support it. Authenticated WebSocket types require cookies.
+   * @param options.authenticateWs Forward session cookies to the signing provider and include them in the final WebSocket headers. Requires a cookie session and provider host allowlisting. OAuth is not forwarded by the default signing route.
    * @param options.useMobile Use the mobile WebSocket flow. Requires `authenticateWs: true` and `session.cookie`; connecting with `useMobile` but without `authenticateWs` throws a `TypeError`. Defaults to false.
    * @param options.processInitialData Decode and emit the message batch returned in the initial sign response. Defaults to true.
    * @param options.fetchRoomInfoOnConnect Fetch room info during connect, throwing `UserOfflineError` if the streamer is not live. Defaults to true.
    * @param options.enableExtendedGiftInfo Fetch the room gift list during connect so `WebcastGiftMessage` events carry an `extendedGiftInfo` field. Defaults to false.
-   * @param options.clientPresets Pre-built device, screen, and location presets. Defaults to a freshly randomized set from `getRandomPresets()`.
-   * @param options.webClientOptions Extra `got` options applied to the HTTP client (proxy agent, timeouts, etc.). Headers and search params from this object are merged with the defaults; transport-only fields are passed through.
+   * @param options.clientPresets Pre-built device, screen, and location presets. Defaults to `getRandomPresets()`, whose randomization is controlled by the `RANDOMIZE_TIKTOK_*` environment variables.
+   * @param options.webClientOptions Extra `got` options applied to the HTTP client. Headers and search params are merged with the defaults. The current constructor drops the `timeout` field; use `TIKTOK_CLIENT_TIMEOUT` for the default request timeout.
    * @param options.wsClientOptions Extra `ws` options applied to the WebSocket client.
    * @param options.webConfigOverrides Partial overrides for the resolved `WebcastWebConfigDefaults` used by the HTTP client.
    * @param options.wsConfigOverrides Partial overrides for the resolved `WebcastWebSocketConfigDefaults` used by the WebSocket client.

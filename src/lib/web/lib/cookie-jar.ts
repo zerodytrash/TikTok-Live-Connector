@@ -6,8 +6,8 @@ import { AbstractWebcastCookieJar } from '@/types/web';
 /**
  * Custom cookie jar for got
  *
- * Exposes `beforeRequest` / `afterResponse` hooks that the HTTP client wires into `got.extend(...)`,
- * mirroring the axios interceptor model from before the migration.
+ * Used through Got's `cookieJar` option. Cookies are kept in a simple name/value store and are not
+ * scoped by request URL, path, or domain.
  *
  * https://github.com/zerodytrash/TikTok-Livestream-Chat-Connector/issues/18
  */

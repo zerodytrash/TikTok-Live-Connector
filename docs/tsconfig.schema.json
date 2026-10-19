@@ -1,0 +1,6 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": { "rootDir": ".." },
+  "include": [],
+  "files": ["../node_modules/tiktok-live-proto/dist/node/v3.d.ts"]
+}
