@@ -30,12 +30,12 @@ export default defineConfig({
     starlight({
       title: 'TikTok LIVE Connector',
       description: 'Connect to TikTok LIVE with Node.js. Guides, events, and TypeScript API reference.',
+      favicon: '/favicon.png',
       social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/zerodytrash/TikTok-Live-Connector' }],
       editLink: { baseUrl: 'https://github.com/zerodytrash/TikTok-Live-Connector/edit/ts-rewrite/docs/' },
       sidebar: [
         { label: 'Start here', items: [
           { label: 'Getting Started', slug: '' },
-
           { label: 'Connection lifecycle', slug: 'getting-started/connection' },
           { label: 'Migration', slug: 'getting-started/migration' },
         ] },
