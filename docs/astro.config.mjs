@@ -33,6 +33,7 @@ export default defineConfig({
       favicon: '/favicon.png',
       social: [
         { icon: 'github', label: 'GitHub', href: 'https://github.com/zerodytrash/TikTok-Live-Connector' },
+        { icon: 'npm', label: 'npm', href: 'https://www.npmjs.com/package/tiktok-live-connector' },
         { icon: 'discord', label: 'Discord', href: 'https://discord.gg/2c6kX6g3Pa' },
       ],
       editLink: { baseUrl: 'https://github.com/zerodytrash/TikTok-Live-Connector/edit/ts-rewrite/docs/' },
