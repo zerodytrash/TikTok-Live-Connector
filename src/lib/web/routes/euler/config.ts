@@ -7,6 +7,12 @@ import { VERSION } from '@/version';
 export const LIBRARY_IDENTITY = 'ttlive-node';
 
 /**
+ * Gets the Electron version, if available.
+ */
+const ELECTRON_VERSION = process.versions?.electron;
+const ELECTRON_TOKEN = ELECTRON_VERSION ? ` electron/${ELECTRON_VERSION}` : '';
+
+/**
  * Allow caching of the API client
  */
 export type SignConfig = Partial<ClientConfiguration> & { cachedInstance?: EulerStreamApiClient };
@@ -15,7 +21,7 @@ export const SignConfig: SignConfig = {
     basePath: process.env.SIGN_API_URL || 'https://api.eulerstream.com',
     apiKey: process.env.SIGN_API_KEY,
     baseOptions: {
-        headers: { 'User-Agent': `tiktok-live-connector/${VERSION} ${process.platform}` },
+        headers: { 'User-Agent': `tiktok-live-connector/${VERSION} ${process.platform}${ELECTRON_TOKEN}` },
         validateStatus: () => true
     },
     cachedInstance: undefined
