@@ -13,7 +13,7 @@ It works for your own live chat and for any other creator's.
 Full guides, event reference and API documentation: <https://ttlc.docs.isaackogan.com/>
 
 Tracked events include [Chat Comments](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#chat), [Members Joining](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#member), [Gifts](https://ttlc.docs.isaackogan.com/events/gifts-and-goals/#gift),
-[Viewers](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#room-user), [Follows](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#social), [Shares](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#social), [Questions](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#question-new),
+[Viewers](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#room-user), [Follows](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#follow), [Shares](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#share), [Questions](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#question-new),
 [Likes](https://ttlc.docs.isaackogan.com/events/chat-and-audience/#like), [Super Fans](https://ttlc.docs.isaackogan.com/events/subscriptions-and-fans/#super-fan) and [Battles](https://ttlc.docs.isaackogan.com/events/battles-and-cohosting/#link-mic-battle).
 
 [![Discord](https://img.shields.io/discord/977648006063091742?logo=discord&label=TikTokLive%20Discord&labelColor=%23171717&color=%231877af)](https://discord.gg/N3KSxzvDX8)
