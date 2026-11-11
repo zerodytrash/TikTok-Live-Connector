@@ -21,7 +21,7 @@ Start with the smallest [Getting Started](/) example, the exact installed packag
 | --- | --- |
 | `InvalidRequestError` | Required route input is missing or invalid, often a room ID. Read `config.routeId`. |
 | `InvalidResponseError` | A route rejected an upstream response. Inspect the route ID and any original request error. |
-| `InvalidResponseCompositeError` | All enabled lookup sources failed. Inspect every entry in `config.requestErrs`. |
+| `InvalidResponseCompositeError` | All enabled lookup sources failed. The message lists each source's own error; the originals are in `config.requestErrs`. |
 | `SignAPIError` | Signing failure with a `reason`, and sometimes `requestId` / `agentId`. Retain these IDs for a provider support request. |
 | `SignatureRateLimitError` | Signing was rate-limited. `retryAfter` is already milliseconds; `resetTime`, if present, is a Unix timestamp in milliseconds. Coordinate retries across all rooms. |
 | `SignatureMissingTokensError` | HTTP URL signing returned no usable token bundle or a failing response. It does not by itself establish a particular account-plan requirement. |
@@ -29,6 +29,21 @@ Start with the smallest [Getting Started](/) example, the exact installed packag
 | `AuthenticatedWebSocketConnectionError` | Authenticated signing failed a host-allowlist or cookie check. Review [authentication](/configuration/authentication/). |
 
 `ErrorReason` contains `RATE_LIMIT`, `CONNECT_ERROR`, `EMPTY_PAYLOAD`, `SIGN_NOT_200`, `EMPTY_COOKIES`, `PREMIUM_FEATURE`, and `AUTHENTICATED_WS`. These classify signing errors; they do not all refer to the same HTTP stage. `TikTokLiveError` is the base class for signing errors; other exported errors also extend standard `Error` hierarchies.
+
+## Euler Stream fallback returned 401, 402, or 403
+
+Room ID and live-status lookups try TikTok's HTML page, then TikTok's API, then Euler Stream. The Euler Stream step requires an API key on a plan that includes it (a business account). When the first two steps fail and Euler Stream answers 401, 402, or 403, the composite error says so and names the switch that turns the fallback off.
+
+If you have a business account, pass the key with the `signApiKey` client option or the `SIGN_API_KEY` environment variable. If you do not, disable the fallback so the library stops attempting it:
+
+```ts
+import { IsLiveRouteConfig, RoomIdRouteConfig } from 'tiktok-live-connector';
+
+RoomIdRouteConfig.skipFetchRoomIdFromEulerRoute = true;
+IsLiveRouteConfig.skipFetchRoomIdFromEulerRoute = true;
+```
+
+Disabling the fallback does not fix the TikTok lookups that failed first. The other entries in the error message say why those failed; resolve them (cookies, proxy, region) for the request to succeed.
 
 ## “Unexpected server response: 200”
 
