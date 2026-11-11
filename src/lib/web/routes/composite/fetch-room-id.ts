@@ -7,6 +7,7 @@ import {
     fetchRoomInfoFromHtmlRoute
 } from '@/lib/web/routes';
 import { CompositeFetchRoute } from '@/lib/web/routes/routes';
+import { EULER_PERMISSION_STATUS_CODES, eulerFallbackPermissionMessage } from '@/lib/web/routes/composite/euler-fallback';
 export type FetchRoomIdRouteParams = WebcastHttpCompositeRouteArgs<{
     uniqueId: string,
 }>;
@@ -68,11 +69,15 @@ export const fetchRoomIdComposite = createRoute<FetchRoomIdRouteParams, string>(
         if (!RoomIdRouteConfig.skipFetchRoomIdFromEulerRoute) {
             try {
                 const response = await fetchRoomIdFromEulerRoute({ webClient, apiClient, uniqueId });
-                if ([403, 402, 401].includes(response.code)) {
-                    throw new InvalidResponseError({ routeId },
-                        'Failed to retrieve Room ID from Euler Stream, which was made as a last resort due to the previous methods failing. ' +
-                        'This happened due to a >>lack of permission<< for you to use Euler Stream\'s (https://www.eulerstream.com) fallback method. ' +
-                        'If you do not want to use Euler Stream, disable this fallback method by setting `RoomIdRouteConfig.skipFetchRoomIdFromEulerRoute` to `true`.'
+                if (EULER_PERMISSION_STATUS_CODES.includes(response.code)) {
+                    throw new InvalidResponseError(
+                        { routeId },
+                        eulerFallbackPermissionMessage({
+                            subject: 'the Room ID',
+                            configName: 'RoomIdRouteConfig',
+                            code: response.code,
+                            serverMessage: response.message
+                        })
                     );
                 }
 

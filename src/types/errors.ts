@@ -39,12 +39,26 @@ type InvalidResponseCompositeErrorConfig = {
     requestErrs?: Error[]
 }
 
+/**
+ * Thrown when every enabled source of a composite lookup failed. The message summarises the failure and lists
+ * each source's own error message so the cause (for example, an Euler Stream permission error) is visible
+ * without inspecting `config.requestErrs`.
+ */
 export class InvalidResponseCompositeError extends Error {
     constructor(
         public readonly config: InvalidResponseCompositeErrorConfig,
-        ...args: any[]
+        ...args: string[]
     ) {
-        super(...args);
+        super(InvalidResponseCompositeError.formatMessage(config, args.join(' ')));
+    }
+
+    private static formatMessage(config: InvalidResponseCompositeErrorConfig, summary: string): string {
+        const causes = (config.requestErrs ?? []).map((err, idx) => {
+            const message = err instanceof Error ? err.message : String(err);
+            return `\n  ${idx + 1}. ${message}`;
+        });
+
+        return `[${config.routeId}] ${summary}${causes.join('')}`;
     }
 }
 

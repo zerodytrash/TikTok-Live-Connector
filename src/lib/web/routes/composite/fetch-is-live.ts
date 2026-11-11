@@ -3,6 +3,7 @@ import { createRoute } from '@/lib/web/lib/route-wrapper';
 import { WebcastHttpCompositeRouteArgs } from '@/types/route';
 import { CompositeFetchRoute } from '@/lib/web/routes/routes';
 import { fetchRoomIdFromEulerRoute, fetchRoomInfoFromApiLiveRoute, fetchRoomInfoFromHtmlRoute } from '@/lib/web/routes';
+import { EULER_PERMISSION_STATUS_CODES, eulerFallbackPermissionMessage } from '@/lib/web/routes/composite/euler-fallback';
 
 
 export type FetchIsLiveRouteParams = WebcastHttpCompositeRouteArgs<{
@@ -69,8 +70,19 @@ export const fetchIsLiveComposite = createRoute<FetchIsLiveRouteParams, boolean>
         if (!IsLiveRouteConfig.skipFetchRoomIdFromEulerRoute) {
             try {
                 const response = await fetchRoomIdFromEulerRoute({ webClient, apiClient, uniqueId });
+                if (EULER_PERMISSION_STATUS_CODES.includes(response.code)) {
+                    throw new InvalidResponseError(
+                        { routeId },
+                        eulerFallbackPermissionMessage({
+                            subject: 'the live status',
+                            configName: 'IsLiveRouteConfig',
+                            code: response.code,
+                            serverMessage: response.message
+                        })
+                    );
+                }
                 if (response.code !== 200) {
-                    throw new InvalidResponseError({ routeId }, 'Failed to extract status from Euler.');
+                    throw new InvalidResponseError({ routeId }, `Failed to extract status from Euler (HTTP ${response.code}${response.message ? `: ${response.message}` : ''}).`);
                 }
                 if (response.is_live === undefined) {
                     throw new InvalidResponseError({ routeId }, 'Failed to extract is_live from Euler.');

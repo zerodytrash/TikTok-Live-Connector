@@ -61,7 +61,7 @@ The high-level connection uses registry entries for its main operations. However
 - `skipFetchRoomInfoFromApiLiveRoute`
 - `skipFetchRoomIdFromEulerRoute`
 
-All default to `false`. Each composite tries its enabled sources in order: HTML, TikTok API-live, then Euler Stream. Live status treats a valid TikTok status other than `4` as online. If all enabled sources fail, the composite throws `InvalidResponseCompositeError` with `config.requestErrs`.
+All default to `false`. Each composite tries its enabled sources in order: HTML, TikTok API-live, then Euler Stream. Live status treats a valid TikTok status other than `4` as online. If all enabled sources fail, the composite throws `InvalidResponseCompositeError` whose message lists every source's error and whose `config.requestErrs` holds the originals. When Euler Stream answers 401, 402, or 403, that entry explains that the fallback needs a business-plan API key and how to disable it with `skipFetchRoomIdFromEulerRoute`. See [Troubleshooting](/troubleshooting/).
 
 ## Route helpers and identifiers
 

@@ -75,4 +75,39 @@ describe('fetchRoomIdComposite', () => {
 
         await expect(fetchRoomIdComposite({ webClient, apiClient, uniqueId: TEST_UNIQUE_ID })).rejects.toBeInstanceOf(InvalidResponseCompositeError);
     });
+
+    it('includes every source failure in the composite error message', async () => {
+        const webClient = createMockWebClient();
+        const apiClient = createMockEulerClient();
+        fetchRoomInfoFromHtmlRoute.mockRejectedValue(new Error('html blocked'));
+        fetchRoomInfoFromApiLiveRoute.mockRejectedValue(new Error('api blocked'));
+        fetchRoomIdFromEulerRoute.mockRejectedValue(new Error('euler blocked'));
+
+        const err = await fetchRoomIdComposite({ webClient, apiClient, uniqueId: TEST_UNIQUE_ID }).catch((e) => e);
+        expect(err).toBeInstanceOf(InvalidResponseCompositeError);
+        expect(err.message).toContain('html blocked');
+        expect(err.message).toContain('api blocked');
+        expect(err.message).toContain('euler blocked');
+        expect(err.config.requestErrs).toHaveLength(3);
+    });
+
+    it.each([401, 402, 403])('explains how to disable the euler fallback on a %i response', async (code) => {
+        const webClient = createMockWebClient();
+        const apiClient = createMockEulerClient();
+        fetchRoomInfoFromHtmlRoute.mockRejectedValue(new Error('html blocked'));
+        fetchRoomInfoFromApiLiveRoute.mockRejectedValue(new Error('api blocked'));
+        fetchRoomIdFromEulerRoute.mockResolvedValue({
+            code,
+            ok: false,
+            message: 'Plan does not include this route'
+        });
+
+        const err = await fetchRoomIdComposite({ webClient, apiClient, uniqueId: TEST_UNIQUE_ID }).catch((e) => e);
+        expect(err).toBeInstanceOf(InvalidResponseCompositeError);
+        expect(err.message).toContain(`HTTP ${code}`);
+        expect(err.message).toContain('Plan does not include this route');
+        expect(err.message).toContain('business');
+        expect(err.message).toContain('RoomIdRouteConfig.skipFetchRoomIdFromEulerRoute = true');
+        expect(err.message).toContain('signApiKey');
+    });
 });
